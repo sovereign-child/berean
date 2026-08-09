@@ -64,6 +64,8 @@ below), and a phased roadmap. No application code yet.
   we can host, which we must link, and how canon differs by tradition** (read this
   before adding any scripture text)
 - [docs/04-roadmap.md](docs/04-roadmap.md) — phased plan
+- [docs/05-preservation-and-integrity.md](docs/05-preservation-and-integrity.md) — the censorship-resistant preservation pillar (future)
+- [docs/06-hosting-and-stewardship.md](docs/06-hosting-and-stewardship.md) — running lean (free/AWS) + the generous, community-first funding model
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to help
 
 ## License
