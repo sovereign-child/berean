@@ -1,0 +1,22 @@
+# Dependencies / build (once an app exists)
+node_modules/
+dist/
+build/
+.cache/
+.next/
+out/
+# Env / secrets
+.env
+.env.*
+!.env.example
+# Data build artifacts (source manifests are tracked; large generated indexes are not)
+*.sqlite
+*.db
+library/**/generated/
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+*:Zone.Identifier
