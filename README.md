@@ -63,7 +63,7 @@ below), and a phased roadmap. No application code yet.
 - [docs/03-texts-and-licensing.md](docs/03-texts-and-licensing.md) — **which texts
   we can host, which we must link, and how canon differs by tradition** (read this
   before adding any scripture text)
-- [docs/04-roadmap.md](docs/04-roadmap.md) — phased plan
+- **[ROADMAP.md](ROADMAP.md) — the canonical roadmap** (phases, definitions of done, buildable-now vs API vs deferred)
 - [docs/05-preservation-and-integrity.md](docs/05-preservation-and-integrity.md) — the censorship-resistant preservation pillar (future)
 - [docs/06-hosting-and-stewardship.md](docs/06-hosting-and-stewardship.md) — running lean (free/AWS) + the generous, community-first funding model
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to help
