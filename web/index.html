@@ -33,6 +33,11 @@
       <h1 id="refLabel" class="ref">—</h1>
       <button id="nextBtn" class="navbtn" aria-label="Next chapter">Next ›</button>
     </div>
+    <div class="chapter-tools" role="toolbar" aria-label="Chapter actions">
+      <button id="listenChapter" class="iconbtn" title="Read chapter aloud" aria-label="Read chapter aloud"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg></button>
+      <button id="copyChapterLink" class="iconbtn" title="Copy chapter link" aria-label="Copy chapter link"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg></button>
+      <button id="shareChapter" class="iconbtn" title="Share chapter" aria-label="Share chapter"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg></button>
+    </div>
 
     <!-- Search results -->
     <section id="results" class="panel" hidden>
@@ -69,18 +74,20 @@
     <span id="verseBarRef" class="versebar__ref"></span>
     <span class="versebar__acts">
       <span class="swatches" aria-label="Highlight">
-        <button class="sw" data-color="y" style="background:#fff4c2" title="Yellow"></button>
-        <button class="sw" data-color="g" style="background:#d8f3dc" title="Green"></button>
-        <button class="sw" data-color="b" style="background:#d7e9ff" title="Blue"></button>
-        <button class="sw" data-color="p" style="background:#ffe0ef" title="Pink"></button>
-        <button class="sw sw--x" data-color="" title="Clear">⌀</button>
+        <button class="sw" data-color="y" style="background:#fff4c2" title="Highlight yellow"></button>
+        <button class="sw" data-color="g" style="background:#d8f3dc" title="Highlight green"></button>
+        <button class="sw" data-color="b" style="background:#d7e9ff" title="Highlight blue"></button>
+        <button class="sw" data-color="p" style="background:#ffe0ef" title="Highlight pink"></button>
+        <button class="sw sw--x" data-color="" title="Clear highlight">⌀</button>
       </span>
-      <button id="vbNote" class="vbbtn">Note</button>
-      <select id="vbSave" class="vbsel" aria-label="Save to collection"><option value="">Save to…</option></select>
-      <button id="vbRelated" class="vbbtn">Related</button>
-      <button id="vbCopy" class="vbbtn">Copy</button>
-      <button id="vbLink" class="vbbtn">Link</button>
-      <button id="vbClose" class="vbbtn vbbtn--x" aria-label="Close">✕</button>
+      <button id="vbNote" class="iconbtn" title="Note" aria-label="Add a note"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+      <select id="vbSave" class="vbsel" aria-label="Save to collection" title="Save to collection"><option value="">Save to…</option></select>
+      <button id="vbRelated" class="iconbtn" title="Related verses" aria-label="Related verses"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M6.7 7.3 10.6 15.4M17.3 7.3 13.4 15.4M7 6h10"/></svg></button>
+      <button id="vbSpeak" class="iconbtn" title="Read aloud" aria-label="Read verse aloud"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg></button>
+      <button id="vbCopy" class="iconbtn" title="Copy verse text" aria-label="Copy verse text"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+      <button id="vbLink" class="iconbtn" title="Copy link to this verse" aria-label="Copy link"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg></button>
+      <button id="vbShare" class="iconbtn" title="Share" aria-label="Share verse"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg></button>
+      <button id="vbClose" class="iconbtn iconbtn--x" title="Close" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
     </span>
   </div>
 

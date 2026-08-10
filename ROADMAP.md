@@ -54,6 +54,12 @@ Built on the Library, all client-side / $0:
 - ✅ **Related verses** — a cross-reference panel from the **OpenBible.info** dataset
   (CC BY, 29,319 verses / 323k links, ingested by `scripts/ingest_crossrefs.py`).
 - ✅ **Better search** — search one version or **all versions**, whole-word ranking, highlighted snippets.
+- ✅ **Remembered preferences** — your version, compare version, and search scope
+  persist across visits (`localStorage`); a shared permalink still overrides them.
+- ✅ **Share & listen (icon actions)** — native **Share** sheet (falls back to copy)
+  and **Read aloud** (offline text-to-speech) at both verse and chapter level;
+  chapter **share / copy-link** in the chapter toolbar. Icons are inline SVG (no
+  icon fonts / CDNs — fully offline & CSP-safe).
 - *Follow-ups:* add WEB / more PD versions; **Nave's Topical Bible** (topic→verse) —
   no clean open dataset found yet, needs sourcing; **semantic/meaning search** (later,
   client-side embeddings); per-book split + prebuilt index if load size grows.

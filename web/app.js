@@ -7,6 +7,7 @@ const MANIFEST_URL = "../library/manifest.json";
 const versionUrl = (id) => `../library/corpus/${id}.json`;
 const CROSSREFS_URL = "../library/crossrefs.json";
 const STORE_KEY = "berean.study.v1";
+const PREFS_KEY = "berean.prefs.v1";   // remembered reader preferences (version, compare, search scope)
 
 // Canonical 66-book order — used to resolve cross-reference book indices + permalinks.
 const BOOKS = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
@@ -29,6 +30,9 @@ function loadStore() {
 let store = loadStore();
 function saveStore() { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
 
+function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}"); } catch { return {}; } }
+function savePrefs() { localStorage.setItem(PREFS_KEY, JSON.stringify({ primary: state.primary, compare: state.compare, searchAll: el("searchAll").checked })); }
+
 function toast(msg) {
   let t = el("toast");
   if (!t) { t = document.createElement("div"); t.id = "toast"; t.className = "toast"; document.body.appendChild(t); }
@@ -49,6 +53,53 @@ async function loadCrossrefs() {
   return crossrefs;
 }
 const primary = () => cache.get(state.primary);
+
+/* ---------- links, share, read-aloud ---------- */
+const base = () => `${location.origin}${location.pathname}`;
+const verseLink = (s) => `${base()}#/${state.primary}/${encodeURIComponent(s.name)}/${s.c1}/${s.v1}`;
+const chapterLink = () => `${base()}#/${state.primary}/${encodeURIComponent(primary().books[state.book].name)}/${state.chapter + 1}`;
+
+async function shareOrCopy({ title, text, url }) {
+  if (navigator.share) {
+    try { await navigator.share({ title, text, url }); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }   // user dismissed the sheet
+  }
+  try { await navigator.clipboard.writeText(url ? `${text ? text + "\n" : ""}${url}` : text); toast("Copied to clipboard"); }
+  catch { toast("Sharing not available"); }
+}
+
+const ICON_PLAY = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+const ICON_STOP = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+let speaking = false;
+function stopSpeak() {
+  speaking = false;
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  document.querySelectorAll(".verse.speaking").forEach((n) => n.classList.remove("speaking"));
+  const b = el("listenChapter"); if (b) { b.classList.remove("active"); b.innerHTML = ICON_PLAY; b.title = "Read chapter aloud"; }
+}
+function speakChapter() {
+  if (!window.speechSynthesis) { toast("Read-aloud isn’t supported in this browser"); return; }
+  if (state.compare) { toast("Turn off Compare to listen"); return; }
+  const verses = primary().books[state.book].chapters[state.chapter] || [];
+  speaking = true;
+  const b = el("listenChapter"); b.classList.add("active"); b.innerHTML = ICON_STOP; b.title = "Stop";
+  let i = 0;
+  const next = () => {
+    if (!speaking || i >= verses.length) { stopSpeak(); return; }
+    const idx = i;
+    document.querySelectorAll(".verse.speaking").forEach((n) => n.classList.remove("speaking"));
+    const vEl = el(`v${idx + 1}`); if (vEl) { vEl.classList.add("speaking"); vEl.scrollIntoView({ block: "center" }); }
+    const u = new SpeechSynthesisUtterance(verses[idx]);
+    u.onend = () => { i++; next(); };
+    window.speechSynthesis.speak(u);
+  };
+  next();
+}
+function speakText(t) {
+  if (!window.speechSynthesis) { toast("Read-aloud isn’t supported in this browser"); return; }
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(new SpeechSynthesisUtterance(t));
+}
 
 /* ---------- render ---------- */
 function renderSelectors() {
@@ -101,6 +152,7 @@ function updateHash() {
   setTimeout(() => (hashLock = false), 0);
 }
 function gotoChapter(bookIdx, chapIdx, highlightVerse) {
+  stopSpeak();
   const p = primary();
   state.book = Math.max(0, Math.min(bookIdx, p.books.length - 1));
   state.chapter = Math.max(0, Math.min(chapIdx, p.books[state.book].chapters.length - 1));
@@ -260,19 +312,28 @@ async function init() {
   el("verSel").innerHTML = opts;
   el("cmpSel").innerHTML = `<option value="">— none —</option>` + opts;
 
-  state.primary = manifest.versions[0].id;
+  // Restore saved preferences (a shared permalink, applied below, still wins over these).
+  const prefs = loadPrefs();
+  const has = (id) => manifest.versions.some((v) => v.id === id);
+  state.primary = (prefs.primary && has(prefs.primary)) ? prefs.primary : manifest.versions[0].id;
+  el("verSel").value = state.primary;
+  if (prefs.compare && has(prefs.compare) && prefs.compare !== state.primary) { state.compare = prefs.compare; el("cmpSel").value = prefs.compare; await loadVersion(prefs.compare); }
+  if (prefs.searchAll) el("searchAll").checked = true;
+
   await loadVersion(state.primary);
   if (!(location.hash && await applyHash())) gotoChapter(0, 0);
+  if (state.compare && state.compare === state.primary) { state.compare = null; el("cmpSel").value = ""; renderChapter(); }
   renderAttribution();
 
   el("bookSel").addEventListener("change", (e) => { clearSelection(); gotoChapter(+e.target.value, 0); });
   el("chapSel").addEventListener("change", (e) => { clearSelection(); gotoChapter(state.book, +e.target.value); });
   el("prevBtn").addEventListener("click", () => step(-1));
   el("nextBtn").addEventListener("click", () => step(1));
-  el("verSel").addEventListener("change", async (e) => { state.primary = e.target.value; await loadVersion(state.primary); clearSelection(); gotoChapter(state.book, state.chapter); renderAttribution(); });
-  el("cmpSel").addEventListener("change", async (e) => { state.compare = e.target.value || null; if (state.compare) await loadVersion(state.compare); clearSelection(); renderChapter(); showOnly("reader"); renderAttribution(); });
+  el("verSel").addEventListener("change", async (e) => { state.primary = e.target.value; await loadVersion(state.primary); clearSelection(); gotoChapter(state.book, state.chapter); renderAttribution(); savePrefs(); });
+  el("cmpSel").addEventListener("change", async (e) => { state.compare = e.target.value || null; if (state.compare) await loadVersion(state.compare); clearSelection(); renderChapter(); showOnly("reader"); renderAttribution(); savePrefs(); });
 
   el("searchForm").addEventListener("submit", (e) => { e.preventDefault(); runSearch(el("searchInput").value, el("searchAll").checked); });
+  el("searchAll").addEventListener("change", savePrefs);
   el("studyBtn").addEventListener("click", renderStudy);
   el("exportBtn").addEventListener("click", exportStudy);
   el("importBtn").addEventListener("click", () => el("importFile").click());
@@ -316,8 +377,15 @@ async function init() {
   });
   el("vbRelated").addEventListener("click", showRelated);
   el("vbCopy").addEventListener("click", async () => { const s = state.selected; if (!s) return; await navigator.clipboard.writeText(`${selectedText()} — ${s.name} ${s.c1}:${s.v1} (${primary().name})`).then(() => toast("Verse copied")).catch(() => toast("Copy failed")); });
-  el("vbLink").addEventListener("click", async () => { const s = state.selected; if (!s) return; const url = `${location.origin}${location.pathname}#/${state.primary}/${encodeURIComponent(s.name)}/${s.c1}/${s.v1}`; await navigator.clipboard.writeText(url).then(() => toast("Link copied")).catch(() => toast("Copy failed")); });
+  el("vbLink").addEventListener("click", async () => { const s = state.selected; if (!s) return; await navigator.clipboard.writeText(verseLink(s)).then(() => toast("Link copied")).catch(() => toast("Copy failed")); });
+  el("vbShare").addEventListener("click", () => { const s = state.selected; if (!s) return; shareOrCopy({ title: `${s.name} ${s.c1}:${s.v1}`, text: `${selectedText()} — ${s.name} ${s.c1}:${s.v1} (${primary().name})`, url: verseLink(s) }); });
+  el("vbSpeak").addEventListener("click", () => { if (state.selected) speakText(selectedText()); });
   el("vbClose").addEventListener("click", clearSelection);
+
+  // Chapter-level actions
+  el("listenChapter").addEventListener("click", () => { if (speaking) stopSpeak(); else speakChapter(); });
+  el("copyChapterLink").addEventListener("click", async () => { await navigator.clipboard.writeText(chapterLink()).then(() => toast("Chapter link copied")).catch(() => toast("Copy failed")); });
+  el("shareChapter").addEventListener("click", () => { const name = primary().books[state.book].name, c = state.chapter + 1; shareOrCopy({ title: `${name} ${c}`, text: `${name} ${c} — ${primary().name}`, url: chapterLink() }); });
 
   window.addEventListener("hashchange", () => { if (!hashLock) applyHash(); });
 }
