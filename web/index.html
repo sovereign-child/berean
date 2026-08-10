@@ -28,6 +28,7 @@
         <button id="textLarger" class="iconbtn txt" title="Larger text" aria-label="Larger text">A+</button>
         <button id="themeBtn" class="iconbtn" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
       </span>
+      <button id="prayerBtn" class="studybtn" title="Prayer builder">🙏 Prayer</button>
       <button id="studyBtn" class="studybtn" title="My study">✦ My Study</button>
     </div>
   </header>
@@ -70,6 +71,48 @@
       </div>
       <div id="studyBody" class="study"></div>
       <input type="file" id="importFile" accept="application/json" hidden />
+    </section>
+
+    <!-- Prayer builder -->
+    <section id="prayer" class="panel" hidden>
+      <div class="panel__head">
+        <span>Prayer builder <span class="tiny">(a scaffold — Scripture is quoted; make the words your own)</span></span>
+        <button class="linkbtn" data-close="prayer">← back to reading</button>
+      </div>
+      <div class="prayer">
+        <div class="prayer__controls">
+          <label class="ctl">Subject <select id="prSubject"></select></label>
+          <label class="ctl">Praying for
+            <select id="prFor"><option value="self">Myself</option><option value="other">Someone else</option></select>
+          </label>
+          <label class="ctl" id="prNameWrap" hidden>Their name <input id="prName" type="text" placeholder="e.g. Sarah" /></label>
+          <label class="ctl">Style
+            <select id="prStyle"><option value="guided">Guided</option><option value="simple">Simple</option></select>
+          </label>
+          <label class="ctl">Wording
+            <select id="prTone"><option value="contemporary">Contemporary (BSB)</option><option value="traditional">Traditional (KJV)</option></select>
+          </label>
+          <label class="ctl" id="prCloseWrap">Close
+            <select id="prClose"><option value="jesus">In Jesus’ name, amen.</option><option value="amen">Amen.</option></select>
+          </label>
+        </div>
+        <label class="ctl prayer__situation">On my heart <span class="tiny">(optional — woven in)</span>
+          <input id="prSituation" type="text" placeholder="e.g. my mother’s surgery on Friday" />
+        </label>
+        <div class="prayer__actions">
+          <button id="prGenerate" class="studybtn" style="background:var(--accent);color:var(--parchment);border-color:var(--accent)">Build prayer</button>
+        </div>
+        <textarea id="prText" class="prayer__text" rows="12" spellcheck="true" aria-label="Your prayer" placeholder="Choose a subject and press “Build prayer.” You can edit every word."></textarea>
+        <p id="prRefs" class="tiny"></p>
+        <div class="prayer__actions">
+          <button id="prSpeak" class="vbbtn">🔊 Read aloud</button>
+          <button id="prCopy" class="vbbtn">Copy</button>
+          <button id="prShare" class="vbbtn">Share</button>
+          <button id="prSave" class="vbbtn">Save</button>
+        </div>
+        <h3 class="prayer__savedhead">Saved prayers <span class="tiny">(in this browser · included in My Study export)</span></h3>
+        <ul id="prSaved" class="results__list"></ul>
+      </div>
     </section>
 
     <section id="reader" class="reader" aria-live="polite"></section>

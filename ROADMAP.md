@@ -67,6 +67,13 @@ Built on the Library, all client-side / $0:
   higher-quality *neural* voices when present, ★-marked), slower measured rate, and
   gentle pauses between verses. *This is the free, in-browser baseline; the premium
   narration path is Phase 9.*
+- ✅ **Prayer builder** — compose personalized prayers by subject (12 themes),
+  for yourself or someone by name, with an optional situation woven in; Guided/Simple
+  structure and Contemporary(BSB)/Traditional(KJV) wording. Scripture is quoted **live
+  from the corpus** (references verified to resolve; never fabricated) and the result
+  lands in an **editable** box — make it your own. Read aloud (soothing voice), copy,
+  share, and **save** (rides along in the My Study export). Data: `library/prayers.json`
+  (references + non-sectarian connective phrasing; clearly a scaffold, not a fixed form).
 - *Follow-ups:* add WEB / more PD versions; **Nave's Topical Bible** (topic→verse) —
   no clean open dataset found yet, needs sourcing; **semantic/meaning search** (later,
   client-side embeddings); per-book split + prebuilt index if load size grows.

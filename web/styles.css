@@ -90,6 +90,22 @@ body { font-family: var(--sans); background: var(--parchment); color: var(--ink)
 .study .newcoll input { flex: 1; padding: 0.35rem 0.5rem; border: 1px solid var(--rule); border-radius: 8px; }
 .dot { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); }
 
+/* Prayer builder */
+.prayer { display: flex; flex-direction: column; gap: 0.9rem; }
+.prayer__controls { display: flex; flex-wrap: wrap; gap: 0.6rem 0.9rem; }
+.prayer__controls select, .prayer__controls input, .prayer__situation input {
+  font-family: var(--sans); font-size: 0.9rem; color: var(--ink); background: var(--card);
+  border: 1px solid var(--rule); border-radius: 8px; padding: 0.35rem 0.5rem; }
+.prayer__situation { display: flex; flex-direction: column; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); gap: 0.2rem; }
+.prayer__situation input { text-transform: none; letter-spacing: normal; font-size: 0.95rem; }
+.prayer__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.prayer__actions .vbbtn { background: var(--parchment-2); color: var(--accent); border: 1px solid var(--rule); }
+.prayer__actions .vbbtn:hover { background: var(--card); }
+.prayer__text { font-family: var(--serif); font-size: 1.1rem; line-height: 1.7; color: var(--ink);
+  background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 0.9rem 1rem; width: 100%; resize: vertical; }
+.prayer__savedhead { font-family: var(--serif); font-size: 1.05rem; margin-top: 0.5rem; }
+.prayer__saved-ref { font-family: var(--sans); font-size: 0.75rem; font-weight: 700; color: var(--accent); }
+
 /* Verse action bar */
 .versebar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0.75rem; z-index: 30;
   background: var(--ink); color: var(--parchment); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);

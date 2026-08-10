@@ -1,0 +1,122 @@
+{
+  "note": "A prayer scaffold, not a fixed form. Scripture is quoted live from the reader's selected public-domain / CC0 version; the connecting words are a simple, non-sectarian guide meant to be edited. Make each prayer your own.",
+  "subjects": [
+    {
+      "id": "open",
+      "title": "Open prayer",
+      "attribute": "near to all who call on You in truth",
+      "thanks": "for hearing me whenever I call",
+      "petitionSelf": "Hear the prayer of my heart, and draw me close to You.",
+      "petitionOther": "Hear this prayer for {name}, and draw {name} close to You.",
+      "verses": ["Psalm 145:18", "1 John 5:14", "Philippians 4:6-7"]
+    },
+    {
+      "id": "peace",
+      "title": "Peace & anxiety",
+      "attribute": "the God of peace, who holds all things together",
+      "thanks": "for the peace You give that the world cannot take away",
+      "petitionSelf": "Quiet my anxious heart, and guard my mind with Your peace.",
+      "petitionOther": "Quiet {name}'s anxious heart, and guard {name} with Your peace.",
+      "verses": ["Philippians 4:6-7", "Isaiah 26:3", "John 14:27"]
+    },
+    {
+      "id": "healing",
+      "title": "Healing & sickness",
+      "attribute": "the LORD who heals, tender toward the hurting",
+      "thanks": "for Your care over every wound of body and soul",
+      "petitionSelf": "Bring healing to my body and comfort to my heart, according to Your mercy.",
+      "petitionOther": "Bring healing to {name}, and comfort all who love {name}, according to Your mercy.",
+      "verses": ["Psalm 103:2-3", "James 5:14-15", "Psalm 147:3"]
+    },
+    {
+      "id": "guidance",
+      "title": "Guidance & decisions",
+      "attribute": "the God who guides those who trust You",
+      "thanks": "for promising wisdom to all who ask",
+      "petitionSelf": "Make my path clear, and give me wisdom to walk in it.",
+      "petitionOther": "Make {name}'s path clear, and give {name} wisdom to walk in it.",
+      "verses": ["Proverbs 3:5-6", "Psalm 32:8", "James 1:5"]
+    },
+    {
+      "id": "strength",
+      "title": "Strength & weariness",
+      "attribute": "my strength when I am weak",
+      "thanks": "for renewing the strength of all who wait on You",
+      "petitionSelf": "Renew my strength, and carry me when I cannot go on.",
+      "petitionOther": "Renew {name}'s strength, and carry {name} when the way is hard.",
+      "verses": ["Isaiah 40:31", "2 Corinthians 12:9", "Psalm 28:7"]
+    },
+    {
+      "id": "thanksgiving",
+      "title": "Thanksgiving & gratitude",
+      "attribute": "the giver of every good and perfect gift",
+      "thanks": "for Your goodness that follows me all my days",
+      "petitionSelf": "Teach me to give thanks in all things and to see Your hand in my life.",
+      "petitionOther": "Teach {name} to give thanks in all things and to see Your hand at work.",
+      "verses": ["Psalm 100:4-5", "1 Thessalonians 5:18", "James 1:17"]
+    },
+    {
+      "id": "forgiveness",
+      "title": "Forgiveness & confession",
+      "attribute": "merciful and faithful to forgive",
+      "thanks": "for cleansing and mercy that meet me again and again",
+      "petitionSelf": "Forgive my sins, cleanse my heart, and create in me a right spirit.",
+      "petitionOther": "Meet {name} with Your mercy, and create in {name} a clean heart.",
+      "verses": ["1 John 1:9", "Psalm 51:10", "Psalm 103:12"]
+    },
+    {
+      "id": "protection",
+      "title": "Protection & fear",
+      "attribute": "my refuge and my fortress",
+      "thanks": "for watching over my going out and my coming in",
+      "petitionSelf": "Shelter me from harm, and still my fears with Your presence.",
+      "petitionOther": "Watch over {name}, keep {name} from harm, and still every fear.",
+      "verses": ["Psalm 91:1-2", "Isaiah 41:10", "Psalm 121:7-8"]
+    },
+    {
+      "id": "provision",
+      "title": "Provision & work",
+      "attribute": "my provider, who knows all that I need",
+      "thanks": "for supplying my needs day by day",
+      "petitionSelf": "Provide for my needs, bless the work of my hands, and free me from worry.",
+      "petitionOther": "Provide for {name}, bless the work of {name}'s hands, and lift every burden.",
+      "verses": ["Matthew 6:31-33", "Philippians 4:19", "Psalm 23:1"]
+    },
+    {
+      "id": "family",
+      "title": "Family & loved ones",
+      "attribute": "the God of every generation",
+      "thanks": "for the gift of those I love",
+      "petitionSelf": "Bless my family, guard our home, and draw us near to You.",
+      "petitionOther": "Bless {name} and {name}'s household, guard their home, and draw them near to You.",
+      "verses": ["Psalm 127:3-5", "Proverbs 22:6", "Deuteronomy 6:6-7"]
+    },
+    {
+      "id": "grief",
+      "title": "Grief & comfort",
+      "attribute": "the God of all comfort, near to the brokenhearted",
+      "thanks": "for Your nearness in sorrow",
+      "petitionSelf": "Comfort me in my grief, and hold me until joy returns.",
+      "petitionOther": "Comfort {name} in this grief, and hold {name} until joy returns.",
+      "verses": ["2 Corinthians 1:3-4", "Psalm 34:18", "Revelation 21:4"]
+    },
+    {
+      "id": "faith",
+      "title": "Faith & doubt",
+      "attribute": "faithful, even when my faith is small",
+      "thanks": "for meeting my doubts with Your faithfulness",
+      "petitionSelf": "Help my unbelief, and strengthen my faith in You.",
+      "petitionOther": "Help {name}'s unbelief, and strengthen {name}'s faith in You.",
+      "verses": ["Hebrews 11:1", "Mark 9:24", "Romans 10:17"]
+    },
+    {
+      "id": "temptation",
+      "title": "Temptation & struggle",
+      "attribute": "my deliverer, who makes a way of escape",
+      "thanks": "for grace to help in time of need",
+      "petitionSelf": "Deliver me from temptation, and give me strength to stand.",
+      "petitionOther": "Deliver {name} from temptation, and give {name} strength to stand.",
+      "verses": ["1 Corinthians 10:13", "James 4:7", "Hebrews 4:15-16"]
+    }
+  ]
+}

@@ -24,8 +24,8 @@ const state = { primary: null, compare: null, book: 0, chapter: 0, sel: null, an
 
 /* ---------- study store (localStorage) ---------- */
 function loadStore() {
-  try { return Object.assign({ highlights: {}, notes: {}, collections: [] }, JSON.parse(localStorage.getItem(STORE_KEY) || "{}")); }
-  catch { return { highlights: {}, notes: {}, collections: [] }; }
+  try { return Object.assign({ highlights: {}, notes: {}, collections: [], prayers: [] }, JSON.parse(localStorage.getItem(STORE_KEY) || "{}")); }
+  catch { return { highlights: {}, notes: {}, collections: [], prayers: [] }; }
 }
 let store = loadStore();
 function saveStore() { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
@@ -210,7 +210,7 @@ function renderAttribution() {
 }
 
 function showOnly(section) {
-  for (const s of ["results", "related", "study", "reader"]) el(s).hidden = s !== section;
+  for (const s of ["results", "related", "study", "prayer", "reader"]) el(s).hidden = s !== section;
 }
 
 /* ---------- navigation + permalinks ---------- */
@@ -378,9 +378,98 @@ function importStudy(file) {
     store.notes = Object.assign(store.notes, d.notes || {});
     const byName = Object.fromEntries(store.collections.map((c) => [c.name, c]));
     for (const c of d.collections || []) { if (byName[c.name]) byName[c.name].verses = [...new Set([...byName[c.name].verses, ...c.verses])]; else store.collections.push(c); }
+    const seen = new Set(store.prayers.map((p) => p.id));
+    for (const p of d.prayers || []) if (!seen.has(p.id)) { store.prayers.push(p); seen.add(p.id); }
     saveStore(); renderStudy(); toast("Study imported (merged)");
   } catch { toast("Import failed — not a valid file"); } };
   r.readAsText(file);
+}
+
+/* ---------- prayer builder ---------- */
+const PRAYERS_URL = "../library/prayers.json";
+let prayers = null;
+const BOOK_ALIAS = { "Psalm": "Psalms", "Song of Songs": "Song of Solomon", "Canticles": "Song of Solomon" };
+const REF_RE = /^(\d?\s?[A-Za-z ]+?)\s+(\d+):(\d+)(?:-(\d+))?$/;
+async function loadPrayers() { if (!prayers) prayers = await (await fetch(PRAYERS_URL)).json(); return prayers; }
+
+// Pull the actual verse text from a loaded version — prayers.json stores references only.
+function resolveRef(refStr, versionId) {
+  const m = REF_RE.exec(refStr); if (!m) return null;
+  let name = m[1].trim(); name = BOOK_ALIAS[name] || name;
+  const ch = +m[2], v1 = +m[3], v2 = m[4] ? +m[4] : v1;
+  const d = cache.get(versionId); if (!d) return null;
+  const b = d._byName[name]; if (!b || !b.chapters[ch - 1]) return null;
+  const chap = b.chapters[ch - 1], parts = [];
+  for (let v = v1; v <= v2 && v <= chap.length; v++) parts.push(chap[v - 1]);
+  return parts.length ? { ref: refStr, text: parts.join(" ") } : null;
+}
+function composePrayer(subj, opts) {
+  const versionId = opts.tone === "traditional" ? "KJV" : "BSB";
+  const forOther = opts.forWhom === "other" && (opts.name || "").trim();
+  const name = (opts.name || "").trim();
+  const fill = (s) => s.replace(/\{name\}/g, name || "them");
+  const petition = fill(forOther ? subj.petitionOther : subj.petitionSelf);
+  const n = opts.style === "simple" ? 1 : 2;
+  const verseLines = [], refsUsed = [];
+  for (const r of subj.verses.slice(0, n)) {
+    const res = resolveRef(r, versionId);
+    if (res) { verseLines.push(`Your Word says, “${res.text}” (${res.ref}).`); refsUsed.push(res.ref); }
+  }
+  const situation = (opts.situation || "").trim();
+  const sitLine = situation
+    ? (forOther ? `You know what ${name || "they"} ${name ? "is" : "are"} facing: ${situation}.`
+                : `You know what is on my heart: ${situation}.`)
+    : "";
+  const close = opts.close === "amen" ? "Amen." : "In Jesus’ name, amen.";
+  const paras = [];
+  if (opts.style === "simple") {
+    paras.push(`Heavenly Father, You are ${subj.attribute}.`);
+    if (verseLines[0]) paras.push(verseLines[0]);
+    paras.push([sitLine, petition].filter(Boolean).join(" "));
+    paras.push(close);
+  } else {
+    paras.push(`Heavenly Father, You are ${subj.attribute}. Thank You ${subj.thanks}.`);
+    if (verseLines[0]) paras.push(verseLines[0]);
+    if (verseLines[1]) paras.push(verseLines[1]);
+    const opener = forOther ? `I lift up ${name || "this person"} to You today.` : `I come to You today.`;
+    paras.push([opener, sitLine, petition].filter(Boolean).join(" "));
+    paras.push(`I trust You. ${close}`);
+  }
+  return { text: paras.join("\n\n"), refs: refsUsed };
+}
+function renderPrayerSubjects() { el("prSubject").innerHTML = prayers.subjects.map((s) => `<option value="${s.id}">${esc(s.title)}</option>`).join(""); }
+async function buildPrayer() {
+  await loadPrayers();
+  const subj = prayers.subjects.find((s) => s.id === el("prSubject").value) || prayers.subjects[0];
+  const tone = el("prTone").value;
+  await loadVersion(tone === "traditional" ? "KJV" : "BSB");
+  const { text, refs } = composePrayer(subj, {
+    tone, style: el("prStyle").value, forWhom: el("prFor").value,
+    name: el("prName").value, situation: el("prSituation").value, close: el("prClose").value,
+  });
+  el("prText").value = text;
+  el("prRefs").textContent = refs.length
+    ? `Scripture: ${refs.join(" · ")} — ${tone === "traditional" ? "King James Version (Public Domain)" : "Berean Standard Bible (CC0)"}`
+    : "";
+}
+function savePrayer() {
+  const text = el("prText").value.trim(); if (!text) { toast("Nothing to save yet"); return; }
+  const subj = prayers && prayers.subjects.find((s) => s.id === el("prSubject").value);
+  store.prayers.unshift({ id: "p" + Date.now().toString(36), title: subj ? subj.title : "Prayer", subject: el("prSubject").value, text, created: new Date().toISOString().slice(0, 10) });
+  saveStore(); renderSavedPrayers(); toast("Prayer saved");
+}
+function renderSavedPrayers() {
+  el("prSaved").innerHTML = store.prayers.length ? store.prayers.map((p) =>
+    `<li data-id="${p.id}"><span class="prayer__saved-ref">${esc(p.title)}</span> <span class="tiny">${esc(p.created || "")}</span><br>`
+    + `<span class="r-text">${esc(p.text.slice(0, 140))}${p.text.length > 140 ? "…" : ""}</span>`
+    + `<div class="prayer__actions" style="margin-top:.4rem"><button class="vbbtn" data-open="${p.id}">Open</button><button class="vbbtn" data-speak="${p.id}">🔊</button><button class="vbbtn" data-del="${p.id}">Delete</button></div></li>`
+  ).join("") : `<li class="empty">No saved prayers yet.</li>`;
+}
+async function openPrayer() {
+  await loadPrayers();
+  if (!el("prSubject").options.length) renderPrayerSubjects();
+  renderSavedPrayers();
+  showOnly("prayer"); window.scrollTo({ top: 0 });
 }
 
 /* ---------- init ---------- */
@@ -427,6 +516,19 @@ async function init() {
   loadVoices();
   if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = loadVoices;
   el("studyBtn").addEventListener("click", renderStudy);
+  el("prayerBtn").addEventListener("click", openPrayer);
+  el("prFor").addEventListener("change", (e) => { el("prNameWrap").hidden = e.target.value !== "other"; });
+  el("prGenerate").addEventListener("click", buildPrayer);
+  el("prSpeak").addEventListener("click", () => { const t = el("prText").value.trim(); if (t) speakText(t); });
+  el("prCopy").addEventListener("click", async () => { const t = el("prText").value.trim(); if (!t) return; await navigator.clipboard.writeText(t).then(() => toast("Prayer copied")).catch(() => toast("Copy failed")); });
+  el("prShare").addEventListener("click", () => { const t = el("prText").value.trim(); if (!t) return; shareOrCopy({ title: "A prayer · bereanlamp.com", text: t }); });
+  el("prSave").addEventListener("click", savePrayer);
+  el("prSaved").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.open) { const p = store.prayers.find((x) => x.id === b.dataset.open); if (p) { el("prText").value = p.text; if (p.subject) el("prSubject").value = p.subject; el("prRefs").textContent = ""; window.scrollTo({ top: 0 }); } }
+    else if (b.dataset.speak) { const p = store.prayers.find((x) => x.id === b.dataset.speak); if (p) speakText(p.text); }
+    else if (b.dataset.del) { store.prayers = store.prayers.filter((x) => x.id !== b.dataset.del); saveStore(); renderSavedPrayers(); }
+  });
   el("exportBtn").addEventListener("click", exportStudy);
   el("importBtn").addEventListener("click", () => el("importFile").click());
   el("importFile").addEventListener("change", (e) => { if (e.target.files[0]) importStudy(e.target.files[0]); });
