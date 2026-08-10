@@ -14,6 +14,9 @@ The name is the mission: the Bereans were commended not for believing quickly bu
 for *searching the Scriptures* to see whether things were so. Berean is built to
 make that kind of study possible for everyone.
 
+**Home: [bereanlamp.com](https://bereanlamp.com)** — *"Your word is a lamp to my
+feet and a light to my path."* (Psalm 119:105)
+
 > **Please begin with the [Dedication & the story of the name](DEDICATION.md)** —
 > to whom this work is dedicated (the Most High), why it is called *Berean*, and
 > the people across history whom we honor for studying, preserving, and carrying

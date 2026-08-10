@@ -115,6 +115,7 @@ body { font-family: var(--sans); background: var(--parchment); color: var(--ink)
 /* Footer */
 .foot { border-top: 1px solid var(--rule); padding: 1.5rem clamp(0.75rem,3vw,1.5rem); text-align: center; color: var(--muted); font-size: 0.8rem; max-width: var(--wrap); margin: 0 auto; }
 .attribution { margin-bottom: 0.4rem; }
+.foot__verse { font-family: var(--serif); font-style: italic; color: var(--ink-soft); margin-bottom: 0.5rem; }
 .foot a { color: var(--accent); }
 
 /* Reading comfort: text size + dark mode + voice picker */
