@@ -78,6 +78,20 @@ Built on the Library, all client-side / $0:
   no clean open dataset found yet, needs sourcing; **semantic/meaning search** (later,
   client-side embeddings); per-book split + prebuilt index if load size grows.
 
+### Phase 1.6 — Commentary layer 🟢 **STARTED (2026-08-10)**
+Multiple faithful voices on a passage — the most "Berean" study upgrade (examine &
+compare, not one verdict) and the **sourced ground truth the AI layer will cite**.
+- ✅ **Pipeline + reader panel** — `scripts/ingest_commentary.py` vendors openly-licensed
+  commentaries from **HelloAO's Free Use Bible API** into `library/commentary/…` +
+  a manifest; the reader's **Commentary** panel (📖 in the chapter toolbar) lazy-loads
+  per chapter, lets you switch between works, links each block back to its verse, and
+  shows license/attribution. Public-domain: **Matthew Henry, Jamieson-Fausset-Brown,
+  Adam Clarke, John Gill, John Calvin, Keil-Delitzsch (OT)**; plus **Tyndale Open Study
+  Notes (CC BY-SA 4.0)**.
+- ✅ **Shipped data:** Matthew Henry + JFB for the Gospel of John. *Expand with
+  `--all-books` / more commentaries as desired.*
+- *Follow-ups:* ingest more books/works; AI "compare what the commentators say" (Phase 10).
+
 ## Phase 2 — Original-language study layer 🟢 (effort: L) ← the differentiator
 The highest-value, fully-open capability (what closed tools charge for).
 - Ingest **OpenScriptures Hebrew (WLC + morphology, CC BY)**, **STEPBible
@@ -166,6 +180,38 @@ Scripture to encouragement — to listen through the day or while falling asleep
   original devotional text; attribute everything; never imply endorsement.
 - **DoD:** a listener can play a chapter in a warm, natural voice, and play a
   looping devotional/prayer track built entirely from openly-licensed assets.
+
+## Phase 10 — Grounded AI study layer 🟡 (effort: L) — **the vision (2026-08-10)**
+Make Berean the greatest tool for *understanding* the Bible — AI as a guide **to**
+the sources, never a replacement for them. **Non-negotiable guardrails:**
+retrieval-grounded on the open corpus + commentaries + lexicons; **every claim
+cited**; **cite-or-refuse** (say "the text doesn't say" rather than invent);
+**non-sectarian** (show the range where traditions differ); Scripture always primary
+and clearly separated from commentary; and it is always labeled a **study aid, not an
+authority**. **$0 for the project:** default to **bring-your-own-API-key** (user pays
+their own usage), **precompute embeddings to static files** (semantic search free at
+runtime), self-host open-weight models on the AWS box later.
+
+Top-10 features (ranked by impact on understanding):
+1. **Grounded AI study companion** — natural-language Q&A built only from the open
+   texts, every claim linked to its source; cite-or-refuse. *(flagship)*
+2. **Original-language word study** (Phase 2) with AI nuance grounded in the lexicon.
+3. **Multi-voice commentary + AI comparison** (Phase 1.6) — summarize agreement/difference.
+4. **Semantic ("meaning") search** — precomputed embeddings; $0 at runtime; offline.
+5. **Passage context cards** — author/audience/date/genre/context, labeled consensus/debate/faith.
+6. **"Why do the translations differ here?"** — grounded in variants + lexical data.
+7. **AI-curated topical + cross-reference graph** — clusters themes, explains the thread
+   (responsibly fills the Nave's-Topical gap; suggested + cited + reviewable).
+8. **Reading plans + AI study guide** — summaries & discussion questions (feeds Sermon Studio).
+9. **Manuscript & textual-variant viewer, explained** (Phase 4) in plain, sourced language.
+10. **Active learning** — spaced-repetition memorization, journaling, and an AI tutor that
+    quizzes comprehension and checks understanding.
+
+**Build order (recommended):** build the sources the AI cites *first* — **commentary
+layer (✅ started) + semantic search** — then the **grounded companion** on top, so
+every answer is grounded and honest from day one.
+- **DoD (flagship):** ask a question, get a grounded, **cited**, non-sectarian answer
+  drawn only from the open texts, with a clear "not covered" when sources are silent.
 
 ---
 

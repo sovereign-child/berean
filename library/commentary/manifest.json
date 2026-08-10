@@ -1,0 +1,27 @@
+{
+  "source": "https://bible.helloao.org",
+  "commentaries": [
+    {
+      "id": "matthew-henry",
+      "name": "Matthew Henry Bible Commentary",
+      "englishName": "Matthew Henry Bible Commentary",
+      "license": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "attribution": "Matthew Henry Bible Commentary — via HelloAO Free Use Bible API (bible.helloao.org). https://creativecommons.org/publicdomain/mark/1.0/",
+      "books": [
+        42
+      ]
+    },
+    {
+      "id": "jamieson-fausset-brown",
+      "name": "Jamieson-Fausset-Brown Bible Commentary",
+      "englishName": "Jamieson-Fausset-Brown Bible Commentary",
+      "license": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "attribution": "Jamieson-Fausset-Brown Bible Commentary — via HelloAO Free Use Bible API (bible.helloao.org). https://creativecommons.org/publicdomain/mark/1.0/",
+      "books": [
+        42
+      ]
+    }
+  ]
+}

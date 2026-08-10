@@ -35,11 +35,12 @@ function savePrefs() {
   localStorage.setItem(PREFS_KEY, JSON.stringify({
     primary: state.primary, compare: state.compare, searchAll: el("searchAll").checked,
     theme: comfort.theme, size: comfort.size, voice: comfort.voice, rate: comfort.rate,
+    commentary: comfort.commentary,
   }));
 }
 
 /* Reader comfort: theme, text size, and reading voice/rate (all persisted). */
-const comfort = { theme: "light", size: 1.18, voice: "", rate: 0.9 };
+const comfort = { theme: "light", size: 1.18, voice: "", rate: 0.9, commentary: "" };
 function applyComfort() {
   document.body.classList.toggle("dark", comfort.theme === "dark");
   document.documentElement.style.setProperty("--reader-size", comfort.size + "rem");
@@ -210,7 +211,7 @@ function renderAttribution() {
 }
 
 function showOnly(section) {
-  for (const s of ["results", "related", "study", "prayer", "reader"]) el(s).hidden = s !== section;
+  for (const s of ["results", "related", "commentary", "study", "prayer", "reader"]) el(s).hidden = s !== section;
 }
 
 /* ---------- navigation + permalinks ---------- */
@@ -385,6 +386,58 @@ function importStudy(file) {
   r.readAsText(file);
 }
 
+/* ---------- commentary (public-domain, sourced; the ground truth AI will cite) ---------- */
+const COMMENTARY_MANIFEST = "../library/commentary/manifest.json";
+let commentaryManifest = null;
+const commentaryCache = new Map();
+async function loadCommentaryManifest() {
+  if (commentaryManifest === null) {
+    try { commentaryManifest = await (await fetch(COMMENTARY_MANIFEST)).json(); }
+    catch { commentaryManifest = { commentaries: [] }; }
+  }
+  return commentaryManifest;
+}
+const commentariesForBook = (m, bookIdx) => (m.commentaries || []).filter((c) => (c.books || []).includes(bookIdx));
+async function openCommentary() {
+  const m = await loadCommentaryManifest();
+  const avail = commentariesForBook(m, state.book);
+  const bookName = primary().books[state.book].name;
+  if (!avail.length) {
+    el("commentarySel").innerHTML = "";
+    el("commentaryHead").textContent = `Commentary — ${bookName} ${state.chapter + 1}`;
+    el("commentaryBody").innerHTML = `<p class="empty">No commentary is loaded for ${esc(bookName)} yet. Generate it with <code>python3 scripts/ingest_commentary.py --commentary matthew-henry --book "${esc(bookName)}"</code>.</p>`;
+    el("commentaryAttr").textContent = "";
+    showOnly("commentary"); window.scrollTo({ top: 0 }); return;
+  }
+  const want = avail.some((c) => c.id === comfort.commentary) ? comfort.commentary : avail[0].id;
+  el("commentarySel").innerHTML = avail.map((c) => `<option value="${c.id}" ${c.id === want ? "selected" : ""}>${esc(c.name)}</option>`).join("");
+  await renderCommentary(want);
+  showOnly("commentary"); window.scrollTo({ top: 0 });
+}
+async function renderCommentary(cid) {
+  const m = await loadCommentaryManifest();
+  const meta = (m.commentaries || []).find((c) => c.id === cid);
+  const bookName = primary().books[state.book].name, cn = state.chapter + 1;
+  el("commentaryHead").textContent = `${meta ? meta.name : "Commentary"} — ${bookName} ${cn}`;
+  const key = `${cid}/${state.book}/${cn}`;
+  let data = commentaryCache.get(key);
+  if (data === undefined) {
+    try { data = await (await fetch(`../library/commentary/${cid}/${state.book}/${cn}.json`)).json(); }
+    catch { data = null; }
+    commentaryCache.set(key, data);
+  }
+  if (!data || !data.blocks || !data.blocks.length) {
+    el("commentaryBody").innerHTML = `<p class="empty">No commentary for ${esc(bookName)} ${cn} in this work yet.</p>`;
+  } else {
+    const paras = (t) => t.split(/\n+/).map((p) => p.trim()).filter(Boolean).map((p) => `<p>${esc(p)}</p>`).join("") || `<p>${esc(t)}</p>`;
+    el("commentaryBody").innerHTML =
+      (data.intro ? `<div class="intro">${esc(data.intro)}</div>` : "")
+      + data.blocks.map((b) => `<div class="block" id="cm-v${b.verse}"><span class="block__ref" data-v="${b.verse}">${esc(bookName)} ${cn}:${b.verse}</span>${paras(b.text)}</div>`).join("");
+  }
+  el("commentaryAttr").textContent = meta ? meta.attribution : "";
+  comfort.commentary = cid; savePrefs();
+}
+
 /* ---------- prayer builder ---------- */
 const PRAYERS_URL = "../library/prayers.json";
 let prayers = null;
@@ -491,6 +544,7 @@ async function init() {
   if (typeof prefs.size === "number" && prefs.size >= 0.95 && prefs.size <= 1.7) comfort.size = prefs.size;
   if (typeof prefs.rate === "number" && prefs.rate >= 0.6 && prefs.rate <= 1.3) comfort.rate = prefs.rate;
   comfort.voice = prefs.voice || "";
+  comfort.commentary = prefs.commentary || "";
   applyComfort();
 
   await loadVersion(state.primary);
@@ -516,6 +570,9 @@ async function init() {
   loadVoices();
   if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = loadVoices;
   el("studyBtn").addEventListener("click", renderStudy);
+  el("commentaryBtn").addEventListener("click", openCommentary);
+  el("commentarySel").addEventListener("change", (e) => renderCommentary(e.target.value));
+  el("commentaryBody").addEventListener("click", (e) => { const r = e.target.closest(".block__ref"); if (r) { clearSelection(); gotoChapter(state.book, state.chapter, +r.dataset.v); } });
   el("prayerBtn").addEventListener("click", openPrayer);
   el("prFor").addEventListener("change", (e) => { el("prNameWrap").hidden = e.target.value !== "other"; });
   el("prGenerate").addEventListener("click", buildPrayer);

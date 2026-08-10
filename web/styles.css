@@ -90,6 +90,14 @@ body { font-family: var(--sans); background: var(--parchment); color: var(--ink)
 .study .newcoll input { flex: 1; padding: 0.35rem 0.5rem; border: 1px solid var(--rule); border-radius: 8px; }
 .dot { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); }
 
+/* Commentary */
+.commentary { display: flex; flex-direction: column; gap: 1rem; }
+.commentary .intro { font-family: var(--serif); font-style: italic; color: var(--ink-soft); }
+.commentary .block { border-left: 3px solid var(--rule); padding-left: 0.8rem; }
+.commentary .block__ref { font-family: var(--sans); font-size: 0.75rem; font-weight: 700; color: var(--accent); cursor: pointer; }
+.commentary .block p { font-family: var(--serif); margin: 0.35rem 0; line-height: 1.7; }
+.commentary .empty { color: var(--muted); }
+
 /* Prayer builder */
 .prayer { display: flex; flex-direction: column; gap: 0.9rem; }
 .prayer__controls { display: flex; flex-wrap: wrap; gap: 0.6rem 0.9rem; }

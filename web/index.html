@@ -44,6 +44,7 @@
       <select id="voiceSel" class="voicesel" title="Reading voice" aria-label="Reading voice"></select>
       <button id="copyChapterLink" class="iconbtn" title="Copy chapter link" aria-label="Copy chapter link"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg></button>
       <button id="shareChapter" class="iconbtn" title="Share chapter" aria-label="Share chapter"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg></button>
+      <button id="commentaryBtn" class="iconbtn" title="Commentary" aria-label="Commentary"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></button>
     </div>
 
     <!-- Search results -->
@@ -57,6 +58,19 @@
       <div class="panel__head"><span id="relatedHead"></span><button class="linkbtn" data-close="related">← back to reading</button></div>
       <ol id="relatedList" class="results__list"></ol>
       <p id="relatedAttr" class="tiny"></p>
+    </section>
+
+    <!-- Commentary (public-domain, sourced) -->
+    <section id="commentary" class="panel" hidden>
+      <div class="panel__head">
+        <span id="commentaryHead">Commentary</span>
+        <span>
+          <select id="commentarySel" class="voicesel" aria-label="Commentary"></select>
+          <button class="linkbtn" data-close="commentary">← back to reading</button>
+        </span>
+      </div>
+      <div id="commentaryBody" class="commentary"></div>
+      <p id="commentaryAttr" class="tiny"></p>
     </section>
 
     <!-- My Study (collections / highlights / notes) -->
