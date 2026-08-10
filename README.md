@@ -52,12 +52,17 @@ make that kind of study possible for everyone.
 
 ## Status
 
-**Phase 1 shipped — the Library MVP works.** A dependency-free reader in
-[`web/`](web/) reads an open-text corpus and lets you **read a chapter, switch
-version, compare two versions side-by-side, and search** — over the **Berean
-Standard Bible (CC0)** and the **King James Version (public domain)**, ingested by
-a reproducible pipeline ([`scripts/ingest.py`](scripts/ingest.py)). Run it:
-`cd berean && python3 -m http.server 8000` → open `/web/`. Next up (per the
+**Phases 1 + 1.5 shipped — the Library MVP and study tools work.** A
+dependency-free reader in [`web/`](web/) reads an open-text corpus and lets you
+**read a chapter, switch version, compare two versions side-by-side, and search**
+— over the **Berean Standard Bible (CC0)** and the **King James Version (public
+domain)**, ingested by a reproducible pipeline ([`scripts/ingest.py`](scripts/ingest.py)).
+On top of that you can now **follow cross-references** ("related verses," from the
+OpenBible.info dataset, CC BY, via [`scripts/ingest_crossrefs.py`](scripts/ingest_crossrefs.py)),
+**search all versions at once**, and keep your own study — **highlights, notes, and
+named collections** saved privately in your browser, with **shareable permalinks**
+and **Export / Import** to move study between devices. Run it: `./serve.sh` (or
+`cd berean && python3 -m http.server 8000`) → open `/web/`. Next up (per the
 [roadmap](ROADMAP.md)): the original-language study layer. Earlier phases (vision,
 dedication, texts-&-licensing, architecture, preservation, stewardship) remain below.
 

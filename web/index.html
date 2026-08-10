@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Berean — Study the Word</title>
-  <meta name="description" content="Berean: an open, community study tool for the Holy Bible. Read and compare public-domain translations, and search the Scriptures." />
+  <meta name="description" content="Berean: an open study tool for the Holy Bible. Read and compare public-domain translations, follow cross-references, search, and save your study." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -14,22 +14,16 @@
       <span class="brand__tag">study the Word</span>
     </div>
     <div class="controls">
-      <label class="ctl">Book
-        <select id="bookSel" aria-label="Book"></select>
-      </label>
-      <label class="ctl">Chapter
-        <select id="chapSel" aria-label="Chapter"></select>
-      </label>
-      <label class="ctl">Version
-        <select id="verSel" aria-label="Version"></select>
-      </label>
-      <label class="ctl">Compare
-        <select id="cmpSel" aria-label="Compare version"><option value="">— none —</option></select>
-      </label>
+      <label class="ctl">Book <select id="bookSel" aria-label="Book"></select></label>
+      <label class="ctl">Chapter <select id="chapSel" aria-label="Chapter"></select></label>
+      <label class="ctl">Version <select id="verSel" aria-label="Version"></select></label>
+      <label class="ctl">Compare <select id="cmpSel" aria-label="Compare version"><option value="">— none —</option></select></label>
       <form id="searchForm" class="search" role="search">
-        <input id="searchInput" type="search" placeholder="Search this version…" aria-label="Search" />
+        <input id="searchInput" type="search" placeholder="Search…" aria-label="Search" />
+        <label class="chk"><input type="checkbox" id="searchAll" /> all versions</label>
         <button type="submit">Search</button>
       </form>
+      <button id="studyBtn" class="studybtn" title="My study">✦ My Study</button>
     </div>
   </header>
 
@@ -40,23 +34,61 @@
       <button id="nextBtn" class="navbtn" aria-label="Next chapter">Next ›</button>
     </div>
 
-    <section id="results" class="results" hidden>
-      <div class="results__head">
-        <span id="resultsCount"></span>
-        <button id="resultsClose" class="linkbtn">← back to reading</button>
-      </div>
+    <!-- Search results -->
+    <section id="results" class="panel" hidden>
+      <div class="panel__head"><span id="resultsCount"></span><button class="linkbtn" data-close="results">← back to reading</button></div>
       <ol id="resultsList" class="results__list"></ol>
+    </section>
+
+    <!-- Related verses (cross-references) -->
+    <section id="related" class="panel" hidden>
+      <div class="panel__head"><span id="relatedHead"></span><button class="linkbtn" data-close="related">← back to reading</button></div>
+      <ol id="relatedList" class="results__list"></ol>
+      <p id="relatedAttr" class="tiny"></p>
+    </section>
+
+    <!-- My Study (collections / highlights / notes) -->
+    <section id="study" class="panel" hidden>
+      <div class="panel__head">
+        <span>My Study <span class="tiny">(saved in this browser)</span></span>
+        <span>
+          <button class="linkbtn" id="exportBtn">Export</button>
+          <button class="linkbtn" id="importBtn">Import</button>
+          <button class="linkbtn" data-close="study">← back to reading</button>
+        </span>
+      </div>
+      <div id="studyBody" class="study"></div>
+      <input type="file" id="importFile" accept="application/json" hidden />
     </section>
 
     <section id="reader" class="reader" aria-live="polite"></section>
   </main>
 
+  <!-- Verse action bar (appears when a verse is selected) -->
+  <div id="verseBar" class="versebar" hidden>
+    <span id="verseBarRef" class="versebar__ref"></span>
+    <span class="versebar__acts">
+      <span class="swatches" aria-label="Highlight">
+        <button class="sw" data-color="y" style="background:#fff4c2" title="Yellow"></button>
+        <button class="sw" data-color="g" style="background:#d8f3dc" title="Green"></button>
+        <button class="sw" data-color="b" style="background:#d7e9ff" title="Blue"></button>
+        <button class="sw" data-color="p" style="background:#ffe0ef" title="Pink"></button>
+        <button class="sw sw--x" data-color="" title="Clear">⌀</button>
+      </span>
+      <button id="vbNote" class="vbbtn">Note</button>
+      <select id="vbSave" class="vbsel" aria-label="Save to collection"><option value="">Save to…</option></select>
+      <button id="vbRelated" class="vbbtn">Related</button>
+      <button id="vbCopy" class="vbbtn">Copy</button>
+      <button id="vbLink" class="vbbtn">Link</button>
+      <button id="vbClose" class="vbbtn vbbtn--x" aria-label="Close">✕</button>
+    </span>
+  </div>
+
   <footer class="foot">
     <p id="attribution" class="attribution"></p>
     <p class="foot__note">
-      Berean hosts only public-domain / openly-licensed texts. It presents traditions
-      without taking sides. Free, forever. ·
-      <a href="../ROADMAP.md">roadmap</a> · <a href="../DEDICATION.md">dedication</a>
+      Berean hosts only public-domain / openly-licensed texts and presents traditions without taking sides.
+      Free, forever. · <a href="../ROADMAP.md">roadmap</a> · <a href="../DEDICATION.md">dedication</a>
     </p>
   </footer>
 

@@ -44,9 +44,19 @@ The reading foundation, on open data only.
   **side-by-side compare**, and **search within a version** — verified serving +
   read/search/compare against the real corpus.
 - ✅ Self-hostable (AWS box or any static host); attributions shown per the licensing manifest.
-- **DoD met** for 2 open versions (BSB + KJV). *Follow-ups:* add WEB / more PD
-  versions via the same pipeline; split per-book + a prebuilt search index if load
-  size matters at scale.
+- **DoD met** for 2 open versions (BSB + KJV).
+
+### Phase 1.5 — Study tools 🟢 ✅ **SHIPPED (2026-08-09)**
+Built on the Library, all client-side / $0:
+- ✅ **Permalinks** — every location is a shareable URL (`#/VERSION/Book/ch/verse`); + **copy verse** (with reference) and **copy link**.
+- ✅ **Saved study (localStorage, private)** — highlight (4 colors), per-verse notes,
+  and named **collections**; **Export / Import** JSON to move study between devices.
+- ✅ **Related verses** — a cross-reference panel from the **OpenBible.info** dataset
+  (CC BY, 29,319 verses / 323k links, ingested by `scripts/ingest_crossrefs.py`).
+- ✅ **Better search** — search one version or **all versions**, whole-word ranking, highlighted snippets.
+- *Follow-ups:* add WEB / more PD versions; **Nave's Topical Bible** (topic→verse) —
+  no clean open dataset found yet, needs sourcing; **semantic/meaning search** (later,
+  client-side embeddings); per-book split + prebuilt index if load size grows.
 
 ## Phase 2 — Original-language study layer 🟢 (effort: L) ← the differentiator
 The highest-value, fully-open capability (what closed tools charge for).
