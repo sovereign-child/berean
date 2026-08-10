@@ -23,6 +23,11 @@
         <label class="chk"><input type="checkbox" id="searchAll" /> all versions</label>
         <button type="submit">Search</button>
       </form>
+      <span class="comfort" role="group" aria-label="Reading comfort">
+        <button id="textSmaller" class="iconbtn txt" title="Smaller text" aria-label="Smaller text">A−</button>
+        <button id="textLarger" class="iconbtn txt" title="Larger text" aria-label="Larger text">A+</button>
+        <button id="themeBtn" class="iconbtn" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
+      </span>
       <button id="studyBtn" class="studybtn" title="My study">✦ My Study</button>
     </div>
   </header>
@@ -35,6 +40,7 @@
     </div>
     <div class="chapter-tools" role="toolbar" aria-label="Chapter actions">
       <button id="listenChapter" class="iconbtn" title="Read chapter aloud" aria-label="Read chapter aloud"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg></button>
+      <select id="voiceSel" class="voicesel" title="Reading voice" aria-label="Reading voice"></select>
       <button id="copyChapterLink" class="iconbtn" title="Copy chapter link" aria-label="Copy chapter link"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg></button>
       <button id="shareChapter" class="iconbtn" title="Share chapter" aria-label="Share chapter"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg></button>
     </div>

@@ -20,7 +20,7 @@ let crossrefs = null;
 let manifest = null;
 let hashLock = false;
 
-const state = { primary: null, compare: null, book: 0, chapter: 0, selected: null };
+const state = { primary: null, compare: null, book: 0, chapter: 0, sel: null, anchor: null };
 
 /* ---------- study store (localStorage) ---------- */
 function loadStore() {
@@ -31,7 +31,20 @@ let store = loadStore();
 function saveStore() { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
 
 function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}"); } catch { return {}; } }
-function savePrefs() { localStorage.setItem(PREFS_KEY, JSON.stringify({ primary: state.primary, compare: state.compare, searchAll: el("searchAll").checked })); }
+function savePrefs() {
+  localStorage.setItem(PREFS_KEY, JSON.stringify({
+    primary: state.primary, compare: state.compare, searchAll: el("searchAll").checked,
+    theme: comfort.theme, size: comfort.size, voice: comfort.voice, rate: comfort.rate,
+  }));
+}
+
+/* Reader comfort: theme, text size, and reading voice/rate (all persisted). */
+const comfort = { theme: "light", size: 1.18, voice: "", rate: 0.9 };
+function applyComfort() {
+  document.body.classList.toggle("dark", comfort.theme === "dark");
+  document.documentElement.style.setProperty("--reader-size", comfort.size + "rem");
+  const tb = el("themeBtn"); if (tb) { tb.textContent = comfort.theme === "dark" ? "☀" : "☾"; }
+}
 
 function toast(msg) {
   let t = el("toast");
@@ -70,7 +83,36 @@ async function shareOrCopy({ title, text, url }) {
 
 const ICON_PLAY = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
 const ICON_STOP = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+let voices = [];
 let speaking = false;
+
+// Rank the device's voices so "Auto" prefers higher-quality neural voices when present.
+function voiceScore(v) {
+  let s = 0;
+  if (/natural|neural|premium|enhanced|siri|wavenet|journey|studio/i.test(v.name)) s += 4;
+  if (/google/i.test(v.name)) s += 2;
+  if (/^en[-_]/i.test(v.lang)) s += 1;
+  if (v.localService) s += 0.5;   // offline voices avoid network hitches
+  return s;
+}
+function pickVoice() {
+  if (comfort.voice) { const v = voices.find((x) => x.name === comfort.voice); if (v) return v; }
+  return voices.slice().sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null;
+}
+function loadVoices() {
+  voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+  const sel = el("voiceSel"); if (!sel) return;
+  const best = pickVoice();
+  sel.innerHTML = `<option value="">Auto voice${best ? " · " + esc(best.name) : ""}</option>`
+    + voices.map((v) => `<option value="${esc(v.name)}" ${v.name === comfort.voice ? "selected" : ""}>${esc(v.name)} (${esc(v.lang)})${voiceScore(v) >= 4 ? " ★" : ""}</option>`).join("");
+}
+function makeUtterance(text) {
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = comfort.rate;   // < 1 = calmer, more measured
+  u.pitch = 1.0; u.volume = 1.0;
+  const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; }
+  return u;
+}
 function stopSpeak() {
   speaking = false;
   if (window.speechSynthesis) window.speechSynthesis.cancel();
@@ -89,8 +131,8 @@ function speakChapter() {
     const idx = i;
     document.querySelectorAll(".verse.speaking").forEach((n) => n.classList.remove("speaking"));
     const vEl = el(`v${idx + 1}`); if (vEl) { vEl.classList.add("speaking"); vEl.scrollIntoView({ block: "center" }); }
-    const u = new SpeechSynthesisUtterance(verses[idx]);
-    u.onend = () => { i++; next(); };
+    const u = makeUtterance(verses[idx]);
+    u.onend = () => { i++; if (speaking) setTimeout(next, 350); };   // a gentle pause between verses
     window.speechSynthesis.speak(u);
   };
   next();
@@ -98,7 +140,7 @@ function speakChapter() {
 function speakText(t) {
   if (!window.speechSynthesis) { toast("Read-aloud isn’t supported in this browser"); return; }
   window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(new SpeechSynthesisUtterance(t));
+  window.speechSynthesis.speak(makeUtterance(t));
 }
 
 /* ---------- render ---------- */
@@ -127,7 +169,7 @@ function renderChapter() {
   el("reader").innerHTML = chA.map((t, i) => {
     const v1 = i + 1, key = vk(book.name, c1, v1);
     const color = store.highlights[key], note = store.notes[key];
-    const sel = state.selected && state.selected.key === key;
+    const sel = state.sel && state.sel.name === book.name && state.sel.c1 === c1 && v1 >= state.sel.from && v1 <= state.sel.to;
     return `<p class="verse${color ? ` hl-${color}` : ""}${sel ? " sel" : ""}" id="v${v1}" data-v="${v1}">`
       + `<span class="vnum" role="button" tabindex="0">${v1}</span>${esc(t)}`
       + (note ? `<span class="noteflag" title="note">✎</span><span class="noteline">${esc(note)}</span>` : "")
@@ -180,23 +222,32 @@ async function applyHash() {
   return true;
 }
 
-/* ---------- verse selection + action bar ---------- */
-function selectVerse(v1) {
-  const p = primary(), book = p.books[state.book], c1 = state.chapter + 1;
-  state.selected = { bi: state.book, name: book.name, c1, v1, key: vk(book.name, c1, v1) };
-  renderChapter();
-  el("verseBarRef").textContent = `${book.name} ${c1}:${v1}`;
-  // populate collection <select>
+/* ---------- verse selection + action bar (supports a contiguous range) ---------- */
+function refreshSaveOptions() {
   el("vbSave").innerHTML = `<option value="">Save to…</option>`
     + store.collections.map((c) => `<option value="${c.id}">＋ ${esc(c.name)}</option>`).join("")
     + `<option value="__new">＋ New collection…</option>`;
+}
+function selectVerse(v1, extend) {
+  const book = primary().books[state.book], c1 = state.chapter + 1;
+  if (extend && state.sel && state.sel.c1 === c1 && state.sel.name === book.name) {
+    const a = state.anchor || state.sel.from;
+    state.sel = { bi: state.book, name: book.name, c1, from: Math.min(a, v1), to: Math.max(a, v1) };
+  } else {
+    state.anchor = v1;
+    state.sel = { bi: state.book, name: book.name, c1, from: v1, to: v1 };
+  }
+  renderChapter();
+  el("verseBarRef").textContent = selRefText();
+  refreshSaveOptions();
   el("verseBar").hidden = false;
 }
-function clearSelection() { state.selected = null; el("verseBar").hidden = true; }
-function selectedText() {
-  const p = primary(), s = state.selected;
-  return p.books[s.bi].chapters[s.c1 - 1][s.v1 - 1] || "";
-}
+function clearSelection() { state.sel = null; state.anchor = null; el("verseBar").hidden = true; }
+const selRefText = () => { const s = state.sel; return s.from === s.to ? `${s.name} ${s.c1}:${s.from}` : `${s.name} ${s.c1}:${s.from}–${s.to}`; };
+function selKeys() { const s = state.sel, out = []; for (let v = s.from; v <= s.to; v++) out.push(vk(s.name, s.c1, v)); return out; }
+function selVerses() { const s = state.sel, ch = primary().books[s.bi].chapters[s.c1 - 1] || []; const out = []; for (let v = s.from; v <= s.to; v++) out.push(ch[v - 1] || ""); return out; }
+const selPassageText = () => selVerses().join(" ");
+const selFrom = () => ({ name: state.sel.name, c1: state.sel.c1, v1: state.sel.from });
 
 /* ---------- related verses (cross-references) ---------- */
 function xrefDisplay(t) {
@@ -205,7 +256,8 @@ function xrefDisplay(t) {
   return { bi, ch, v, label: `${BOOKS[bi]} ${ch}:${v}${end ? "–" + end : ""}` };
 }
 async function showRelated() {
-  const s = state.selected; if (!s) return;
+  if (!state.sel) return;
+  const s = { bi: state.sel.bi, name: state.sel.name, c1: state.sel.c1, v1: state.sel.from };
   await loadCrossrefs();
   const key = `${s.bi}.${s.c1}.${s.v1}`;
   const list = crossrefs.refs[key] || [];
@@ -319,6 +371,11 @@ async function init() {
   el("verSel").value = state.primary;
   if (prefs.compare && has(prefs.compare) && prefs.compare !== state.primary) { state.compare = prefs.compare; el("cmpSel").value = prefs.compare; await loadVersion(prefs.compare); }
   if (prefs.searchAll) el("searchAll").checked = true;
+  comfort.theme = prefs.theme === "dark" ? "dark" : "light";
+  if (typeof prefs.size === "number" && prefs.size >= 0.95 && prefs.size <= 1.7) comfort.size = prefs.size;
+  if (typeof prefs.rate === "number" && prefs.rate >= 0.6 && prefs.rate <= 1.3) comfort.rate = prefs.rate;
+  comfort.voice = prefs.voice || "";
+  applyComfort();
 
   await loadVersion(state.primary);
   if (!(location.hash && await applyHash())) gotoChapter(0, 0);
@@ -334,6 +391,14 @@ async function init() {
 
   el("searchForm").addEventListener("submit", (e) => { e.preventDefault(); runSearch(el("searchInput").value, el("searchAll").checked); });
   el("searchAll").addEventListener("change", savePrefs);
+
+  // reading comfort + voice
+  el("themeBtn").addEventListener("click", () => { comfort.theme = comfort.theme === "dark" ? "light" : "dark"; applyComfort(); savePrefs(); });
+  el("textSmaller").addEventListener("click", () => { comfort.size = Math.max(0.95, +(comfort.size - 0.08).toFixed(2)); applyComfort(); savePrefs(); });
+  el("textLarger").addEventListener("click", () => { comfort.size = Math.min(1.7, +(comfort.size + 0.08).toFixed(2)); applyComfort(); savePrefs(); });
+  el("voiceSel").addEventListener("change", (e) => { comfort.voice = e.target.value; savePrefs(); toast("Voice set — press ▶ to hear it"); });
+  loadVoices();
+  if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = loadVoices;
   el("studyBtn").addEventListener("click", renderStudy);
   el("exportBtn").addEventListener("click", exportStudy);
   el("importBtn").addEventListener("click", () => el("importFile").click());
@@ -341,10 +406,10 @@ async function init() {
 
   document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => showOnly("reader")));
 
-  // verse number → select (single-column reading only)
+  // verse number → select (single-column reading only); Shift-click extends to a range
   el("reader").addEventListener("click", (e) => {
     const num = e.target.closest(".vnum"); if (!num || state.compare) return;
-    const p = num.closest(".verse"); if (p) selectVerse(+p.dataset.v);
+    const p = num.closest(".verse"); if (p) selectVerse(+p.dataset.v, e.shiftKey);
   });
   // results / related navigation
   el("resultsList").addEventListener("click", async (e) => {
@@ -354,32 +419,32 @@ async function init() {
   });
   el("relatedList").addEventListener("click", (e) => { const li = e.target.closest("li[data-b]"); if (!li) return; clearSelection(); gotoChapter(+li.dataset.b, +li.dataset.c, +li.dataset.v); });
 
-  // verse action bar
+  // verse action bar — all actions apply to the whole selection (1+ verses)
   document.querySelectorAll(".sw").forEach((sw) => sw.addEventListener("click", () => {
-    if (!state.selected) return; const c = sw.dataset.color;
-    if (c) store.highlights[state.selected.key] = c; else delete store.highlights[state.selected.key];
+    if (!state.sel) return; const c = sw.dataset.color;
+    for (const key of selKeys()) { if (c) store.highlights[key] = c; else delete store.highlights[key]; }
     saveStore(); renderChapter();
   }));
   el("vbNote").addEventListener("click", () => {
-    if (!state.selected) return;
-    const cur = store.notes[state.selected.key] || "";
-    const n = prompt(`Note on ${state.selected.name} ${state.selected.c1}:${state.selected.v1}`, cur);
-    if (n === null) return; if (n.trim()) store.notes[state.selected.key] = n.trim(); else delete store.notes[state.selected.key];
+    if (!state.sel) return; const key = vk(state.sel.name, state.sel.c1, state.sel.from);
+    const cur = store.notes[key] || "";
+    const n = prompt(`Note on ${state.sel.name} ${state.sel.c1}:${state.sel.from}`, cur);
+    if (n === null) return; if (n.trim()) store.notes[key] = n.trim(); else delete store.notes[key];
     saveStore(); renderChapter();
   });
   el("vbSave").addEventListener("change", (e) => {
-    if (!state.selected) return; let id = e.target.value; e.target.value = "";
+    if (!state.sel) return; let id = e.target.value; e.target.value = "";
     if (!id) return;
     if (id === "__new") { const name = prompt("New collection name:"); if (!name || !name.trim()) return; const coll = { id: "c" + Date.now().toString(36), name: name.trim(), verses: [] }; store.collections.push(coll); id = coll.id; }
     const coll = store.collections.find((c) => c.id === id); if (!coll) return;
-    if (!coll.verses.includes(state.selected.key)) coll.verses.push(state.selected.key);
-    saveStore(); toast(`Saved to “${coll.name}”`); selectVerse(state.selected.v1); // refresh select options
+    for (const key of selKeys()) if (!coll.verses.includes(key)) coll.verses.push(key);
+    saveStore(); toast(`Saved to “${coll.name}”`); refreshSaveOptions();
   });
   el("vbRelated").addEventListener("click", showRelated);
-  el("vbCopy").addEventListener("click", async () => { const s = state.selected; if (!s) return; await navigator.clipboard.writeText(`${selectedText()} — ${s.name} ${s.c1}:${s.v1} (${primary().name})`).then(() => toast("Verse copied")).catch(() => toast("Copy failed")); });
-  el("vbLink").addEventListener("click", async () => { const s = state.selected; if (!s) return; await navigator.clipboard.writeText(verseLink(s)).then(() => toast("Link copied")).catch(() => toast("Copy failed")); });
-  el("vbShare").addEventListener("click", () => { const s = state.selected; if (!s) return; shareOrCopy({ title: `${s.name} ${s.c1}:${s.v1}`, text: `${selectedText()} — ${s.name} ${s.c1}:${s.v1} (${primary().name})`, url: verseLink(s) }); });
-  el("vbSpeak").addEventListener("click", () => { if (state.selected) speakText(selectedText()); });
+  el("vbCopy").addEventListener("click", async () => { if (!state.sel) return; await navigator.clipboard.writeText(`${selPassageText()} — ${selRefText()} (${primary().name})`).then(() => toast("Copied")).catch(() => toast("Copy failed")); });
+  el("vbLink").addEventListener("click", async () => { if (!state.sel) return; await navigator.clipboard.writeText(verseLink(selFrom())).then(() => toast("Link copied")).catch(() => toast("Copy failed")); });
+  el("vbShare").addEventListener("click", () => { if (!state.sel) return; shareOrCopy({ title: selRefText(), text: `${selPassageText()} — ${selRefText()} (${primary().name})`, url: verseLink(selFrom()) }); });
+  el("vbSpeak").addEventListener("click", () => { if (state.sel) speakText(selPassageText()); });
   el("vbClose").addEventListener("click", clearSelection);
 
   // Chapter-level actions

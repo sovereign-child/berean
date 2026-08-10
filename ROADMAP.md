@@ -60,6 +60,13 @@ Built on the Library, all client-side / $0:
   and **Read aloud** (offline text-to-speech) at both verse and chapter level;
   chapter **share / copy-link** in the chapter toolbar. Icons are inline SVG (no
   icon fonts / CDNs — fully offline & CSP-safe).
+- ✅ **Passage selection** — Shift-click a second verse number to select a **range**;
+  highlight / note / save / copy / share / read-aloud act on the whole passage.
+- ✅ **Reading comfort** — **dark mode** + **text-size** controls, remembered across visits.
+- ✅ **Voice picker + soothing cadence** — choose any device voice (auto-prefers
+  higher-quality *neural* voices when present, ★-marked), slower measured rate, and
+  gentle pauses between verses. *This is the free, in-browser baseline; the premium
+  narration path is Phase 9.*
 - *Follow-ups:* add WEB / more PD versions; **Nave's Topical Bible** (topic→verse) —
   no clean open dataset found yet, needs sourcing; **semantic/meaning search** (later,
   client-side embeddings); per-book split + prebuilt index if load size grows.
@@ -127,6 +134,26 @@ Censorship-resistant permanence (funded by stewardship first).
   many editions with provenance (never "one true text"); **no token**.
 - **DoD:** any hosted edition is content-addressed, anchored, and independently
   verifiable, with CC-BY attribution preserved.
+
+## Phase 9 — Audio, prayer & devotional media 🟢🟡 (effort: L) — **new (2026-08-09)**
+Great, *soothing* narration of Scripture, plus devotional audio/video that links
+Scripture to encouragement — to listen through the day or while falling asleep.
+- **Premium narration** (beyond the browser's built-in voices):
+  - 🟢 **Free / self-hosted:** batch-generate audio with **Piper** (open-source
+    neural TTS, runs locally, permissive license) → serve as **static MP3** per
+    chapter. Marginal cost ~$0; fits the static-hosting model.
+  - 🟡 **AWS-native (we already have the box):** **Amazon Polly Neural** voices,
+    generated **once to static files** (not per-request) so cost is tiny + bounded.
+  - Both keep to **CC0 / public-domain** text (the BSB is CC0 — clean for audio).
+- **Devotional / prayer media:** short pieces that pair a passage with original,
+  clearly-labeled encouragement (non-sectarian, sourced), mixed with **royalty-free
+  / CC ambient audio**, rendered to audio and optionally **video** (still or gentle
+  motion) via **ffmpeg** — all batch-built to static files.
+- **Sleep & encouragement playlists**: gapless, low-volume, timer/loop friendly.
+- **Licensing gates:** audio may only use CC0/PD Scripture + royalty-free music +
+  original devotional text; attribute everything; never imply endorsement.
+- **DoD:** a listener can play a chapter in a warm, natural voice, and play a
+  looping devotional/prayer track built entirely from openly-licensed assets.
 
 ---
 
