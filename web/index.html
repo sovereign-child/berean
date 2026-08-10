@@ -28,6 +28,7 @@
         <button id="textLarger" class="iconbtn txt" title="Larger text" aria-label="Larger text">A+</button>
         <button id="themeBtn" class="iconbtn" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
       </span>
+      <button id="threadsBtn" class="studybtn" title="Threads — follow a documented trail">🧵 Threads</button>
       <button id="prayerBtn" class="studybtn" title="Prayer builder">🙏 Prayer</button>
       <button id="studyBtn" class="studybtn" title="My study">✦ My Study</button>
     </div>
@@ -85,6 +86,15 @@
       </div>
       <div id="studyBody" class="study"></div>
       <input type="file" id="importFile" accept="application/json" hidden />
+    </section>
+
+    <!-- Threads (follow a documented trail across texts) -->
+    <section id="threads" class="panel" hidden>
+      <div class="panel__head">
+        <span id="threadsHead">Threads</span>
+        <button class="linkbtn" data-close="threads">← back to reading</button>
+      </div>
+      <div id="threadsBody" class="threads"></div>
     </section>
 
     <!-- Prayer builder -->

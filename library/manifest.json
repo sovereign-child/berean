@@ -20,6 +20,18 @@
       "attribution": "King James Version (1769), public domain",
       "tradition": "Protestant (66)",
       "id": "KJV"
+    },
+    {
+      "version": "ENOCH",
+      "name": "1 Enoch (R.H. Charles)",
+      "language": "en",
+      "license": "Public Domain",
+      "source": "https://www.gutenberg.org/ebooks/77935",
+      "attribution": "The Book of Enoch, translated by R. H. Charles (SPCK, 1917) — Public Domain, via Project Gutenberg #77935.",
+      "tradition": "Pseudepigrapha",
+      "canon_status": "Non-canonical in Jewish, Catholic, Orthodox and Protestant canons; canonical in the Ethiopian Orthodox Tewahedo Church; quoted in Jude 14-15.",
+      "canonical": false,
+      "id": "ENOCH"
     }
   ]
 }

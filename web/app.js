@@ -211,7 +211,7 @@ function renderAttribution() {
 }
 
 function showOnly(section) {
-  for (const s of ["results", "related", "commentary", "study", "prayer", "reader"]) el(s).hidden = s !== section;
+  for (const s of ["results", "related", "commentary", "threads", "study", "prayer", "reader"]) el(s).hidden = s !== section;
 }
 
 /* ---------- navigation + permalinks ---------- */
@@ -285,9 +285,16 @@ function xrefDisplay(t) {
 }
 async function showRelated() {
   if (!state.sel) return;
-  const s = { bi: state.sel.bi, name: state.sel.name, c1: state.sel.c1, v1: state.sel.from };
+  const canonIdx = BOOKS.indexOf(state.sel.name);   // cross-refs are keyed to the 66-book canon
+  const s = { bi: canonIdx, name: state.sel.name, c1: state.sel.c1, v1: state.sel.from };
+  if (canonIdx < 0) {
+    el("relatedHead").textContent = `Related — not available for ${s.name}`;
+    el("relatedList").innerHTML = "<li>Cross-references currently cover the 66-book canon.</li>";
+    el("relatedAttr").textContent = "";
+    showOnly("related"); window.scrollTo({ top: 0 }); return;
+  }
   await loadCrossrefs();
-  const key = `${s.bi}.${s.c1}.${s.v1}`;
+  const key = `${canonIdx}.${s.c1}.${s.v1}`;
   const list = crossrefs.refs[key] || [];
   el("relatedHead").textContent = `Related to ${s.name} ${s.c1}:${s.v1} — ${list.length} cross-reference${list.length === 1 ? "" : "s"}`;
   const p = primary();
@@ -400,8 +407,9 @@ async function loadCommentaryManifest() {
 const commentariesForBook = (m, bookIdx) => (m.commentaries || []).filter((c) => (c.books || []).includes(bookIdx));
 async function openCommentary() {
   const m = await loadCommentaryManifest();
-  const avail = commentariesForBook(m, state.book);
   const bookName = primary().books[state.book].name;
+  const canonIdx = BOOKS.indexOf(bookName);
+  const avail = canonIdx < 0 ? [] : commentariesForBook(m, canonIdx);
   if (!avail.length) {
     el("commentarySel").innerHTML = "";
     el("commentaryHead").textContent = `Commentary — ${bookName} ${state.chapter + 1}`;
@@ -418,11 +426,12 @@ async function renderCommentary(cid) {
   const m = await loadCommentaryManifest();
   const meta = (m.commentaries || []).find((c) => c.id === cid);
   const bookName = primary().books[state.book].name, cn = state.chapter + 1;
+  const canonIdx = BOOKS.indexOf(bookName);
   el("commentaryHead").textContent = `${meta ? meta.name : "Commentary"} — ${bookName} ${cn}`;
-  const key = `${cid}/${state.book}/${cn}`;
+  const key = `${cid}/${canonIdx}/${cn}`;
   let data = commentaryCache.get(key);
   if (data === undefined) {
-    try { data = await (await fetch(`../library/commentary/${cid}/${state.book}/${cn}.json`)).json(); }
+    try { data = await (await fetch(`../library/commentary/${cid}/${canonIdx}/${cn}.json`)).json(); }
     catch { data = null; }
     commentaryCache.set(key, data);
   }
@@ -436,6 +445,48 @@ async function renderCommentary(cid) {
   }
   el("commentaryAttr").textContent = meta ? meta.attribution : "";
   comfort.commentary = cid; savePrefs();
+}
+
+/* ---------- Threads — follow a documented trail across texts (all citations real) ---------- */
+const THREADS_URL = "../library/threads.json";
+let threadsData = null;
+async function loadThreads() {
+  if (!threadsData) { try { threadsData = await (await fetch(THREADS_URL)).json(); } catch { threadsData = { threads: [], statusLabels: {}, note: "" }; } }
+  return threadsData;
+}
+async function openThreads() { await loadThreads(); renderThreadList(); showOnly("threads"); window.scrollTo({ top: 0 }); }
+function renderThreadList() {
+  const d = threadsData;
+  el("threadsHead").innerHTML = `Threads <span class="tiny">— follow a documented trail; examine for yourself</span>`;
+  el("threadsBody").innerHTML = `<p class="threads__intro">${esc(d.note || "")}</p>`
+    + (d.threads || []).map((t) => `<div class="thread-card"><h3>${esc(t.title)}</h3><p>${esc(t.summary)}</p><button class="vbbtn" data-thread="${t.id}">Follow this thread →</button></div>`).join("");
+}
+async function renderThread(id) {
+  const d = threadsData, t = (d.threads || []).find((x) => x.id === id);
+  if (!t) return;
+  for (const v of new Set((t.steps || []).map((s) => s.version).filter(Boolean))) { try { await loadVersion(v); } catch (e) {} }
+  const badge = (s) => `<span class="thread-badge thread-badge--${s}">${esc((d.statusLabels && d.statusLabels[s]) || s)}</span>`;
+  const steps = (t.steps || []).map((s) => {
+    const res = s.version ? resolveRef(s.ref, s.version) : null;
+    const verse = res ? `<p class="thread-verse">“${esc(res.text)}”</p>`
+      : `<p class="thread-verse thread-verse--missing">(text not loaded in Berean yet — cited by reference)</p>`;
+    const nav = res ? `<button class="linkbtn" data-ref="${esc(s.ref)}" data-ver="${esc(s.version)}">open ${esc(s.ref)} →</button>` : "";
+    return `<div class="thread-step"><div class="thread-step__head"><span class="thread-step__ref">${esc(s.ref)}</span>${badge(s.status)}<span class="tiny">${esc(s.tradition || "")}</span></div>${verse}<p class="thread-note">${esc(s.note)}</p>${nav}</div>`;
+  }).join("");
+  el("threadsHead").textContent = t.title;
+  el("threadsBody").innerHTML = `<button class="linkbtn" data-back="1">← all threads</button>`
+    + `<p class="threads__intro">${esc(t.summary)}</p>`
+    + `<div class="thread-steps">${steps}</div>`
+    + `<div class="thread-sources"><h3>Sources</h3><ul>${(t.sources || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="tiny">${esc(d.note || "")}</p></div>`;
+}
+async function navigateRef(refStr, versionId) {
+  const m = REF_RE.exec(refStr); if (!m) return;
+  let name = m[1].trim(); name = BOOK_ALIAS[name] || name;
+  const ch = +m[2], v = +m[3];
+  if (versionId && versionId !== state.primary) { await loadVersion(versionId); state.primary = versionId; el("verSel").value = versionId; renderAttribution(); savePrefs(); }
+  const bi = primary().books.findIndex((b) => b.name === name);
+  if (bi < 0) { toast("Passage not in this text"); return; }
+  clearSelection(); gotoChapter(bi, ch - 1, v);
 }
 
 /* ---------- prayer builder ---------- */
@@ -573,6 +624,12 @@ async function init() {
   el("commentaryBtn").addEventListener("click", openCommentary);
   el("commentarySel").addEventListener("change", (e) => renderCommentary(e.target.value));
   el("commentaryBody").addEventListener("click", (e) => { const r = e.target.closest(".block__ref"); if (r) { clearSelection(); gotoChapter(state.book, state.chapter, +r.dataset.v); } });
+  el("threadsBtn").addEventListener("click", openThreads);
+  el("threadsBody").addEventListener("click", (e) => {
+    if (e.target.closest("[data-back]")) { renderThreadList(); window.scrollTo({ top: 0 }); return; }
+    const tc = e.target.closest("[data-thread]"); if (tc) { renderThread(tc.dataset.thread); window.scrollTo({ top: 0 }); return; }
+    const r = e.target.closest("[data-ref]"); if (r) navigateRef(r.dataset.ref, r.dataset.ver);
+  });
   el("prayerBtn").addEventListener("click", openPrayer);
   el("prFor").addEventListener("change", (e) => { el("prNameWrap").hidden = e.target.value !== "other"; });
   el("prGenerate").addEventListener("click", buildPrayer);

@@ -100,8 +100,22 @@ The highest-value, fully-open capability (what closed tools charge for).
 - **DoD:** tap any word in a verse → lemma, morphology, Strong's number, gloss;
   interlinear available for the Hebrew OT and the Greek NT.
 
-## Phase 3 — The wider canon & the "lost books" 🟢🔴 (effort: M)
+## Phase 3 — The wider canon & the "lost books" 🟢🔴 (effort: M) — **STARTED (2026-08-10)**
 Berean's distinctive: the wider canon, openly and non-sectarianly.
+- ✅ **1 Enoch (R.H. Charles, 1917, Public Domain)** ingested (`scripts/ingest_enoch.py`
+  from Project Gutenberg #77935) → `library/corpus/ENOCH.json`, 108 chapters / 1,012
+  verses, selectable in the reader and **clearly labeled** (`tradition: Pseudepigrapha`,
+  `canon_status`: non-canonical in most traditions, canonical in Ethiopian Tewahedo,
+  quoted in Jude 14-15). Canonical-only features (cross-refs, commentary) are guarded
+  off for non-canonical texts.
+- ✅ **Threads** — a "follow the documented trail" feature (🧵 in the header). Each step
+  is a **real, resolving citation** across the canon *and* the wider canon, with a
+  status badge (consensus / debate / textual / extra-biblical) and sources; Berean
+  presents, it does not decide. First thread: **The Divine Council & the Watchers**
+  (Ps 82 → 1 Kings 22 → Job 1 → Deut 32:8 [DSS/LXX variant] → Gen 6 → 1 Enoch 6/10 →
+  2 Peter 2 / Jude 6 / Jude 14-15 quoting Enoch → Ps 82:6-7). Data: `library/threads.json`.
+- *Follow-ups:* **Jubilees** (no clean PD machine-readable source found yet — staged;
+  cited by reference only for now), more pseudepigrapha, deuterocanon; more Threads.
 - Ingest the deuterocanon/apocrypha and pseudepigrapha (**R.H. Charles 1913, PD** —
   verify actual contents + OCR quality first; seek cleaner open sources too).
 - Label `canon_status` per tradition (Protestant 66 / Catholic 73 / Orthodox /
