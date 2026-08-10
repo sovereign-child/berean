@@ -13,6 +13,10 @@ out/
 *.sqlite
 *.db
 library/**/generated/
+# TTS voice models (large; downloaded per docs/07-audio.md, not tracked)
+voices/
+*.onnx
+*.onnx.json
 # OS / editor
 .DS_Store
 Thumbs.db

@@ -143,6 +143,33 @@ function speakText(t) {
   window.speechSynthesis.speak(makeUtterance(t));
 }
 
+// Pre-rendered narration (scripts/tts_chapter.py) when present; browser voice otherwise.
+const chapterAudio = new Audio();
+let audioPlaying = false;
+let audioManifest = null;
+async function loadAudioManifest() {
+  if (audioManifest === null) {
+    try { audioManifest = await (await fetch("../library/audio/manifest.json")).json(); }
+    catch { audioManifest = { files: {} }; }
+  }
+  return audioManifest;
+}
+function chapterAudioFile(m) {
+  return !state.compare && m.files && m.files[state.primary]
+    && m.files[state.primary][state.book] && m.files[state.primary][state.book][state.chapter + 1];
+}
+function setListenIcon(on) { const b = el("listenChapter"); if (!b) return; b.classList.toggle("active", on); b.innerHTML = on ? ICON_STOP : ICON_PLAY; b.title = on ? "Stop" : "Read chapter aloud"; }
+function stopAudio() { audioPlaying = false; try { chapterAudio.pause(); } catch (e) {} }
+function stopListening() { stopSpeak(); stopAudio(); setListenIcon(false); }
+chapterAudio.addEventListener("ended", () => { audioPlaying = false; setListenIcon(false); });
+function playChapterAudio(path) {
+  stopSpeak();
+  chapterAudio.src = path;
+  chapterAudio.play()
+    .then(() => { audioPlaying = true; setListenIcon(true); })
+    .catch(() => { audioPlaying = false; setListenIcon(false); toast("Couldn’t play audio — using the browser voice"); speakChapter(); });
+}
+
 /* ---------- render ---------- */
 function renderSelectors() {
   const p = primary(), book = p.books[state.book];
@@ -194,7 +221,7 @@ function updateHash() {
   setTimeout(() => (hashLock = false), 0);
 }
 function gotoChapter(bookIdx, chapIdx, highlightVerse) {
-  stopSpeak();
+  stopListening();
   const p = primary();
   state.book = Math.max(0, Math.min(bookIdx, p.books.length - 1));
   state.chapter = Math.max(0, Math.min(chapIdx, p.books[state.book].chapters.length - 1));
@@ -448,7 +475,11 @@ async function init() {
   el("vbClose").addEventListener("click", clearSelection);
 
   // Chapter-level actions
-  el("listenChapter").addEventListener("click", () => { if (speaking) stopSpeak(); else speakChapter(); });
+  el("listenChapter").addEventListener("click", async () => {
+    if (speaking || audioPlaying) { stopListening(); return; }
+    const f = chapterAudioFile(await loadAudioManifest());
+    if (f) playChapterAudio("../library/" + f.path); else speakChapter();
+  });
   el("copyChapterLink").addEventListener("click", async () => { await navigator.clipboard.writeText(chapterLink()).then(() => toast("Chapter link copied")).catch(() => toast("Copy failed")); });
   el("shareChapter").addEventListener("click", () => { const name = primary().books[state.book].name, c = state.chapter + 1; shareOrCopy({ title: `${name} ${c}`, text: `${name} ${c} — ${primary().name}`, url: chapterLink() }); });
 

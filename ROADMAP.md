@@ -135,9 +135,14 @@ Censorship-resistant permanence (funded by stewardship first).
 - **DoD:** any hosted edition is content-addressed, anchored, and independently
   verifiable, with CC-BY attribution preserved.
 
-## Phase 9 — Audio, prayer & devotional media 🟢🟡 (effort: L) — **new (2026-08-09)**
+## Phase 9 — Audio, prayer & devotional media 🟢🟡 (effort: L) — **STARTED (2026-08-10)**
 Great, *soothing* narration of Scripture, plus devotional audio/video that links
 Scripture to encouragement — to listen through the day or while falling asleep.
+- ✅ **Pipeline built** — `scripts/tts_chapter.py` (Piper → ffmpeg → static MP3 +
+  `library/audio/manifest.json`) with `--check` / `--dry-run`; the reader prefers
+  pre-rendered narration and falls back to the browser voice per-chapter. See
+  [docs/07-audio.md](docs/07-audio.md). *Awaiting local Piper + ffmpeg install to
+  render actual audio.*
 - **Premium narration** (beyond the browser's built-in voices):
   - 🟢 **Free / self-hosted:** batch-generate audio with **Piper** (open-source
     neural TTS, runs locally, permissive license) → serve as **static MP3** per
