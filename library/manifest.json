@@ -1,0 +1,25 @@
+{
+  "note": "Only public-domain / openly-licensed texts are hosted here; copyrighted translations are accessed via licensed APIs at runtime, never hosted. See docs/03-texts-and-licensing.md.",
+  "versions": [
+    {
+      "version": "BSB",
+      "name": "Berean Standard Bible",
+      "language": "en",
+      "license": "CC0-1.0",
+      "source": "https://bereanbible.com/bsb.txt",
+      "attribution": "Berean Standard Bible (BSB), dedicated to the public domain (CC0) — BereanBible.com",
+      "tradition": "Protestant (66)",
+      "id": "BSB"
+    },
+    {
+      "version": "KJV",
+      "name": "King James Version",
+      "language": "en",
+      "license": "Public Domain",
+      "source": "https://raw.githubusercontent.com/thiagobodruk/bible (en_kjv.json)",
+      "attribution": "King James Version (1769), public domain",
+      "tradition": "Protestant (66)",
+      "id": "KJV"
+    }
+  ]
+}

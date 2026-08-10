@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Berean — Study the Word</title>
+  <meta name="description" content="Berean: an open, community study tool for the Holy Bible. Read and compare public-domain translations, and search the Scriptures." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="brand__name">Berean</span>
+      <span class="brand__tag">study the Word</span>
+    </div>
+    <div class="controls">
+      <label class="ctl">Book
+        <select id="bookSel" aria-label="Book"></select>
+      </label>
+      <label class="ctl">Chapter
+        <select id="chapSel" aria-label="Chapter"></select>
+      </label>
+      <label class="ctl">Version
+        <select id="verSel" aria-label="Version"></select>
+      </label>
+      <label class="ctl">Compare
+        <select id="cmpSel" aria-label="Compare version"><option value="">— none —</option></select>
+      </label>
+      <form id="searchForm" class="search" role="search">
+        <input id="searchInput" type="search" placeholder="Search this version…" aria-label="Search" />
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="chapter-nav">
+      <button id="prevBtn" class="navbtn" aria-label="Previous chapter">‹ Prev</button>
+      <h1 id="refLabel" class="ref">—</h1>
+      <button id="nextBtn" class="navbtn" aria-label="Next chapter">Next ›</button>
+    </div>
+
+    <section id="results" class="results" hidden>
+      <div class="results__head">
+        <span id="resultsCount"></span>
+        <button id="resultsClose" class="linkbtn">← back to reading</button>
+      </div>
+      <ol id="resultsList" class="results__list"></ol>
+    </section>
+
+    <section id="reader" class="reader" aria-live="polite"></section>
+  </main>
+
+  <footer class="foot">
+    <p id="attribution" class="attribution"></p>
+    <p class="foot__note">
+      Berean hosts only public-domain / openly-licensed texts. It presents traditions
+      without taking sides. Free, forever. ·
+      <a href="../ROADMAP.md">roadmap</a> · <a href="../DEDICATION.md">dedication</a>
+    </p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

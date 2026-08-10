@@ -52,9 +52,14 @@ make that kind of study possible for everyone.
 
 ## Status
 
-**Vision + scaffold.** This repo currently holds the vision, the proposed
-architecture, the texts-and-licensing plan (an important, real constraint — see
-below), and a phased roadmap. No application code yet.
+**Phase 1 shipped — the Library MVP works.** A dependency-free reader in
+[`web/`](web/) reads an open-text corpus and lets you **read a chapter, switch
+version, compare two versions side-by-side, and search** — over the **Berean
+Standard Bible (CC0)** and the **King James Version (public domain)**, ingested by
+a reproducible pipeline ([`scripts/ingest.py`](scripts/ingest.py)). Run it:
+`cd berean && python3 -m http.server 8000` → open `/web/`. Next up (per the
+[roadmap](ROADMAP.md)): the original-language study layer. Earlier phases (vision,
+dedication, texts-&-licensing, architecture, preservation, stewardship) remain below.
 
 ## Read next
 

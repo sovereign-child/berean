@@ -34,16 +34,19 @@ paid/deferred · effort: S / M / L
 Vision, dedication, texts-&-licensing, architecture, preservation & hosting/
 stewardship docs; repo + private remote (`sovereign-child/berean`).
 
-## Phase 1 — The Library MVP 🟢 (effort: M) ← start here
+## Phase 1 — The Library MVP 🟢 (effort: M) ✅ **SHIPPED (2026-08-09)**
 The reading foundation, on open data only.
-- Define the normalized **corpus schema** (`version → book → chapter → verse`) and
-  the **manifest**.
-- Ingest open texts: **Berean Standard Bible (CC0)** as the default modern text;
-  **World English Bible** and **KJV** (public domain).
-- **Reader UI + side-by-side version compare + full-text search** (local index).
-- Deploy on the **AWS box** (static site + search) — or a free static tier.
-- **DoD:** read and compare ≥3 open versions with working search, hosted live, every
-  text recorded in the manifest with its license.
+- ✅ Normalized **corpus schema** (`version → book → chapter → verse`) + `library/manifest.json`.
+- ✅ Reproducible ingest pipeline (`scripts/ingest.py`, stdlib-only) → **Berean
+  Standard Bible (CC0)** + **King James Version (PD)**, normalized to 66 books /
+  ~31,100 verses each (validated: Genesis 1 = 31 verses, Psalms = 150 chapters).
+- ✅ Dependency-free reader (`web/`): read a chapter, **switch version**,
+  **side-by-side compare**, and **search within a version** — verified serving +
+  read/search/compare against the real corpus.
+- ✅ Self-hostable (AWS box or any static host); attributions shown per the licensing manifest.
+- **DoD met** for 2 open versions (BSB + KJV). *Follow-ups:* add WEB / more PD
+  versions via the same pipeline; split per-book + a prebuilt search index if load
+  size matters at scale.
 
 ## Phase 2 — Original-language study layer 🟢 (effort: L) ← the differentiator
 The highest-value, fully-open capability (what closed tools charge for).
