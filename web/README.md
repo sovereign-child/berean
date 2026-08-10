@@ -11,13 +11,19 @@ Serve from the **repo root** (so both `web/` and `library/` are reachable), then
 open the app:
 
 ```bash
-cd berean
+cd berean            # ← the repo ROOT (must contain BOTH web/ and library/)
 python3 -m http.server 8000
-# open http://localhost:8000/web/
+# open http://localhost:8000/   (redirects into the reader; or go straight to /web/)
 ```
 
-(Opening `index.html` directly via `file://` won't work — the app `fetch()`es the
-corpus, which browsers block on `file://`. Use a static server.)
+Two things that cause a **404**:
+- **Running the server from the wrong folder.** Start it from the repo root
+  (`berean/`), *not* from inside `web/` — the reader loads `../library/`, which is
+  only reachable when the root contains both `web/` and `library/`.
+- Opening the wrong path. Just open `http://localhost:8000/`.
+
+(Opening `index.html` via `file://` won't work either — the app `fetch()`es the
+corpus, which browsers block on `file://`. Use the static server above.)
 
 ## Populate / refresh the texts
 
