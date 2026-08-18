@@ -156,6 +156,32 @@ voice is labeled separately, never folded in** — red-letter editions disagree
 about it and Berean does not decide. Checked by `scripts/check_words_of_jesus.py`
 (23 landmark passages + an offset-integrity pass).
 
+### Foundations (2026-08-17)
+Not a feature, but everything above rests on it.
+- ✅ **One address for every verse.** `library/books.json` is the registry every
+  dataset keys on — USFM codes where USFM has one, Ethiopian books marked
+  `berean_ext`. A verse is `CODE.CHAPTER.VERSE` (`JHN.3.16`, `TOB.3.16`). Before
+  this, cross-references were keyed to positions in the Protestant 66 and could
+  not point at Tobit even in principle; switching to an 81-book Bible landed you
+  in a different book at the same index; renaming a book would have orphaned a
+  reader's saved highlights. Saved study migrates itself.
+- ✅ **Sharded corpora** (`corpus/BSB/JHN.json` + a 6 KB index), following the
+  pattern the commentary layer already used. First load went from **3,920 KB to
+  263 KB**. Cross-references likewise, one file per book. Bundles are kept for
+  search and offline download.
+- ✅ **The Old Testament in the New** — 180 quotations, 72 echoes, found by
+  matching the testaments against each other in one public-domain translation;
+  shown under the verse being read. Nothing licensed, nothing hand-listed.
+- ✅ **Navigation** — one ✦ Study launcher (⌘K) instead of a growing row of
+  buttons; panels open beside the text on a wide screen; panels are routes
+  (`#/panel/threads/abrahams-two-sons`), so Back closes them and a thread can be
+  linked to; ← → page chapters, `/` searches, Esc closes.
+- ✅ **Offline** — service worker, web manifest, installable. The library keeps
+  working with no network.
+- ✅ **`scripts/check_all.py` + CI** — every checker, structural checks across the
+  library, and SHA-256 for all twelve datasets. CI rebuilds the derived layers and
+  fails if they differ from what is committed.
+
 ## Phase 4 — The Evidence layer 🟢🔴 (effort: L)
 "See if these things were so."
 - **Manuscript viewer** linking (not rehosting) the **Codex Sinaiticus Project**

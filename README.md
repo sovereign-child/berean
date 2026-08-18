@@ -55,19 +55,42 @@ feet and a light to my path."* (Psalm 119:105)
 
 ## Status
 
-**Phases 1 + 1.5 shipped — the Library MVP and study tools work.** A
-dependency-free reader in [`web/`](web/) reads an open-text corpus and lets you
-**read a chapter, switch version, compare two versions side-by-side, and search**
-— over the **Berean Standard Bible (CC0)** and the **King James Version (public
-domain)**, ingested by a reproducible pipeline ([`scripts/ingest.py`](scripts/ingest.py)).
-On top of that you can now **follow cross-references** ("related verses," from the
-OpenBible.info dataset, CC BY, via [`scripts/ingest_crossrefs.py`](scripts/ingest_crossrefs.py)),
-**search all versions at once**, and keep your own study — **highlights, notes, and
-named collections** saved privately in your browser, with **shareable permalinks**
-and **Export / Import** to move study between devices. Run it: `./serve.sh` (or
-`cd berean && python3 -m http.server 8000`) → open `/web/`. Next up (per the
-[roadmap](ROADMAP.md)): the original-language study layer. Earlier phases (vision,
-dedication, texts-&-licensing, architecture, preservation, stewardship) remain below.
+**The reader works, and it does things no free Bible app puts together.** A
+dependency-free reader in [`web/`](web/) — no framework, no CDN, no analytics, no
+account — over four hosted texts: the **Berean Standard Bible** (CC0), the **King
+James Version**, the **World English Bible with Deuterocanon** (81 books), and
+**1 Enoch** (Charles, 1917). Run it with `./serve.sh` → open `/web/`.
+
+What is in it now:
+
+- **Read, compare, and search** — two versions side by side, and search scoped to
+  this version, every version, **the words of Jesus**, the disputed books, or
+  Berean's own notes.
+- **📜 Canon** — who receives which book, across five traditions, with every
+  hosted book one click away. Nothing was subtracted from one original Bible, and
+  the table says so — along with the one case that is real.
+- **✝ The Words of Jesus** — 542 passages, 1,753 verses, every passage He speaks
+  in canonical order, plus red letters while you read. Compiled from the BSB's own
+  quotation marks; the Father's voice is labeled separately, never folded in.
+- **The Old Testament in the New** — 180 quotations and 72 echoes, found by
+  matching the testaments against each other, shown under the verse you are reading.
+- **🧵 Threads** — documented trails through Scripture and the wider canon, every
+  citation resolving in the app, each step labeled consensus / debate / textual /
+  extra-biblical. Berean presents; it does not decide.
+- **🙏 Prayer builder** and **✦ My Study** — highlights, notes and collections kept
+  in your browser, with shareable permalinks and Export / Import.
+- **Offline** — it keeps working with no network, and installs to a home screen.
+
+Every dataset has a build script and a checker, and
+[`scripts/check_all.py`](scripts/check_all.py) runs all of them: every citation in
+every thread resolves against the actual corpus, every landmark passage carries
+the voice it should, and the SHA-256 of all twelve datasets is recorded so a
+silent change is visible. CI runs it on every push, then rebuilds the derived
+layers and fails if they differ from what is committed.
+
+Next up (per the [roadmap](ROADMAP.md)): the original-language study layer.
+Earlier phases (vision, dedication, texts-&-licensing, architecture,
+preservation, stewardship) remain below.
 
 ## Read next
 
