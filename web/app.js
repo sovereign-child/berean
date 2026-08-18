@@ -282,6 +282,7 @@ function renderChapter() {
     const sel = state.sel && state.sel.code === book.code && state.sel.c1 === c1 && v1 >= state.sel.from && v1 <= state.sel.to;
     return `<p class="verse${color ? ` hl-${color}` : ""}${sel ? " sel" : ""}" id="v${v1}" data-v="${v1}">`
       + `<span class="vnum" role="button" tabindex="0">${v1}</span>${escRed(t, redRanges(book.code, c1, v1))}`
+      + quotationLine(quotationAt(book.code, c1, v1))
       + (note ? `<span class="noteflag" title="note">✎</span><span class="noteline">${esc(note)}</span>` : "")
       + `</p>`;
   }).join("");
@@ -359,6 +360,7 @@ async function gotoChapter(code, chapIdx, highlightVerse) {
   }
   renderSelectors(); renderChapter(); showOnly("reader"); updateHash();
   maybeLoadRedLetters();
+  maybeLoadQuotations();
   if (highlightVerse) { const v = el(`v${highlightVerse}`); if (v) { v.scrollIntoView({ block: "center" }); } }
   else window.scrollTo({ top: 0 });
 }
@@ -935,6 +937,44 @@ function renderWoj() {
   el("wojNote").textContent = d.note + "  " + d.attribution;
 }
 
+/* ---------- the Old Testament in the New -------------------------------------
+   Built by scripts/build_ot_quotations.py by matching both testaments against
+   each other in one public-domain translation. Shown under the verse it is in,
+   because that is where it is useful — not in a panel nobody opens. */
+const OTQ_URL = "../library/ot-quotations.json";
+let otq = null, otqIndex = null;
+
+async function loadOtq() {
+  if (otq) return otq;
+  otq = await (await fetch(OTQ_URL)).json();
+  otqIndex = {};
+  for (const b of otq.books) {
+    const byChapter = (otqIndex[b.code] = {});
+    for (const q of b.quotations) {
+      const [c, v] = q.at;
+      (byChapter[c] = byChapter[c] || {})[v] = q;
+    }
+  }
+  return otq;
+}
+/* Only the New Testament quotes the Old, so this is fetched when one is opened. */
+async function maybeLoadQuotations() {
+  if (otq || !inNT(state.code)) return;
+  try { await loadOtq(); renderChapter(); } catch (e) { /* the line simply does not appear */ }
+}
+const quotationAt = (code, c1, v1) =>
+  (otqIndex && otqIndex[code] && otqIndex[code][c1] && otqIndex[code][c1][v1]) || null;
+
+function quotationLine(q) {
+  if (!q) return "";
+  const label = q.kind === "quotation" ? "quoting" : "echoing";
+  return `<span class="otq otq--${q.kind}">${label} `
+    + q.sources.map((sc) =>
+        `<button class="otq__ref" data-otq="${esc(sc.code)}.${sc.from[0]}.${sc.from[1]}">${esc(sc.ref)}</button>`
+      ).join(" · ")
+    + `</span>`;
+}
+
 /* ---------- Threads — follow a documented trail across texts (all citations real) ---------- */
 const THREADS_URL = "../library/threads.json";
 let threadsData = null;
@@ -1119,6 +1159,7 @@ async function init() {
   renderAttribution();
 
   await maybeLoadRedLetters();   // only when the chapter on screen could have any
+  await maybeLoadQuotations();
   applyComfort();
 
   el("bookSel").addEventListener("change", (e) => { clearSelection(); gotoChapter(e.target.value, 0); });
@@ -1204,6 +1245,12 @@ async function init() {
 
   // verse number → select (single-column reading only); Shift-click extends to a range
   el("reader").addEventListener("click", (e) => {
+    const cited = e.target.closest("[data-otq]");
+    if (cited) {
+      const [code, c, v] = cited.dataset.otq.split(".");
+      clearSelection(); gotoChapter(code, +c - 1, +v);
+      return;
+    }
     const num = e.target.closest(".vnum"); if (!num || state.compare) return;
     const p = num.closest(".verse"); if (p) selectVerse(+p.dataset.v, e.shiftKey);
   });

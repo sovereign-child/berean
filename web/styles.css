@@ -169,6 +169,14 @@ body.dark .thread-badge { color: var(--ink); }
 .panel__head:focus { outline: none; }
 .panel__head:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
+/* The Old Testament in the New */
+.otq { display: block; font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.02em;
+  color: var(--muted); margin: 0.15rem 0 0.35rem 1rem; }
+.otq--echo { font-style: italic; opacity: 0.85; }
+.otq__ref { font: inherit; color: var(--accent); background: none; border: 0; padding: 0;
+  cursor: pointer; border-bottom: 1px dotted var(--gold); }
+.otq__ref:hover { color: var(--ink); }
+
 /* Canon comparison */
 .canon { display: flex; flex-direction: column; gap: 1.5rem; }
 .canon__intro { font-family: var(--serif); font-size: 1.02rem; color: var(--ink-soft); }
