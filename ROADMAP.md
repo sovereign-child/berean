@@ -153,6 +153,19 @@ Berean's distinctive: the wider canon, openly and non-sectarianly.
   and the wording differs from the Hebrew: Psalm 40:6 against Hebrews 10:5, Amos 9:12
   against Acts 15:17, and Deuteronomy 32:43, where a Dead Sea scroll vindicated the
   Greek translators and supplied the verse Hebrews 1:6 quotes.
+- ✅ **Brenton's Septuagint (1851, PD) ingested (2026-08-18)** — the Greek Old
+  Testament, readable: 53 books, 29,017 verses (`scripts/ingest_brenton.py`, from
+  eBible.org). The Greek OT thread no longer *describes* the differences, it shows
+  them — Brenton's Psalm 39:7 reads "but a body hast thou prepared me", the sentence
+  Hebrews 10:5 quotes, in the Bible it quotes it from. All 15 steps now resolve.
+- ✅ **Versification, derived (`library/versification.json`)** — Brenton numbers the
+  Greek way: Psalm 23 is Psalm 22, Jeremiah 25 is Jeremiah 32, and Esdras B is Ezra
+  and Nehemiah as one book. Rather than copy a reference table,
+  `scripts/build_versification.py` derives the chapter map by matching the texts'
+  own wording, and `scripts/check_versification.py` verifies it reproduces the 20
+  correspondences scholarship documents independently. 179 chapters differ across
+  7 books. The reader shows it in the chapter header and warns in compare mode,
+  because side-by-side without that warning shows two different passages as one.
 - *Follow-ups:* 1–3 Meqabyan, 4 Baruch (no open English text located); more Threads.
 - **DoD:** browse the wider canon with clear tradition labels and a fair
   canon-comparison; every book in the manifest with its per-tradition status.

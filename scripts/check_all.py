@@ -26,13 +26,14 @@ import berean_lib as lib   # noqa: E402
 SCRIPTS = os.path.dirname(os.path.abspath(__file__))
 INTEGRITY = os.path.join(lib.LIB, "integrity.json")
 
-CHECKERS = ["check_words_of_jesus.py", "check_threads.py", "check_ot_quotations.py"]
+CHECKERS = ["check_words_of_jesus.py", "check_threads.py", "check_ot_quotations.py",
+            "check_versification.py"]
 
 # Datasets whose contents are recorded, so a silent change is visible.
 TRACKED = ["books.json", "manifest.json", "canons.json", "threads.json", "prayers.json",
-           "crossrefs.json", "words-of-jesus.json", "ot-quotations.json",
+           "crossrefs.json", "words-of-jesus.json", "ot-quotations.json", "versification.json",
            "corpus/BSB.json", "corpus/KJV.json", "corpus/WEB.json", "corpus/ENOCH.json",
-           "corpus/JUBILEES.json"]
+           "corpus/JUBILEES.json", "corpus/LXX.json"]
 
 
 def sha256(path):

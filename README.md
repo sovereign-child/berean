@@ -57,10 +57,12 @@ feet and a light to my path."* (Psalm 119:105)
 
 **The reader works, and it does things no free Bible app puts together.** A
 dependency-free reader in [`web/`](web/) — no framework, no CDN, no analytics, no
-account — over five hosted texts: the **Berean Standard Bible** (CC0), the **King
-James Version**, the **World English Bible with Deuterocanon** (81 books), and the
-two books the Ethiopian church receives that no other canon does — **1 Enoch** and
-**Jubilees** (Charles, 1917). Run it with `./serve.sh` → open `/web/`.
+account — over six hosted texts: the **Berean Standard Bible** (CC0), the **King
+James Version**, the **World English Bible with Deuterocanon** (81 books),
+**Brenton's Septuagint** (1851) — the Greek Old Testament the New Testament
+usually quotes — and the two books the Ethiopian church receives that no other
+canon does, **1 Enoch** and **Jubilees** (Charles). Run it with `./serve.sh` →
+open `/web/`.
 
 What is in it now:
 
@@ -75,6 +77,10 @@ What is in it now:
   quotation marks; the Father's voice is labeled separately, never folded in.
 - **The Old Testament in the New** — 180 quotations and 72 echoes, found by
   matching the testaments against each other, shown under the verse you are reading.
+- **Where the numbers disagree** — Brenton follows the Greek, so its Psalm 22 is
+  your Psalm 23 and its Jeremiah 32 is your Jeremiah 25. The map is derived from
+  the texts, shown while you read, and the compare view refuses to pretend two
+  differently-numbered chapters are the same passage.
 - **🧵 Threads** — documented trails through Scripture and the wider canon, every
   citation resolving in the app, each step labeled consensus / debate / textual /
   extra-biblical. Berean presents; it does not decide.
@@ -100,6 +106,9 @@ preservation, stewardship) remain below.
 - [docs/03-texts-and-licensing.md](docs/03-texts-and-licensing.md) — **which texts
   we can host, which we must link, and how canon differs by tradition** (read this
   before adding any scripture text)
+- **[docs/08-derived-layers.md](docs/08-derived-layers.md) — how the library is built
+  and the rules it follows** (read this before adding a text or a derived layer:
+  addressing, offsets-not-copies, derive-don't-assert, builder + checker + hash)
 - **[ROADMAP.md](ROADMAP.md) — the canonical roadmap** (phases, definitions of done, buildable-now vs API vs deferred)
 - [docs/05-preservation-and-integrity.md](docs/05-preservation-and-integrity.md) — the censorship-resistant preservation pillar (future)
 - [docs/06-hosting-and-stewardship.md](docs/06-hosting-and-stewardship.md) — running lean (free/AWS) + the generous, community-first funding model
