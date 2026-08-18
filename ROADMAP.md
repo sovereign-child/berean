@@ -138,8 +138,22 @@ Berean's distinctive: the wider canon, openly and non-sectarianly.
   → Hebrews 11, with the Quranic account and Jubilees cited by reference and labeled.
   Verified by `scripts/check_threads.py`, which resolves **every** citation in every
   thread against the actual corpus and fails loudly if one doesn't.
-- *Follow-ups:* **Jubilees** (still no clean PD machine-readable source — cited by
-  reference in two threads now), 1–3 Meqabyan, 4 Baruch; more Threads.
+- ✅ **Jubilees (Charles, 1917, PD) ingested (2026-08-18)** — the last book the canon
+  table named but could not open. The blocker was never the licence but the *format*:
+  the scans of Charles are OCR and the readable web copies are wrapped in someone's
+  site. Sefaria publishes the Charles translation through an open API with chapter and
+  verse structure intact, marked Public Domain — 50 chapters, 1,758 verses, nothing to
+  OCR and nothing to scrape (`scripts/ingest_jubilees.py`, which refuses to write if the
+  version it is handed is not the one named or is not marked public domain).
+  Both threads that cited it by reference now resolve it: **the divine-council thread
+  resolves every one of its 13 citations**, and Abraham's Two Sons opens the prince
+  Mastêmâ accusing Abraham — the Job 1 move, in a book found in more than a dozen
+  copies at Qumran.
+- ✅ **Thread: The Greek Old Testament** — where the New Testament quotes the Septuagint
+  and the wording differs from the Hebrew: Psalm 40:6 against Hebrews 10:5, Amos 9:12
+  against Acts 15:17, and Deuteronomy 32:43, where a Dead Sea scroll vindicated the
+  Greek translators and supplied the verse Hebrews 1:6 quotes.
+- *Follow-ups:* 1–3 Meqabyan, 4 Baruch (no open English text located); more Threads.
 - **DoD:** browse the wider canon with clear tradition labels and a fair
   canon-comparison; every book in the manifest with its per-tradition status.
 

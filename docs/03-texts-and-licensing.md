@@ -41,7 +41,8 @@ Different traditions include different books. Berean must **label**, never assum
 - **Eastern Orthodox** — the deuterocanon plus additional books (3 Maccabees,
   1 Esdras, Prayer of Manasseh, Psalm 151, …), varying by jurisdiction.
 - **Tewahedo (Ethiopian) canon** — broader still (includes 1 Enoch, Jubilees).
-- **Pseudepigrapha / "lost" & non-canonical books** — 1 Enoch, Jubilees, Jasher,
+- **Pseudepigrapha / "lost" & non-canonical books** — 1 Enoch ✅ and Jubilees ✅ (both
+  Charles, PD, hosted and labeled), Jasher,
   Gospel of Thomas, etc.: **not scripture in most traditions**, but of real
   historical/scholarly interest. Present them clearly as such, never implied as
   canonical.

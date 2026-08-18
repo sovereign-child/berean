@@ -279,9 +279,9 @@
     {
       "code": "JUB",
       "name": "Jubilees",
-      "hosted": null,
+      "hosted": "JUBILEES",
       "era": "c. 160–150 BC",
-      "note": "Genesis and Exodus retold on a calendar of jubilees. Found in multiple copies at Qumran. Not yet in Berean — no clean public-domain machine-readable edition located so far.",
+      "note": "Genesis and Exodus retold on a calendar of jubilees, with an accuser at the binding of Isaac and the Watchers of Genesis 6 named outright. Found in more than a dozen copies at Qumran — one of the most copied books there. Open it and read.",
       "in": {
         "tanakh": "absent",
         "protestant": "absent",

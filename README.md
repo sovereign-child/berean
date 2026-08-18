@@ -57,9 +57,10 @@ feet and a light to my path."* (Psalm 119:105)
 
 **The reader works, and it does things no free Bible app puts together.** A
 dependency-free reader in [`web/`](web/) — no framework, no CDN, no analytics, no
-account — over four hosted texts: the **Berean Standard Bible** (CC0), the **King
-James Version**, the **World English Bible with Deuterocanon** (81 books), and
-**1 Enoch** (Charles, 1917). Run it with `./serve.sh` → open `/web/`.
+account — over five hosted texts: the **Berean Standard Bible** (CC0), the **King
+James Version**, the **World English Bible with Deuterocanon** (81 books), and the
+two books the Ethiopian church receives that no other canon does — **1 Enoch** and
+**Jubilees** (Charles, 1917). Run it with `./serve.sh` → open `/web/`.
 
 What is in it now:
 

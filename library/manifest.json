@@ -61,6 +61,18 @@
       "canon_status": "Non-canonical in Jewish, Catholic, Orthodox and Protestant canons; canonical in the Ethiopian Orthodox Tewahedo Church; quoted in Jude 14-15.",
       "canonical": false,
       "id": "ENOCH"
+    },
+    {
+      "version": "JUBILEES",
+      "name": "Jubilees (R.H. Charles)",
+      "language": "en",
+      "license": "Public Domain",
+      "source": "https://www.sefaria.org/api/v3/texts/Book_of_Jubilees — version: The Book of Jubilees, trans. R. H. Charles. London [1917]",
+      "attribution": "The Book of Jubilees, translated by R. H. Charles (London, 1917) — Public Domain, via Sefaria (sefaria.org).",
+      "tradition": "Pseudepigrapha",
+      "canon_status": "Canonical in the Ethiopian Orthodox Tewahedo Church; not received as Scripture in the Jewish, Catholic, Orthodox or Protestant canons. Found in more than a dozen copies among the Dead Sea Scrolls, which makes it one of the most widely copied books at Qumran.",
+      "canonical": false,
+      "id": "JUBILEES"
     }
   ],
   "compilations": [

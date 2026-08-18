@@ -70,10 +70,10 @@
         },
         {
           "ref": "Jubilees 5:1-2",
-          "version": "",
-          "tradition": "Pseudepigrapha (Ethiopian canon)",
+          "version": "JUBILEES",
+          "tradition": "Ethiopian Tewahedo canon",
           "status": "extra-biblical",
-          "note": "The Book of Jubilees parallels the same Watchers-and-Nephilim account. (Text not yet loaded in Berean — cited by reference; see R.H. Charles' 1913 translation.)"
+          "note": "Jubilees tells Genesis 6 outright: “the angels of God saw them… and they took themselves wives.” It is the same story the Watchers tradition carries, written down in a book found in more than a dozen copies at Qumran — and now open in Berean, so you can read the whole chapter rather than take this summary for it."
         },
         {
           "ref": "2 Peter 2:4",
@@ -178,10 +178,11 @@
           "note": "Ibrahim and Ismail raise the foundations of the House at Mecca and pray for a prophet from among their descendants. This is the Islamic continuation of the Ishmael promise, and it is why the disagreement over one son in Genesis 22 carries the weight it does."
         },
         {
-          "ref": "Jubilees 17-18",
+          "ref": "Jubilees 17:21",
           "tradition": "Ethiopian Tewahedo canon",
           "status": "extra-biblical",
-          "note": "A Second Temple retelling of the binding that adds an accusing figure, Mastema, prompting the test — the same narrative move Job 1 makes. Canonical in the Ethiopian church; not yet hosted in Berean."
+          "note": "The Second Temple retelling of the binding adds an accuser: “the prince Mastêmâ came and said before God, ‘Behold, Abraham loveth Isaac his son…’” — the same narrative move Job 1 makes, and a window into how this period read the test. Note that Jubilees, like Genesis, names Isaac. Canonical in the Ethiopian church; now readable in Berean.",
+          "version": "JUBILEES"
         },
         {
           "ref": "Galatians 4:22-31",
