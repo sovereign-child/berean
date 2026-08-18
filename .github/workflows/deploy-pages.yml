@@ -6,13 +6,17 @@ name: deploy
 # The site must be served from the REPO ROOT: web/ fetches ../library/, and the
 # root index.html redirects to web/. Do not publish web/ on its own.
 #
-# One-time setup (needs a public repo on a free plan, or a paid plan for private):
-#   gh api repos/OWNER/REPO/pages -X POST -f build_type=workflow
-# then this workflow runs on every push to main.
+# One-time setup (Pages on a free plan needs a PUBLIC repo; private needs a paid
+# plan). Once the repo is public:
+#   gh api repos/sovereign-child/berean/pages -X POST -f build_type=workflow
+#   gh workflow run deploy-pages.yml
+#
+# Manual until then — an automatic trigger would fail on every push and leave the
+# repo showing red for something that is not broken. Add back once Pages is on:
+#   push:
+#     branches: [main]
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
