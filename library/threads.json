@@ -220,6 +220,105 @@
         "Josephus, Antiquities 1.13 — a first-century Jewish retelling of the binding, naming Isaac.",
         "Genesis Rabbah 55–56 — the rabbinic tradition on the Akedah."
       ]
+    },
+    {
+      "id": "greek-old-testament",
+      "title": "The Greek Old Testament",
+      "summary": "Two centuries before Christ, Jewish scholars translated the Hebrew Scriptures into Greek. That translation — the Septuagint — is the Bible most of the New Testament's first readers actually held, and it is the one the New Testament writers usually quote. Where it differs from the Hebrew text our Old Testaments are translated from, you can watch a New Testament argument rest on the Greek wording. Every difference below is visible in Berean itself: open both verses and read them side by side.",
+      "steps": [
+        {
+          "ref": "Isaiah 7:14",
+          "version": "BSB",
+          "tradition": "Hebrew Bible / Septuagint",
+          "status": "debate",
+          "note": "The Hebrew word is almah — a young woman of marriageable age. The Greek translators, Jewish scholars working long before any Christian dispute, rendered it parthenos, which does mean virgin. Berean's BSB follows that reading; other faithful translations read “young woman” here. The disagreement is real, it is old, and it is not evidence of tampering by anyone."
+        },
+        {
+          "ref": "Matthew 1:23",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "consensus",
+          "note": "Matthew quotes the Greek, word for word — and Berean marks it: open Matthew 1 and the line under this verse says “quoting Isaiah 7:14.” The whole force of his argument comes from the Greek rendering of one Hebrew word."
+        },
+        {
+          "ref": "Psalm 40:6",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "textual",
+          "note": "“Sacrifice and offering You did not desire, but my ears You have opened.” That is the Hebrew, and it is what your Old Testament says."
+        },
+        {
+          "ref": "Hebrews 10:5",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "textual",
+          "note": "“Sacrifice and offering You did not desire, but a body You prepared for Me.” Same verse, different sentence — the writer is quoting the Greek, where the line reads “a body.” His entire argument, that Christ came to offer a body rather than an animal, is built on the Greek wording. Both sentences are in the Bible in front of you."
+        },
+        {
+          "ref": "Amos 9:11-12",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "textual",
+          "note": "“…that they may possess the remnant of Edom.” A promise about territory, in the Hebrew."
+        },
+        {
+          "ref": "Acts 15:16-17",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "consensus",
+          "note": "James, at the council deciding whether Gentiles must be circumcised, quotes this passage as “so that the remnant of men may seek the Lord, and all the Gentiles who are called by My name.” That is the Greek. In unpointed Hebrew, Edom and adam — mankind — are the same three consonants. The council's decision to receive the Gentiles is argued from the reading that says mankind."
+        },
+        {
+          "ref": "Deuteronomy 32:43",
+          "version": "BSB",
+          "tradition": "Hebrew Bible / Dead Sea Scrolls",
+          "status": "textual",
+          "note": "“…and let all God's angels worship Him.” That line is absent from the Masoretic Hebrew text, present in the Septuagint, and present in a Dead Sea Scroll of Deuteronomy (4QDeut-q) copied centuries before it. The scrolls showed the Greek translators were not inventing — they had a Hebrew text that read this way. Berean's BSB includes it."
+        },
+        {
+          "ref": "Hebrews 1:6",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "consensus",
+          "note": "And that is the line the writer of Hebrews quotes, to say the angels worship the Son. Without the Greek — or the scroll — the verse he is quoting would not exist."
+        },
+        {
+          "ref": "Psalm 22:16",
+          "version": "BSB",
+          "tradition": "Hebrew Bible / Dead Sea Scrolls",
+          "status": "textual",
+          "note": "“…they have pierced my hands and feet.” The Masoretic Hebrew here reads, roughly, “like a lion my hands and feet.” The Septuagint reads “pierced,” and so does a scroll from Nahal Hever older than the Masoretic manuscripts. One letter, longer or shorter, separates the two readings."
+        },
+        {
+          "ref": "Genesis 4:8",
+          "version": "BSB",
+          "tradition": "Hebrew Bible / Septuagint",
+          "status": "textual",
+          "note": "“Then Cain said to his brother Abel, ‘Let us go out to the field.’” The Masoretic text says Cain spoke to Abel and records nothing he said — a sentence with a hole in it. The Septuagint, the Samaritan Pentateuch and the Syriac all have the missing words."
+        },
+        {
+          "ref": "Jeremiah — the whole book",
+          "tradition": "Manuscript history",
+          "status": "textual",
+          "note": "The largest difference of all cannot be shown in one verse: the Septuagint's Jeremiah is about an eighth shorter than the Hebrew one and arranges the oracles differently. Both forms turned up at Qumran, so both were being copied as Scripture in the same period. Cited by reference — Berean hosts one form of Jeremiah, and says so."
+        },
+        {
+          "ref": "2 Timothy 3:16",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "consensus",
+          "note": "“All Scripture is God-breathed.” Worth holding beside everything above: for most of the people who first read that sentence, the Scripture in their hands was Greek. The Church has never had a single manuscript tradition, and it has never needed one — the differences are documented, examinable, and mostly small enough to read for yourself, which is what this thread is for."
+        }
+      ],
+      "sources": [
+        "Septuagint: A. Rahlfs, Septuaginta (1935); the translation dates from the 3rd–2nd centuries BC, made by Jewish scholars in Alexandria.",
+        "Masoretic Text: Biblia Hebraica Stuttgartensia, following the Leningrad Codex (AD 1008) — the oldest complete Hebrew Bible.",
+        "4QDeut-q (Dead Sea Scrolls) — carries the longer Deuteronomy 32:43 that the Septuagint and Hebrews 1:6 both attest.",
+        "5/6HevPs (Nahal Hever) — a Psalms scroll supporting the “pierced” reading at Psalm 22:16.",
+        "4QJer-a and 4QJer-b (Qumran) — Hebrew copies of Jeremiah in both the longer and the shorter form.",
+        "Emanuel Tov, Textual Criticism of the Hebrew Bible — the standard scholarly treatment of these differences.",
+        "Every biblical citation in this thread resolves in Berean: open them and compare the wording yourself."
+      ]
     }
   ]
 }
