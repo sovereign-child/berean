@@ -4,23 +4,34 @@
 "use strict";
 
 const MANIFEST_URL = "../library/manifest.json";
-const versionUrl = (id) => `../library/corpus/${id}.json`;
-const CROSSREFS_URL = "../library/crossrefs.json";
-const STORE_KEY = "berean.study.v1";
+const BOOKS_URL = "../library/books.json";
+const indexUrl = (id) => `../library/corpus/${id}/index.json`;
+const bookUrl = (id, code) => `../library/corpus/${id}/${code}.json`;
+const bundleUrl = (id) => `../library/corpus/${id}.json`;          // whole version — search only
+const xrefUrl = (code) => `../library/crossrefs/${code}.json`;
+const STORE_KEY = "berean.study.v2";
+const STORE_KEY_V1 = "berean.study.v1";
 const PREFS_KEY = "berean.prefs.v1";   // remembered reader preferences (version, compare, search scope)
 
-// Canonical 66-book order — used to resolve cross-reference book indices + permalinks.
-const BOOKS = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
+/* Every dataset keys on the book codes in library/books.json — a verse address is
+   CODE.CHAPTER.VERSE (JHN.3.16). Display names live in that one registry, so
+   renaming a book can never orphan a reader's saved study again. */
+let registry = null;
+const codeFor = (name) => (registry && registry.resolve[String(name).trim().toLowerCase()]) || null;
+const nameFor = (code) => (registry && (registry.byCode[code] || {}).name) || code;
 
 const el = (id) => document.getElementById(id);
+const vref = (code, c1, v1) => `${code}.${c1}.${v1}`;                 // canonical verse address
 const esc = (s) => (s || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
-const vk = (name, c1, v1) => `${name}|${c1}|${v1}`;              // version-agnostic verse key
-const cache = new Map();
-let crossrefs = null;
+const vk = vref;                                                     // study data is keyed the same way
+const cache = new Map();      // version id → index + whatever books have been opened
+const bundles = new Map();    // version id → the whole-version file (search)
+const crossrefs = new Map();  // book code → its cross-references
+let xrefMeta = null;
 let manifest = null;
 let hashLock = false;
 
-const state = { primary: null, compare: null, book: 0, chapter: 0, sel: null, anchor: null };
+const state = { primary: null, compare: null, code: null, chapter: 0, sel: null, anchor: null };
 
 /* ---------- study store (localStorage) ---------- */
 function loadStore() {
@@ -29,6 +40,33 @@ function loadStore() {
 }
 let store = loadStore();
 function saveStore() { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+
+/* Study saved before book codes existed was keyed "Song of Solomon|2|1", which
+   would have broken the day a book was renamed. Migrate it once, in place, and
+   leave the old record alone so nothing is lost if this goes wrong. */
+function migrateStore() {
+  if (localStorage.getItem(STORE_KEY)) return;
+  let old;
+  try { old = JSON.parse(localStorage.getItem(STORE_KEY_V1) || "null"); } catch { return; }
+  if (!old) return;
+  const rekey = (k) => {
+    const [name, c, v] = String(k).split("|");
+    const code = codeFor(name);
+    return code && c && v ? vref(code, +c, +v) : null;
+  };
+  const map = (obj) => Object.fromEntries(Object.entries(obj || {})
+    .map(([k, val]) => [rekey(k), val]).filter(([k]) => k));
+  store = {
+    highlights: map(old.highlights),
+    notes: map(old.notes),
+    collections: (old.collections || []).map((c) =>
+      ({ ...c, verses: (c.verses || []).map(rekey).filter(Boolean) })),
+    prayers: old.prayers || [],
+  };
+  saveStore();
+  const moved = Object.keys(store.highlights).length + Object.keys(store.notes).length;
+  if (moved) setTimeout(() => toast(`Your study moved to the new verse addresses (${moved} items)`), 800);
+}
 
 function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}"); } catch { return {}; } }
 function savePrefs() {
@@ -56,24 +94,53 @@ function toast(msg) {
   clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 1500);
 }
 
-/* ---------- data ---------- */
+/* ---------- data --------------------------------------------------------------
+   A version loads as its index — metadata and the verse count of every chapter,
+   about 6 KB — which is everything the menus need. Books arrive one file at a
+   time as they are opened, so the reader shows a chapter without downloading a
+   Bible. `chapters` is sized from the index up front and filled in on demand,
+   so anything reading `book.chapters.length` keeps working. */
+async function loadRegistry() {
+  if (!registry) {
+    registry = await (await fetch(BOOKS_URL)).json();
+    registry.byCode = Object.fromEntries(registry.books.map((b) => [b.code, b]));
+  }
+  return registry;
+}
 async function loadVersion(id) {
   if (cache.has(id)) return cache.get(id);
-  const d = await (await fetch(versionUrl(id))).json();
+  const d = await (await fetch(indexUrl(id))).json();
+  d.books = d.books.map((b) => ({ code: b.code, name: b.name, verseCounts: b.chapters,
+                                  chapters: b.chapters.map(() => null), loaded: false }));
+  d._byCode = Object.fromEntries(d.books.map((b) => [b.code, b]));
   d._byName = Object.fromEntries(d.books.map((b) => [b.name, b]));
   cache.set(id, d);
   return d;
 }
-async function loadCrossrefs() {
-  if (!crossrefs) crossrefs = await (await fetch(CROSSREFS_URL)).json();
-  return crossrefs;
+/* Fetch one book's text if it is not already here. */
+async function ensureBook(id, code) {
+  const d = cache.get(id) || await loadVersion(id);
+  const book = d._byCode[code];
+  if (!book || book.loaded) return book || null;
+  const shard = await (await fetch(bookUrl(id, code))).json();
+  book.chapters = shard.chapters;
+  book.loaded = true;
+  return book;
+}
+/* The whole version in one file. Only search needs this. */
+async function loadBundle(id) {
+  if (!bundles.has(id)) bundles.set(id, await (await fetch(bundleUrl(id))).json());
+  return bundles.get(id);
 }
 const primary = () => cache.get(state.primary);
+const curBook = () => { const p = primary(); return p && p._byCode[state.code]; };
+const bookAt = (id, code) => { const d = cache.get(id); return d && d._byCode[code]; };
 
 /* ---------- links, share, read-aloud ---------- */
 const base = () => `${location.origin}${location.pathname}`;
 const verseLink = (s) => `${base()}#/${state.primary}/${encodeURIComponent(s.name)}/${s.c1}/${s.v1}`;
-const chapterLink = () => `${base()}#/${state.primary}/${encodeURIComponent(primary().books[state.book].name)}/${state.chapter + 1}`;
+const bookIndex = (id, code) => { const d = cache.get(id); return d ? d.books.findIndex((b) => b.code === code) : -1; };
+const chapterLink = () => `${base()}#/${state.primary}/${encodeURIComponent(curBook().name)}/${state.chapter + 1}`;
 
 async function shareOrCopy({ title, text, url }) {
   if (navigator.share) {
@@ -125,7 +192,7 @@ function stopSpeak() {
 function speakChapter() {
   if (!window.speechSynthesis) { toast("Read-aloud isn’t supported in this browser"); return; }
   if (state.compare) { toast("Turn off Compare to listen"); return; }
-  const verses = primary().books[state.book].chapters[state.chapter] || [];
+  const verses = curBook().chapters[state.chapter] || [];
   speaking = true;
   const b = el("listenChapter"); b.classList.add("active"); b.innerHTML = ICON_STOP; b.title = "Stop";
   let i = 0;
@@ -159,7 +226,7 @@ async function loadAudioManifest() {
 }
 function chapterAudioFile(m) {
   return !state.compare && m.files && m.files[state.primary]
-    && m.files[state.primary][state.book] && m.files[state.primary][state.book][state.chapter + 1];
+    && m.files[state.primary][state.code] && m.files[state.primary][state.code][state.chapter + 1];
 }
 function setListenIcon(on) { const b = el("listenChapter"); if (!b) return; b.classList.toggle("active", on); b.innerHTML = on ? ICON_STOP : ICON_PLAY; b.title = on ? "Stop" : "Read chapter aloud"; }
 function stopAudio() { audioPlaying = false; try { chapterAudio.pause(); } catch (e) {} }
@@ -178,43 +245,43 @@ function playChapterAudio(path) {
    meets one without knowing which traditions receive it. */
 const versionMeta = () => (manifest && manifest.versions.find((v) => v.id === state.primary)) || null;
 const outsideCanon = () => { const m = versionMeta(); return !!(m && m.canonical === false); };
-const disputed = (name) => {
+const disputed = (code) => {
   const p = primary();
-  return !!(p && p.deuterocanonical && p.deuterocanonical.indexOf(name) >= 0);
+  return !!(p && p.deuterocanonical && p.deuterocanonical.indexOf(code) >= 0);
 };
 function renderSelectors() {
-  const p = primary(), book = p.books[state.book];
-  el("bookSel").innerHTML = p.books.map((b, i) =>
-    `<option value="${i}" ${i === state.book ? "selected" : ""}>${b.name}${disputed(b.name) ? " ✦" : ""}</option>`).join("");
+  const p = primary(), book = curBook();
+  el("bookSel").innerHTML = p.books.map((b) =>
+    `<option value="${b.code}" ${b.code === state.code ? "selected" : ""}>${b.name}${disputed(b.code) ? " ✦" : ""}</option>`).join("");
   el("chapSel").innerHTML = book.chapters.map((_, i) => `<option value="${i}" ${i === state.chapter ? "selected" : ""}>${i + 1}</option>`).join("");
   el("refLabel").innerHTML = `${esc(book.name)} ${state.chapter + 1}`
-    + (disputed(book.name)
+    + (disputed(book.code)
         ? ` <button class="canonbadge" id="refCanon" title="Which traditions receive this book?">✦ disputed between traditions</button>`
         : (outsideCanon()
             ? ` <button class="canonbadge canonbadge--outside" id="refCanon" title="Where does this text stand?">outside the biblical canon</button>` : ""));
 }
 
 function renderChapter() {
-  const p = primary(), book = p.books[state.book], c1 = state.chapter + 1;
+  const p = primary(), book = curBook(), c1 = state.chapter + 1;
   const chA = book.chapters[state.chapter] || [];
   const cmp = state.compare ? cache.get(state.compare) : null;
 
   if (cmp) {
-    const bookB = cmp._byName[book.name];
+    const bookB = cmp._byCode[book.code];
     const chB = (bookB && bookB.chapters[state.chapter]) || [];
     const rows = Math.max(chA.length, chB.length);
     let h = `<div class="cmp"><div class="cmp__head">${p.name}</div><div class="cmp__head">${cmp.name}</div>`;
     for (let i = 0; i < rows; i++)
-      h += `<div class="row"><div class="cell"><span class="vnum">${i + 1}</span>${escRed(chA[i] || "", redRanges(book.name, c1, i + 1))}</div><div class="cell"><span class="vnum">${i + 1}</span>${esc(chB[i] || "")}</div></div>`;
+      h += `<div class="row"><div class="cell"><span class="vnum">${i + 1}</span>${escRed(chA[i] || "", redRanges(book.code, c1, i + 1))}</div><div class="cell"><span class="vnum">${i + 1}</span>${esc(chB[i] || "")}</div></div>`;
     el("reader").innerHTML = h + `</div>`;
     return;
   }
   el("reader").innerHTML = chA.map((t, i) => {
-    const v1 = i + 1, key = vk(book.name, c1, v1);
+    const v1 = i + 1, key = vk(book.code, c1, v1);
     const color = store.highlights[key], note = store.notes[key];
-    const sel = state.sel && state.sel.name === book.name && state.sel.c1 === c1 && v1 >= state.sel.from && v1 <= state.sel.to;
+    const sel = state.sel && state.sel.code === book.code && state.sel.c1 === c1 && v1 >= state.sel.from && v1 <= state.sel.to;
     return `<p class="verse${color ? ` hl-${color}` : ""}${sel ? " sel" : ""}" id="v${v1}" data-v="${v1}">`
-      + `<span class="vnum" role="button" tabindex="0">${v1}</span>${escRed(t, redRanges(book.name, c1, v1))}`
+      + `<span class="vnum" role="button" tabindex="0">${v1}</span>${escRed(t, redRanges(book.code, c1, v1))}`
       + (note ? `<span class="noteflag" title="note">✎</span><span class="noteline">${esc(note)}</span>` : "")
       + `</p>`;
   }).join("");
@@ -231,25 +298,34 @@ function showOnly(section) {
 
 /* ---------- navigation + permalinks ---------- */
 function updateHash() {
-  const p = primary(), name = p.books[state.book].name;
+  const name = curBook().name;
   hashLock = true;
   location.hash = `/${state.primary}/${encodeURIComponent(name)}/${state.chapter + 1}`;
   setTimeout(() => (hashLock = false), 0);
 }
-function gotoChapter(bookIdx, chapIdx, highlightVerse) {
+/* Every navigation goes through here, so a book is always fetched before it is
+   drawn — and the compare column's book too. */
+async function gotoChapter(code, chapIdx, highlightVerse) {
   stopListening();
   const p = primary();
-  state.book = Math.max(0, Math.min(bookIdx, p.books.length - 1));
-  state.chapter = Math.max(0, Math.min(chapIdx, p.books[state.book].chapters.length - 1));
+  const book = p._byCode[code] || p.books[0];
+  state.code = book.code;
+  state.chapter = Math.max(0, Math.min(chapIdx, book.chapters.length - 1));
+  await ensureBook(state.primary, state.code);
+  if (state.compare && bookAt(state.compare, state.code)) {
+    try { await ensureBook(state.compare, state.code); } catch (e) { /* absent in that version */ }
+  }
   renderSelectors(); renderChapter(); showOnly("reader"); updateHash();
+  maybeLoadRedLetters();
   if (highlightVerse) { const v = el(`v${highlightVerse}`); if (v) { v.scrollIntoView({ block: "center" }); } }
   else window.scrollTo({ top: 0 });
 }
 function step(d) {
-  const p = primary(); let b = state.book, c = state.chapter + d;
-  if (c < 0) { if (--b < 0) return; c = p.books[b].chapters.length - 1; }
-  else if (c >= p.books[b].chapters.length) { if (++b >= p.books.length) return; c = 0; }
-  clearSelection(); gotoChapter(b, c);
+  const p = primary();
+  let bi = bookIndex(state.primary, state.code), c = state.chapter + d;
+  if (c < 0) { if (--bi < 0) return; c = p.books[bi].chapters.length - 1; }
+  else if (c >= p.books[bi].chapters.length) { if (++bi >= p.books.length) return; c = 0; }
+  clearSelection(); gotoChapter(p.books[bi].code, c);
 }
 async function applyHash() {
   const m = location.hash.match(/^#\/([^/]+)\/([^/]+)\/(\d+)(?:\/(\d+))?/);
@@ -257,10 +333,9 @@ async function applyHash() {
   const [, ver, bookEnc, ch, v] = m;
   if (!manifest.versions.some((x) => x.id === ver)) return false;
   state.primary = ver; el("verSel").value = ver; await loadVersion(ver);
-  const name = decodeURIComponent(bookEnc);
-  const bi = primary().books.findIndex((b) => b.name === name);
-  if (bi < 0) return false;
-  gotoChapter(bi, (+ch) - 1, v ? +v : 0);
+  const code = codeFor(decodeURIComponent(bookEnc));
+  if (!code || !primary()._byCode[code]) return false;
+  await gotoChapter(code, (+ch) - 1, v ? +v : 0);
   renderAttribution();
   return true;
 }
@@ -272,13 +347,13 @@ function refreshSaveOptions() {
     + `<option value="__new">＋ New collection…</option>`;
 }
 function selectVerse(v1, extend) {
-  const book = primary().books[state.book], c1 = state.chapter + 1;
-  if (extend && state.sel && state.sel.c1 === c1 && state.sel.name === book.name) {
+  const book = curBook(), c1 = state.chapter + 1;
+  if (extend && state.sel && state.sel.c1 === c1 && state.sel.code === book.code) {
     const a = state.anchor || state.sel.from;
-    state.sel = { bi: state.book, name: book.name, c1, from: Math.min(a, v1), to: Math.max(a, v1) };
+    state.sel = { code: book.code, name: book.name, c1, from: Math.min(a, v1), to: Math.max(a, v1) };
   } else {
     state.anchor = v1;
-    state.sel = { bi: state.book, name: book.name, c1, from: v1, to: v1 };
+    state.sel = { code: book.code, name: book.name, c1, from: v1, to: v1 };
   }
   renderChapter();
   el("verseBarRef").textContent = selRefText();
@@ -287,62 +362,90 @@ function selectVerse(v1, extend) {
 }
 function clearSelection() { state.sel = null; state.anchor = null; el("verseBar").hidden = true; }
 const selRefText = () => { const s = state.sel; return s.from === s.to ? `${s.name} ${s.c1}:${s.from}` : `${s.name} ${s.c1}:${s.from}–${s.to}`; };
-function selKeys() { const s = state.sel, out = []; for (let v = s.from; v <= s.to; v++) out.push(vk(s.name, s.c1, v)); return out; }
-function selVerses() { const s = state.sel, ch = primary().books[s.bi].chapters[s.c1 - 1] || []; const out = []; for (let v = s.from; v <= s.to; v++) out.push(ch[v - 1] || ""); return out; }
+function selKeys() { const s = state.sel, out = []; for (let v = s.from; v <= s.to; v++) out.push(vk(s.code, s.c1, v)); return out; }
+function selVerses() {
+  const s = state.sel, b = bookAt(state.primary, s.code), ch = (b && b.chapters[s.c1 - 1]) || [];
+  const out = []; for (let v = s.from; v <= s.to; v++) out.push(ch[v - 1] || ""); return out;
+}
 const selPassageText = () => selVerses().join(" ");
 const selFrom = () => ({ name: state.sel.name, c1: state.sel.c1, v1: state.sel.from });
 
-/* ---------- related verses (cross-references) ---------- */
+/* ---------- related verses (cross-references) ---------------------------------
+   Keyed CODE.CHAPTER.VERSE and stored one file per book, so looking up a verse
+   fetches that book's references rather than all 3.7 MB of them. */
 function xrefDisplay(t) {
   const [main, end] = t.split("-");
-  const [bi, ch, v] = main.split(".").map(Number);
-  return { bi, ch, v, label: `${BOOKS[bi]} ${ch}:${v}${end ? "–" + end : ""}` };
+  const [code, ch, v] = main.split(".");
+  return { code, ch: +ch, v: +v, label: `${nameFor(code)} ${+ch}:${+v}${end ? "–" + end : ""}` };
+}
+async function loadCrossrefs(code) {
+  if (!xrefMeta) xrefMeta = await (await fetch("../library/crossrefs/index.json")).json();
+  if (!crossrefs.has(code)) {
+    if (xrefMeta.books.indexOf(code) < 0) crossrefs.set(code, {});
+    else crossrefs.set(code, await (await fetch(xrefUrl(code))).json());
+  }
+  return crossrefs.get(code);
 }
 async function showRelated() {
   if (!state.sel) return;
-  const canonIdx = BOOKS.indexOf(state.sel.name);   // cross-refs are keyed to the 66-book canon
-  const s = { bi: canonIdx, name: state.sel.name, c1: state.sel.c1, v1: state.sel.from };
-  if (canonIdx < 0) {
+  const s = state.sel;
+  const refs = await loadCrossrefs(s.code);
+  const list = refs[vref(s.code, s.c1, s.from)] || [];
+  if (!xrefMeta.books.length || xrefMeta.books.indexOf(s.code) < 0) {
     el("relatedHead").textContent = `Related — not available for ${s.name}`;
-    el("relatedList").innerHTML = "<li>Cross-references currently cover the 66-book canon.</li>";
+    el("relatedList").innerHTML = `<li>The cross-reference set covers the 66-book canon. `
+      + `${esc(s.name)} is outside it, so Berean shows nothing rather than guessing.</li>`;
     el("relatedAttr").textContent = "";
     showOnly("related"); window.scrollTo({ top: 0 }); return;
   }
-  await loadCrossrefs();
-  const key = `${canonIdx}.${s.c1}.${s.v1}`;
-  const list = crossrefs.refs[key] || [];
-  el("relatedHead").textContent = `Related to ${s.name} ${s.c1}:${s.v1} — ${list.length} cross-reference${list.length === 1 ? "" : "s"}`;
-  const p = primary();
-  el("relatedList").innerHTML = list.map((t) => {
-    const r = xrefDisplay(t);
-    const verse = p.books[r.bi] && p.books[r.bi].chapters[r.ch - 1] && p.books[r.bi].chapters[r.ch - 1][r.v - 1];
-    return `<li data-b="${r.bi}" data-c="${r.ch - 1}" data-v="${r.v}"><span class="r-ref">${r.label}</span> <span class="r-text">${esc((verse || "").slice(0, 160))}</span></li>`;
-  }).join("") || "<li>No cross-references for this verse.</li>";
-  el("relatedAttr").textContent = crossrefs.attribution;
+  el("relatedHead").textContent = `Related to ${s.name} ${s.c1}:${s.from} — ${list.length} cross-reference${list.length === 1 ? "" : "s"}`;
+  // fetch only the books actually cited, then fill the previews in
+  const rows = list.map(xrefDisplay);
+  el("relatedList").innerHTML = rows.map((r) =>
+    `<li data-code="${esc(r.code)}" data-c="${r.ch - 1}" data-v="${r.v}">`
+    + `<span class="r-ref">${esc(r.label)}</span> <span class="r-text" data-preview="${esc(vref(r.code, r.ch, r.v))}"></span></li>`).join("")
+    || "<li>No cross-references for this verse.</li>";
+  el("relatedAttr").textContent = xrefMeta.attribution;
   showOnly("related");
   window.scrollTo({ top: 0 });
+  const p = primary();
+  await Promise.all([...new Set(rows.map((r) => r.code))]
+    .filter((c) => p._byCode[c])
+    .map((c) => ensureBook(state.primary, c).catch(() => null)));
+  for (const r of rows) {
+    const b = p._byCode[r.code];
+    const text = b && b.chapters[r.ch - 1] && b.chapters[r.ch - 1][r.v - 1];
+    const node = el("relatedList").querySelector(`[data-preview="${vref(r.code, r.ch, r.v)}"]`);
+    if (node) node.textContent = (text || "").slice(0, 160);
+  }
 }
 
-/* ---------- search ---------- */
+/* ---------- search ------------------------------------------------------------
+   Reading needs one book; searching needs the whole text, so this is the one
+   place that pulls a version's bundle — and only when someone actually searches. */
 async function runSearch(q, allVersions) {
   q = q.trim(); if (!q) return;
   const needle = q.toLowerCase();
   const wordRe = new RegExp(`\\b${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i");
   const ids = allVersions ? manifest.versions.map((v) => v.id) : [state.primary];
-  for (const id of ids) await loadVersion(id);
+  el("resultsCount").textContent = "Searching…";
+  el("resultsList").innerHTML = "";
+  showOnly("results");
   const hits = [];
   const CAP = 500;
   for (const id of ids) {
-    const d = cache.get(id);
-    for (let bi = 0; bi < d.books.length; bi++) {
-      const b = d.books[bi];
+    const d = await loadBundle(id);
+    outer:
+    for (const b of d.books) {
+      const code = codeFor(b.name);
       for (let ci = 0; ci < b.chapters.length; ci++) {
         const ch = b.chapters[ci];
         for (let vi = 0; vi < ch.length; vi++) {
           const txt = ch[vi];
           if (txt && txt.toLowerCase().includes(needle)) {
-            hits.push({ id, vid: d.name, bi, ci, vi, ref: `${b.name} ${ci + 1}:${vi + 1}`, text: txt, word: wordRe.test(txt) });
-            if (hits.length >= CAP) { ci = 1e9; bi = 1e9; break; }
+            hits.push({ id, vid: d.name, code, ci, vi, ref: `${b.name} ${ci + 1}:${vi + 1}`,
+                        text: txt, word: wordRe.test(txt) });
+            if (hits.length >= CAP) break outer;
           }
         }
       }
@@ -355,17 +458,24 @@ async function runSearch(q, allVersions) {
   };
   el("resultsCount").textContent = `${hits.length}${hits.length >= CAP ? "+" : ""} result${hits.length === 1 ? "" : "s"} for “${q}”${allVersions ? " (all versions)" : " in " + primary().name}`;
   el("resultsList").innerHTML = hits.map((h) =>
-    `<li data-id="${h.id}" data-b="${h.bi}" data-c="${h.ci}" data-v="${h.vi + 1}"><span class="r-ref">${h.ref}</span> ${allVersions ? `<span class="r-ver">${h.vid}</span>` : ""} <span class="r-text">${mark(h.text)}</span></li>`
+    `<li data-id="${h.id}" data-code="${h.code}" data-c="${h.ci}" data-v="${h.vi + 1}"><span class="r-ref">${h.ref}</span> ${allVersions ? `<span class="r-ver">${h.vid}</span>` : ""} <span class="r-text">${mark(h.text)}</span></li>`
   ).join("") || "<li>No results.</li>";
-  showOnly("results"); window.scrollTo({ top: 0 });
+  window.scrollTo({ top: 0 });
 }
 
 /* ---------- My Study panel ---------- */
-function renderStudy() {
+async function renderStudy() {
   const p = primary();
-  const refFromKey = (key) => { const [n, c, v] = key.split("|"); return { name: n, c: +c, v: +v, bi: BOOKS.indexOf(n) }; };
-  const jump = (key) => { const r = refFromKey(key); if (r.bi >= 0) { clearSelection(); gotoChapter(r.bi, r.c - 1, r.v); } };
-  const textOf = (key) => { const r = refFromKey(key); const b = p.books[r.bi]; return (b && b.chapters[r.c - 1] && b.chapters[r.c - 1][r.v - 1]) || ""; };
+  const refFromKey = (key) => { const [code, c, v] = key.split("."); return { code, name: nameFor(code), c: +c, v: +v }; };
+  const jump = (key) => { const r = refFromKey(key); if (p._byCode[r.code]) { clearSelection(); gotoChapter(r.code, r.c - 1, r.v); } };
+  const textOf = (key) => { const r = refFromKey(key); const b = p._byCode[r.code]; return (b && b.chapters[r.c - 1] && b.chapters[r.c - 1][r.v - 1]) || ""; };
+
+  // pull in whatever books this reader's own study touches, so previews are real
+  const keys = [...Object.keys(store.highlights), ...Object.keys(store.notes),
+                ...store.collections.flatMap((c) => c.verses)];
+  await Promise.all([...new Set(keys.map((k) => k.split(".")[0]))]
+    .filter((code) => p._byCode[code])
+    .map((code) => ensureBook(state.primary, code).catch(() => null)));
 
   const colls = store.collections.length ? store.collections.map((c) =>
     `<div><h3>${esc(c.name)} <span class="tiny">(${c.verses.length})</span></h3><ul>` +
@@ -419,12 +529,11 @@ async function loadCommentaryManifest() {
   }
   return commentaryManifest;
 }
-const commentariesForBook = (m, bookIdx) => (m.commentaries || []).filter((c) => (c.books || []).includes(bookIdx));
+const commentariesForBook = (m, code) => (m.commentaries || []).filter((c) => (c.books || []).includes(code));
 async function openCommentary() {
   const m = await loadCommentaryManifest();
-  const bookName = primary().books[state.book].name;
-  const canonIdx = BOOKS.indexOf(bookName);
-  const avail = canonIdx < 0 ? [] : commentariesForBook(m, canonIdx);
+  const bookName = curBook().name;
+  const avail = commentariesForBook(m, state.code);
   if (!avail.length) {
     el("commentarySel").innerHTML = "";
     el("commentaryHead").textContent = `Commentary — ${bookName} ${state.chapter + 1}`;
@@ -440,13 +549,12 @@ async function openCommentary() {
 async function renderCommentary(cid) {
   const m = await loadCommentaryManifest();
   const meta = (m.commentaries || []).find((c) => c.id === cid);
-  const bookName = primary().books[state.book].name, cn = state.chapter + 1;
-  const canonIdx = BOOKS.indexOf(bookName);
+  const bookName = curBook().name, cn = state.chapter + 1;
   el("commentaryHead").textContent = `${meta ? meta.name : "Commentary"} — ${bookName} ${cn}`;
-  const key = `${cid}/${canonIdx}/${cn}`;
+  const key = `${cid}/${state.code}/${cn}`;
   let data = commentaryCache.get(key);
   if (data === undefined) {
-    try { data = await (await fetch(`../library/commentary/${cid}/${canonIdx}/${cn}.json`)).json(); }
+    try { data = await (await fetch(`../library/commentary/${cid}/${state.code}/${cn}.json`)).json(); }
     catch { data = null; }
     commentaryCache.set(key, data);
   }
@@ -495,7 +603,7 @@ function renderCanon() {
     + `<thead><tr><th>Book</th>` + tr.map((t) => `<th>${esc(t.name)}</th>`).join("") + `</tr></thead><tbody>`
     + d.books.map((b) => {
         const open = b.hosted
-          ? `<button class="canon__open" data-book="${esc(b.name)}" data-ver="${esc(b.hosted)}">${esc(b.name)} →</button>`
+          ? `<button class="canon__open" data-book="${esc(b.code || "")}" data-ver="${esc(b.hosted)}">${esc(b.name)} →</button>`
           : `<span class="canon__book">${esc(b.name)}</span> <span class="canon__tag">not hosted</span>`;
         return `<tr><th scope="row"><div>${open}</div>`
           + `<div class="tiny">${esc(b.era)} · ${esc(b.note)}</div></th>`
@@ -513,17 +621,16 @@ function renderCanon() {
 }
 
 /* Open a disputed book in the version that carries it. */
-async function openCanonBook(name, versionId) {
+async function openCanonBook(code, versionId) {
   try { await loadVersion(versionId); } catch { toast("Could not load that text"); return; }
-  const bi = cache.get(versionId).books.findIndex((b) => b.name === name);
-  if (bi < 0) { toast("Not in this text"); return; }
+  if (!cache.get(versionId)._byCode[code]) { toast("Not in this text"); return; }
   if (versionId !== state.primary) {
     state.primary = versionId; el("verSel").value = versionId;
     if (state.compare === versionId) { state.compare = null; el("cmpSel").value = ""; }
     renderAttribution(); savePrefs();
   }
   clearSelection();
-  gotoChapter(bi, 0);
+  await gotoChapter(code, 0);
 }
 
 /* ---------- The Words of Jesus ----------------------------------------------
@@ -543,25 +650,35 @@ async function loadWoj() {
   await loadVersion(woj.version);      // the compiled book always quotes its source text
   return woj;
 }
+/* Red letters only exist in the New Testament, so the compiled book is fetched
+   when a reader actually opens one — never for Genesis. */
+const inNT = (code) => !!(registry && registry.byCode[code] && registry.byCode[code].section === "nt");
+async function maybeLoadRedLetters() {
+  if (!comfort.red || woj || !inNT(state.code)) return;
+  try { await loadWoj(); renderChapter(); } catch (e) { /* red letters simply stay off */ }
+}
+
+/* The panel slices its text out of the source translation, so the books it is
+   about to show have to be here first. */
+async function ensureWojBooks(codes) {
+  await Promise.all(codes.map((c) => ensureBook(woj.version, c).catch(() => null)));
+}
 
 /* Character ranges of Jesus' speech, per verse, so the reader can red-letter it. */
 function buildRedIndex(d) {
   const idx = {};
   for (const entry of d.books) {
-    const src = cache.get(d.version), book = src && src._byName[entry.book];
-    if (!book) continue;
-    const byChapter = (idx[entry.book] = idx[entry.book] || {});
+    const byChapter = (idx[entry.code] = idx[entry.code] || {});
     for (const p of entry.passages) {
       if (p.voice !== "jesus") continue;
       for (const part of p.parts) {
         const [c1, v1, o1] = part.from, [c2, v2, o2] = part.to;
         for (let c = c1; c <= c2; c++) {
-          const chapter = book.chapters[c - 1] || [];
-          const lo = c === c1 ? v1 : 1, hi = c === c2 ? v2 : chapter.length;
+          const lo = c === c1 ? v1 : 1, hi = c === c2 ? v2 : 1e4;
           const verses = (byChapter[c] = byChapter[c] || {});
-          for (let v = lo; v <= hi; v++) {
+          for (let v = lo; v <= hi && v <= (c === c2 ? v2 : lo + 400); v++) {
             const a = (c === c1 && v === v1) ? o1 : 0;
-            const b = (c === c2 && v === v2) ? o2 : (chapter[v - 1] || "").length;
+            const b = (c === c2 && v === v2) ? o2 : 1e6;   // to end of verse
             (verses[v] = verses[v] || []).push([a, b]);
           }
         }
@@ -570,9 +687,9 @@ function buildRedIndex(d) {
   }
   return idx;
 }
-const redRanges = (bookName, c1, v1) =>
-  (comfort.red && redIndex && state.primary === woj.version
-    && redIndex[bookName] && redIndex[bookName][c1] && redIndex[bookName][c1][v1]) || null;
+const redRanges = (code, c1, v1) =>
+  (comfort.red && redIndex && woj && state.primary === woj.version
+    && redIndex[code] && redIndex[code][c1] && redIndex[code][c1][v1]) || null;
 
 /* Escape a verse, wrapping the ranges Jesus speaks. Offsets are into the raw
    text, so each piece is escaped after slicing, never before. */
@@ -595,8 +712,8 @@ function escRed(text, ranges) {
 }
 
 /* The text of one compiled passage, sliced live out of the source translation. */
-function wojText(bookName, passage) {
-  const src = cache.get(woj.version), book = src && src._byName[bookName];
+function wojText(code, passage) {
+  const src = cache.get(woj.version), book = src && src._byCode[code];
   if (!book) return "";
   const out = [];
   for (const part of passage.parts) {
@@ -618,7 +735,8 @@ function wojText(bookName, passage) {
 
 async function openWoj() {
   await loadWoj();
-  if (!wojBook) wojBook = woj.books[0].book;
+  if (!wojBook) wojBook = woj.books[0].code;
+  await ensureWojBooks([wojBook]);
   renderWoj();
   showOnly("woj");
   window.scrollTo({ top: 0 });
@@ -628,12 +746,12 @@ function renderWoj() {
   el("wojHead").innerHTML = `${esc(d.title)} <span class="tiny">— ${esc(d.subtitle)} · `
     + `${d.stats.verses} verses · ${esc(cache.get(d.version).name)}</span>`;
   el("wojBooks").innerHTML = d.books.map((b) =>
-    `<button class="woj__tab${b.book === wojBook ? " is-on" : ""}" data-wojbook="${esc(b.book)}"`
-    + ` role="tab" aria-selected="${b.book === wojBook}">${esc(b.book)}`
+    `<button class="woj__tab${b.code === wojBook ? " is-on" : ""}" data-wojbook="${esc(b.code)}"`
+    + ` role="tab" aria-selected="${b.code === wojBook}">${esc(b.book)}`
     + ` <span class="tiny">${b.passages.filter((p) => p.voice === "jesus").length}</span></button>`).join("");
-  const entry = d.books.find((b) => b.book === wojBook) || d.books[0];
+  const entry = d.books.find((b) => b.code === wojBook) || d.books[0];
   el("wojBody").innerHTML = entry.passages.map((p) => {
-    const text = wojText(entry.book, p);
+    const text = wojText(entry.code, p);
     if (!text) return "";
     const tags = (p.voice === "father"
         ? `<span class="woj__tag woj__tag--father">${esc(d.voices.father)}</span>` : "")
@@ -662,7 +780,12 @@ function renderThreadList() {
 async function renderThread(id) {
   const d = threadsData, t = (d.threads || []).find((x) => x.id === id);
   if (!t) return;
-  for (const v of new Set((t.steps || []).map((s) => s.version).filter(Boolean))) { try { await loadVersion(v); } catch (e) {} }
+  for (const v of new Set((t.steps || []).map((s) => s.version).filter(Boolean))) {
+    try {
+      await loadVersion(v);
+      await ensureRefs((t.steps || []).filter((s) => s.version === v).map((s) => s.ref), v);
+    } catch (e) { /* a step Berean cannot resolve is shown as cited by reference */ }
+  }
   const badge = (s) => `<span class="thread-badge thread-badge--${s}">${esc((d.statusLabels && d.statusLabels[s]) || s)}</span>`;
   const steps = (t.steps || []).map((s) => {
     const res = s.version ? resolveRef(s.ref, s.version) : null;
@@ -679,28 +802,36 @@ async function renderThread(id) {
 }
 async function navigateRef(refStr, versionId) {
   const m = REF_RE.exec(refStr); if (!m) return;
-  let name = m[1].trim(); name = BOOK_ALIAS[name] || name;
+  const code = codeFor(m[1].trim());
   const ch = +m[2], v = +m[3];
   if (versionId && versionId !== state.primary) { await loadVersion(versionId); state.primary = versionId; el("verSel").value = versionId; renderAttribution(); savePrefs(); }
-  const bi = primary().books.findIndex((b) => b.name === name);
-  if (bi < 0) { toast("Passage not in this text"); return; }
-  clearSelection(); gotoChapter(bi, ch - 1, v);
+  if (!code || !primary()._byCode[code]) { toast("Passage not in this text"); return; }
+  clearSelection(); await gotoChapter(code, ch - 1, v);
 }
 
 /* ---------- prayer builder ---------- */
 const PRAYERS_URL = "../library/prayers.json";
 let prayers = null;
-const BOOK_ALIAS = { "Psalm": "Psalms", "Song of Songs": "Song of Solomon", "Canticles": "Song of Solomon" };
 const REF_RE = /^(\d?\s?[A-Za-z ]+?)\s+(\d+):(\d+)(?:-(\d+))?$/;
 async function loadPrayers() { if (!prayers) prayers = await (await fetch(PRAYERS_URL)).json(); return prayers; }
 
 // Pull the actual verse text from a loaded version — prayers.json stores references only.
+/* References resolve out of loaded books, and books arrive one at a time — so
+   anything about to resolve a list of them fetches those books first. */
+async function ensureRefs(refs, versionId) {
+  const codes = [...new Set(refs.map((r) => {
+    const m = REF_RE.exec(String(r).trim());
+    return m ? codeFor(m[1].trim()) : null;
+  }).filter(Boolean))];
+  await Promise.all(codes.map((c) => ensureBook(versionId, c).catch(() => null)));
+}
+
 function resolveRef(refStr, versionId) {
   const m = REF_RE.exec(refStr); if (!m) return null;
-  let name = m[1].trim(); name = BOOK_ALIAS[name] || name;
+  const code = codeFor(m[1].trim());
   const ch = +m[2], v1 = +m[3], v2 = m[4] ? +m[4] : v1;
-  const d = cache.get(versionId); if (!d) return null;
-  const b = d._byName[name]; if (!b || !b.chapters[ch - 1]) return null;
+  const d = cache.get(versionId); if (!d || !code) return null;
+  const b = d._byCode[code]; if (!b || !b.chapters[ch - 1]) return null;
   const chap = b.chapters[ch - 1], parts = [];
   for (let v = v1; v <= v2 && v <= chap.length; v++) parts.push(chap[v - 1]);
   return parts.length ? { ref: refStr, text: parts.join(" ") } : null;
@@ -744,7 +875,9 @@ async function buildPrayer() {
   await loadPrayers();
   const subj = prayers.subjects.find((s) => s.id === el("prSubject").value) || prayers.subjects[0];
   const tone = el("prTone").value;
-  await loadVersion(tone === "traditional" ? "KJV" : "BSB");
+  const versionId = tone === "traditional" ? "KJV" : "BSB";
+  await loadVersion(versionId);
+  await ensureRefs(prayers.subjects.flatMap((s) => s.verses || []), versionId);
   const { text, refs } = composePrayer(subj, {
     tone, style: el("prStyle").value, forWhom: el("prFor").value,
     name: el("prName").value, situation: el("prSituation").value, close: el("prClose").value,
@@ -776,8 +909,11 @@ async function openPrayer() {
 
 /* ---------- init ---------- */
 async function init() {
-  try { manifest = await (await fetch(MANIFEST_URL)).json(); }
+  try {
+    [manifest] = await Promise.all([(await fetch(MANIFEST_URL)).json(), loadRegistry()]);
+  }
   catch { el("reader").innerHTML = `<p>Could not load the library. Run <code>python3 scripts/ingest.py</code> and serve from the repo root.</p>`; return; }
+  migrateStore();
   const opts = manifest.versions.map((v) => `<option value="${v.id}">${v.name}</option>`).join("");
   el("verSel").innerHTML = opts;
   el("cmpSel").innerHTML = `<option value="">— none —</option>` + opts;
@@ -798,18 +934,34 @@ async function init() {
   applyComfort();
 
   await loadVersion(state.primary);
-  if (!(location.hash && await applyHash())) gotoChapter(0, 0);
+  state.code = primary().books[0].code;
+  if (!(location.hash && await applyHash())) await gotoChapter(state.code, 0);
   if (state.compare && state.compare === state.primary) { state.compare = null; el("cmpSel").value = ""; renderChapter(); }
+  else if (state.compare) { await ensureBook(state.compare, state.code).catch(() => null); renderChapter(); }
   renderAttribution();
 
-  if (comfort.red) { try { await loadWoj(); renderChapter(); } catch (e) { comfort.red = false; } applyComfort(); }
+  await maybeLoadRedLetters();   // only when the chapter on screen could have any
+  applyComfort();
 
-  el("bookSel").addEventListener("change", (e) => { clearSelection(); gotoChapter(+e.target.value, 0); });
-  el("chapSel").addEventListener("change", (e) => { clearSelection(); gotoChapter(state.book, +e.target.value); });
+  el("bookSel").addEventListener("change", (e) => { clearSelection(); gotoChapter(e.target.value, 0); });
+  el("chapSel").addEventListener("change", (e) => { clearSelection(); gotoChapter(state.code, +e.target.value); });
   el("prevBtn").addEventListener("click", () => step(-1));
   el("nextBtn").addEventListener("click", () => step(1));
-  el("verSel").addEventListener("change", async (e) => { state.primary = e.target.value; await loadVersion(state.primary); clearSelection(); gotoChapter(state.book, state.chapter); renderAttribution(); savePrefs(); });
-  el("cmpSel").addEventListener("change", async (e) => { state.compare = e.target.value || null; if (state.compare) await loadVersion(state.compare); clearSelection(); renderChapter(); showOnly("reader"); renderAttribution(); savePrefs(); });
+  // switching version keeps your place by BOOK, not by position — book 40 is
+  // Matthew in a 66-book Bible and Tobit in an 81-book one.
+  el("verSel").addEventListener("change", async (e) => {
+    state.primary = e.target.value;
+    await loadVersion(state.primary);
+    const keep = primary()._byCode[state.code] ? state.code : primary().books[0].code;
+    if (keep !== state.code) toast(`${nameFor(state.code)} is not in this text`);
+    clearSelection(); await gotoChapter(keep, keep === state.code ? state.chapter : 0);
+    renderAttribution(); savePrefs();
+  });
+  el("cmpSel").addEventListener("change", async (e) => {
+    state.compare = e.target.value || null;
+    if (state.compare) { await loadVersion(state.compare); await ensureBook(state.compare, state.code).catch(() => null); }
+    clearSelection(); renderChapter(); showOnly("reader"); renderAttribution(); savePrefs();
+  });
 
   el("searchForm").addEventListener("submit", (e) => { e.preventDefault(); runSearch(el("searchInput").value, el("searchAll").checked); });
   el("searchAll").addEventListener("change", savePrefs);
@@ -824,7 +976,7 @@ async function init() {
   el("studyBtn").addEventListener("click", renderStudy);
   el("commentaryBtn").addEventListener("click", openCommentary);
   el("commentarySel").addEventListener("change", (e) => renderCommentary(e.target.value));
-  el("commentaryBody").addEventListener("click", (e) => { const r = e.target.closest(".block__ref"); if (r) { clearSelection(); gotoChapter(state.book, state.chapter, +r.dataset.v); } });
+  el("commentaryBody").addEventListener("click", (e) => { const r = e.target.closest(".block__ref"); if (r) { clearSelection(); gotoChapter(state.code, state.chapter, +r.dataset.v); } });
   el("canonBtn").addEventListener("click", openCanon);
   el("refLabel").addEventListener("click", (e) => { if (e.target.closest("#refCanon")) openCanon(); });
   el("canonBody").addEventListener("click", (e) => {
@@ -833,7 +985,8 @@ async function init() {
   el("wojBtn").addEventListener("click", openWoj);
   el("wojBooks").addEventListener("click", (e) => {
     const b = e.target.closest("[data-wojbook]"); if (!b) return;
-    wojBook = b.dataset.wojbook; renderWoj(); window.scrollTo({ top: 0 });
+    wojBook = b.dataset.wojbook;
+    ensureWojBooks([wojBook]).then(() => { renderWoj(); window.scrollTo({ top: 0 }); });
   });
   el("wojBody").addEventListener("click", (e) => {
     const r = e.target.closest("[data-ref]"); if (r) navigateRef(r.dataset.ref.split("–")[0], woj.version);
@@ -841,7 +994,7 @@ async function init() {
   // Red letters are drawn from the compiled book, so it has to be loaded first.
   el("redBtn").addEventListener("click", async () => {
     comfort.red = !comfort.red;
-    if (comfort.red && !woj) { try { await loadWoj(); } catch { toast("Could not load the words of Jesus"); } }
+    if (comfort.red && !woj && inNT(state.code)) { try { await loadWoj(); } catch { toast("Could not load the words of Jesus"); } }
     applyComfort(); renderChapter(); savePrefs();
     toast(comfort.red ? "Red letters on" : "Red letters off");
   });
@@ -877,11 +1030,11 @@ async function init() {
   });
   // results / related navigation
   el("resultsList").addEventListener("click", async (e) => {
-    const li = e.target.closest("li[data-b]"); if (!li) return;
+    const li = e.target.closest("li[data-code]"); if (!li) return;
     if (li.dataset.id && li.dataset.id !== state.primary) { state.primary = li.dataset.id; el("verSel").value = li.dataset.id; await loadVersion(state.primary); renderAttribution(); }
-    clearSelection(); gotoChapter(+li.dataset.b, +li.dataset.c, +li.dataset.v);
+    clearSelection(); gotoChapter(li.dataset.code, +li.dataset.c, +li.dataset.v);
   });
-  el("relatedList").addEventListener("click", (e) => { const li = e.target.closest("li[data-b]"); if (!li) return; clearSelection(); gotoChapter(+li.dataset.b, +li.dataset.c, +li.dataset.v); });
+  el("relatedList").addEventListener("click", (e) => { const li = e.target.closest("li[data-code]"); if (!li) return; clearSelection(); gotoChapter(li.dataset.code, +li.dataset.c, +li.dataset.v); });
 
   // verse action bar — all actions apply to the whole selection (1+ verses)
   document.querySelectorAll(".sw").forEach((sw) => sw.addEventListener("click", () => {
@@ -918,7 +1071,7 @@ async function init() {
     if (f) playChapterAudio("../library/" + f.path); else speakChapter();
   });
   el("copyChapterLink").addEventListener("click", async () => { await navigator.clipboard.writeText(chapterLink()).then(() => toast("Chapter link copied")).catch(() => toast("Copy failed")); });
-  el("shareChapter").addEventListener("click", () => { const name = primary().books[state.book].name, c = state.chapter + 1; shareOrCopy({ title: `${name} ${c}`, text: `${name} ${c} — ${primary().name}`, url: chapterLink() }); });
+  el("shareChapter").addEventListener("click", () => { const name = curBook().name, c = state.chapter + 1; shareOrCopy({ title: `${name} ${c}`, text: `${name} ${c} — ${primary().name}`, url: chapterLink() }); });
 
   window.addEventListener("hashchange", () => { if (!hashLock) applyHash(); });
 }

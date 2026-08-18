@@ -1,0 +1,776 @@
+{
+ "note": "The single registry every Berean dataset keys on. Codes are USFM where USFM defines one, so this data can be read by other open-scripture tools; books USFM does not cover are marked standard: berean_ext. A verse address is CODE.CHAPTER.VERSE — for example JHN.3.16 or TOB.3.16.",
+ "sections": {
+  "ot": "Old Testament",
+  "dc": "Disputed between traditions",
+  "nt": "New Testament",
+  "ext": "Outside the biblical canon"
+ },
+ "books": [
+  {
+   "code": "GEN",
+   "name": "Genesis",
+   "section": "ot",
+   "order": 0
+  },
+  {
+   "code": "EXO",
+   "name": "Exodus",
+   "section": "ot",
+   "order": 1
+  },
+  {
+   "code": "LEV",
+   "name": "Leviticus",
+   "section": "ot",
+   "order": 2
+  },
+  {
+   "code": "NUM",
+   "name": "Numbers",
+   "section": "ot",
+   "order": 3
+  },
+  {
+   "code": "DEU",
+   "name": "Deuteronomy",
+   "section": "ot",
+   "order": 4
+  },
+  {
+   "code": "JOS",
+   "name": "Joshua",
+   "section": "ot",
+   "order": 5
+  },
+  {
+   "code": "JDG",
+   "name": "Judges",
+   "section": "ot",
+   "order": 6
+  },
+  {
+   "code": "RUT",
+   "name": "Ruth",
+   "section": "ot",
+   "order": 7
+  },
+  {
+   "code": "1SA",
+   "name": "1 Samuel",
+   "section": "ot",
+   "order": 8
+  },
+  {
+   "code": "2SA",
+   "name": "2 Samuel",
+   "section": "ot",
+   "order": 9
+  },
+  {
+   "code": "1KI",
+   "name": "1 Kings",
+   "section": "ot",
+   "order": 10
+  },
+  {
+   "code": "2KI",
+   "name": "2 Kings",
+   "section": "ot",
+   "order": 11
+  },
+  {
+   "code": "1CH",
+   "name": "1 Chronicles",
+   "section": "ot",
+   "order": 12
+  },
+  {
+   "code": "2CH",
+   "name": "2 Chronicles",
+   "section": "ot",
+   "order": 13
+  },
+  {
+   "code": "EZR",
+   "name": "Ezra",
+   "section": "ot",
+   "order": 14
+  },
+  {
+   "code": "NEH",
+   "name": "Nehemiah",
+   "section": "ot",
+   "order": 15
+  },
+  {
+   "code": "EST",
+   "name": "Esther",
+   "section": "ot",
+   "order": 16
+  },
+  {
+   "code": "JOB",
+   "name": "Job",
+   "section": "ot",
+   "order": 17
+  },
+  {
+   "code": "PSA",
+   "name": "Psalms",
+   "section": "ot",
+   "order": 18,
+   "aliases": [
+    "Psalm"
+   ]
+  },
+  {
+   "code": "PRO",
+   "name": "Proverbs",
+   "section": "ot",
+   "order": 19
+  },
+  {
+   "code": "ECC",
+   "name": "Ecclesiastes",
+   "section": "ot",
+   "order": 20
+  },
+  {
+   "code": "SNG",
+   "name": "Song of Solomon",
+   "section": "ot",
+   "order": 21,
+   "aliases": [
+    "Song of Songs",
+    "Canticles",
+    "SOL"
+   ]
+  },
+  {
+   "code": "ISA",
+   "name": "Isaiah",
+   "section": "ot",
+   "order": 22
+  },
+  {
+   "code": "JER",
+   "name": "Jeremiah",
+   "section": "ot",
+   "order": 23
+  },
+  {
+   "code": "LAM",
+   "name": "Lamentations",
+   "section": "ot",
+   "order": 24
+  },
+  {
+   "code": "EZK",
+   "name": "Ezekiel",
+   "section": "ot",
+   "order": 25,
+   "aliases": [
+    "EZE"
+   ]
+  },
+  {
+   "code": "DAN",
+   "name": "Daniel",
+   "section": "ot",
+   "order": 26
+  },
+  {
+   "code": "HOS",
+   "name": "Hosea",
+   "section": "ot",
+   "order": 27
+  },
+  {
+   "code": "JOL",
+   "name": "Joel",
+   "section": "ot",
+   "order": 28,
+   "aliases": [
+    "JOE"
+   ]
+  },
+  {
+   "code": "AMO",
+   "name": "Amos",
+   "section": "ot",
+   "order": 29
+  },
+  {
+   "code": "OBA",
+   "name": "Obadiah",
+   "section": "ot",
+   "order": 30
+  },
+  {
+   "code": "JON",
+   "name": "Jonah",
+   "section": "ot",
+   "order": 31
+  },
+  {
+   "code": "MIC",
+   "name": "Micah",
+   "section": "ot",
+   "order": 32
+  },
+  {
+   "code": "NAM",
+   "name": "Nahum",
+   "section": "ot",
+   "order": 33,
+   "aliases": [
+    "NAH"
+   ]
+  },
+  {
+   "code": "HAB",
+   "name": "Habakkuk",
+   "section": "ot",
+   "order": 34
+  },
+  {
+   "code": "ZEP",
+   "name": "Zephaniah",
+   "section": "ot",
+   "order": 35
+  },
+  {
+   "code": "HAG",
+   "name": "Haggai",
+   "section": "ot",
+   "order": 36
+  },
+  {
+   "code": "ZEC",
+   "name": "Zechariah",
+   "section": "ot",
+   "order": 37
+  },
+  {
+   "code": "MAL",
+   "name": "Malachi",
+   "section": "ot",
+   "order": 38
+  },
+  {
+   "code": "TOB",
+   "name": "Tobit",
+   "section": "dc",
+   "order": 39
+  },
+  {
+   "code": "JDT",
+   "name": "Judith",
+   "section": "dc",
+   "order": 40
+  },
+  {
+   "code": "ESG",
+   "name": "Esther (Greek)",
+   "section": "dc",
+   "order": 41,
+   "aliases": [
+    "Greek Esther",
+    "Additions to Esther"
+   ]
+  },
+  {
+   "code": "WIS",
+   "name": "Wisdom of Solomon",
+   "section": "dc",
+   "order": 42,
+   "aliases": [
+    "Wisdom"
+   ]
+  },
+  {
+   "code": "SIR",
+   "name": "Sirach",
+   "section": "dc",
+   "order": 43,
+   "aliases": [
+    "Ecclesiasticus"
+   ]
+  },
+  {
+   "code": "BAR",
+   "name": "Baruch",
+   "section": "dc",
+   "order": 44
+  },
+  {
+   "code": "1MA",
+   "name": "1 Maccabees",
+   "section": "dc",
+   "order": 45
+  },
+  {
+   "code": "2MA",
+   "name": "2 Maccabees",
+   "section": "dc",
+   "order": 46
+  },
+  {
+   "code": "1ES",
+   "name": "1 Esdras",
+   "section": "dc",
+   "order": 47
+  },
+  {
+   "code": "MAN",
+   "name": "Prayer of Manasseh",
+   "section": "dc",
+   "order": 48,
+   "aliases": [
+    "PRM"
+   ]
+  },
+  {
+   "code": "PS2",
+   "name": "Psalm 151",
+   "section": "dc",
+   "order": 49,
+   "aliases": [
+    "PSX"
+   ]
+  },
+  {
+   "code": "3MA",
+   "name": "3 Maccabees",
+   "section": "dc",
+   "order": 50
+  },
+  {
+   "code": "2ES",
+   "name": "2 Esdras",
+   "section": "dc",
+   "order": 51,
+   "aliases": [
+    "4 Ezra",
+    "4ES"
+   ]
+  },
+  {
+   "code": "4MA",
+   "name": "4 Maccabees",
+   "section": "dc",
+   "order": 52
+  },
+  {
+   "code": "DAG",
+   "name": "Daniel (Greek)",
+   "section": "dc",
+   "order": 53,
+   "aliases": [
+    "Greek Daniel",
+    "DNG",
+    "Additions to Daniel"
+   ]
+  },
+  {
+   "code": "MAT",
+   "name": "Matthew",
+   "section": "nt",
+   "order": 54
+  },
+  {
+   "code": "MRK",
+   "name": "Mark",
+   "section": "nt",
+   "order": 55,
+   "aliases": [
+    "MAR"
+   ]
+  },
+  {
+   "code": "LUK",
+   "name": "Luke",
+   "section": "nt",
+   "order": 56
+  },
+  {
+   "code": "JHN",
+   "name": "John",
+   "section": "nt",
+   "order": 57,
+   "aliases": [
+    "JOH"
+   ]
+  },
+  {
+   "code": "ACT",
+   "name": "Acts",
+   "section": "nt",
+   "order": 58
+  },
+  {
+   "code": "ROM",
+   "name": "Romans",
+   "section": "nt",
+   "order": 59
+  },
+  {
+   "code": "1CO",
+   "name": "1 Corinthians",
+   "section": "nt",
+   "order": 60
+  },
+  {
+   "code": "2CO",
+   "name": "2 Corinthians",
+   "section": "nt",
+   "order": 61
+  },
+  {
+   "code": "GAL",
+   "name": "Galatians",
+   "section": "nt",
+   "order": 62
+  },
+  {
+   "code": "EPH",
+   "name": "Ephesians",
+   "section": "nt",
+   "order": 63
+  },
+  {
+   "code": "PHP",
+   "name": "Philippians",
+   "section": "nt",
+   "order": 64,
+   "aliases": [
+    "PHI"
+   ]
+  },
+  {
+   "code": "COL",
+   "name": "Colossians",
+   "section": "nt",
+   "order": 65
+  },
+  {
+   "code": "1TH",
+   "name": "1 Thessalonians",
+   "section": "nt",
+   "order": 66
+  },
+  {
+   "code": "2TH",
+   "name": "2 Thessalonians",
+   "section": "nt",
+   "order": 67
+  },
+  {
+   "code": "1TI",
+   "name": "1 Timothy",
+   "section": "nt",
+   "order": 68
+  },
+  {
+   "code": "2TI",
+   "name": "2 Timothy",
+   "section": "nt",
+   "order": 69
+  },
+  {
+   "code": "TIT",
+   "name": "Titus",
+   "section": "nt",
+   "order": 70
+  },
+  {
+   "code": "PHM",
+   "name": "Philemon",
+   "section": "nt",
+   "order": 71
+  },
+  {
+   "code": "HEB",
+   "name": "Hebrews",
+   "section": "nt",
+   "order": 72
+  },
+  {
+   "code": "JAS",
+   "name": "James",
+   "section": "nt",
+   "order": 73,
+   "aliases": [
+    "JAM"
+   ]
+  },
+  {
+   "code": "1PE",
+   "name": "1 Peter",
+   "section": "nt",
+   "order": 74
+  },
+  {
+   "code": "2PE",
+   "name": "2 Peter",
+   "section": "nt",
+   "order": 75
+  },
+  {
+   "code": "1JN",
+   "name": "1 John",
+   "section": "nt",
+   "order": 76,
+   "aliases": [
+    "1JO"
+   ]
+  },
+  {
+   "code": "2JN",
+   "name": "2 John",
+   "section": "nt",
+   "order": 77,
+   "aliases": [
+    "2JO"
+   ]
+  },
+  {
+   "code": "3JN",
+   "name": "3 John",
+   "section": "nt",
+   "order": 78,
+   "aliases": [
+    "3JO"
+   ]
+  },
+  {
+   "code": "JUD",
+   "name": "Jude",
+   "section": "nt",
+   "order": 79
+  },
+  {
+   "code": "REV",
+   "name": "Revelation",
+   "section": "nt",
+   "order": 80
+  },
+  {
+   "code": "ENO",
+   "name": "1 Enoch",
+   "section": "ext",
+   "order": 81,
+   "aliases": [
+    "Enoch",
+    "1Enoch"
+   ],
+   "standard": "berean_ext"
+  },
+  {
+   "code": "JUB",
+   "name": "Jubilees",
+   "section": "ext",
+   "order": 82,
+   "aliases": [
+    "Book of Jubilees"
+   ],
+   "standard": "berean_ext"
+  }
+ ],
+ "resolve": {
+  "1 chronicles": "1CH",
+  "1 corinthians": "1CO",
+  "1 enoch": "ENO",
+  "1 esdras": "1ES",
+  "1 john": "1JN",
+  "1 kings": "1KI",
+  "1 maccabees": "1MA",
+  "1 peter": "1PE",
+  "1 samuel": "1SA",
+  "1 thessalonians": "1TH",
+  "1 timothy": "1TI",
+  "1ch": "1CH",
+  "1co": "1CO",
+  "1enoch": "ENO",
+  "1es": "1ES",
+  "1jn": "1JN",
+  "1jo": "1JN",
+  "1ki": "1KI",
+  "1ma": "1MA",
+  "1pe": "1PE",
+  "1sa": "1SA",
+  "1th": "1TH",
+  "1ti": "1TI",
+  "2 chronicles": "2CH",
+  "2 corinthians": "2CO",
+  "2 esdras": "2ES",
+  "2 john": "2JN",
+  "2 kings": "2KI",
+  "2 maccabees": "2MA",
+  "2 peter": "2PE",
+  "2 samuel": "2SA",
+  "2 thessalonians": "2TH",
+  "2 timothy": "2TI",
+  "2ch": "2CH",
+  "2co": "2CO",
+  "2es": "2ES",
+  "2jn": "2JN",
+  "2jo": "2JN",
+  "2ki": "2KI",
+  "2ma": "2MA",
+  "2pe": "2PE",
+  "2sa": "2SA",
+  "2th": "2TH",
+  "2ti": "2TI",
+  "3 john": "3JN",
+  "3 maccabees": "3MA",
+  "3jn": "3JN",
+  "3jo": "3JN",
+  "3ma": "3MA",
+  "4 ezra": "2ES",
+  "4 maccabees": "4MA",
+  "4es": "2ES",
+  "4ma": "4MA",
+  "act": "ACT",
+  "acts": "ACT",
+  "additions to daniel": "DAG",
+  "additions to esther": "ESG",
+  "amo": "AMO",
+  "amos": "AMO",
+  "bar": "BAR",
+  "baruch": "BAR",
+  "book of jubilees": "JUB",
+  "canticles": "SNG",
+  "col": "COL",
+  "colossians": "COL",
+  "dag": "DAG",
+  "dan": "DAN",
+  "daniel": "DAN",
+  "daniel (greek)": "DAG",
+  "deu": "DEU",
+  "deuteronomy": "DEU",
+  "dng": "DAG",
+  "ecc": "ECC",
+  "ecclesiastes": "ECC",
+  "ecclesiasticus": "SIR",
+  "eno": "ENO",
+  "enoch": "ENO",
+  "eph": "EPH",
+  "ephesians": "EPH",
+  "esg": "ESG",
+  "est": "EST",
+  "esther": "EST",
+  "esther (greek)": "ESG",
+  "exo": "EXO",
+  "exodus": "EXO",
+  "eze": "EZK",
+  "ezekiel": "EZK",
+  "ezk": "EZK",
+  "ezr": "EZR",
+  "ezra": "EZR",
+  "gal": "GAL",
+  "galatians": "GAL",
+  "gen": "GEN",
+  "genesis": "GEN",
+  "greek daniel": "DAG",
+  "greek esther": "ESG",
+  "hab": "HAB",
+  "habakkuk": "HAB",
+  "hag": "HAG",
+  "haggai": "HAG",
+  "heb": "HEB",
+  "hebrews": "HEB",
+  "hos": "HOS",
+  "hosea": "HOS",
+  "isa": "ISA",
+  "isaiah": "ISA",
+  "jam": "JAS",
+  "james": "JAS",
+  "jas": "JAS",
+  "jdg": "JDG",
+  "jdt": "JDT",
+  "jer": "JER",
+  "jeremiah": "JER",
+  "jhn": "JHN",
+  "job": "JOB",
+  "joe": "JOL",
+  "joel": "JOL",
+  "joh": "JHN",
+  "john": "JHN",
+  "jol": "JOL",
+  "jon": "JON",
+  "jonah": "JON",
+  "jos": "JOS",
+  "joshua": "JOS",
+  "jub": "JUB",
+  "jubilees": "JUB",
+  "jud": "JUD",
+  "jude": "JUD",
+  "judges": "JDG",
+  "judith": "JDT",
+  "lam": "LAM",
+  "lamentations": "LAM",
+  "lev": "LEV",
+  "leviticus": "LEV",
+  "luk": "LUK",
+  "luke": "LUK",
+  "mal": "MAL",
+  "malachi": "MAL",
+  "man": "MAN",
+  "mar": "MRK",
+  "mark": "MRK",
+  "mat": "MAT",
+  "matthew": "MAT",
+  "mic": "MIC",
+  "micah": "MIC",
+  "mrk": "MRK",
+  "nah": "NAM",
+  "nahum": "NAM",
+  "nam": "NAM",
+  "neh": "NEH",
+  "nehemiah": "NEH",
+  "num": "NUM",
+  "numbers": "NUM",
+  "oba": "OBA",
+  "obadiah": "OBA",
+  "phi": "PHP",
+  "philemon": "PHM",
+  "philippians": "PHP",
+  "phm": "PHM",
+  "php": "PHP",
+  "prayer of manasseh": "MAN",
+  "prm": "MAN",
+  "pro": "PRO",
+  "proverbs": "PRO",
+  "ps2": "PS2",
+  "psa": "PSA",
+  "psalm": "PSA",
+  "psalm 151": "PS2",
+  "psalms": "PSA",
+  "psx": "PS2",
+  "rev": "REV",
+  "revelation": "REV",
+  "rom": "ROM",
+  "romans": "ROM",
+  "rut": "RUT",
+  "ruth": "RUT",
+  "sir": "SIR",
+  "sirach": "SIR",
+  "sng": "SNG",
+  "sol": "SNG",
+  "song of solomon": "SNG",
+  "song of songs": "SNG",
+  "tit": "TIT",
+  "titus": "TIT",
+  "tob": "TOB",
+  "tobit": "TOB",
+  "wis": "WIS",
+  "wisdom": "WIS",
+  "wisdom of solomon": "WIS",
+  "zec": "ZEC",
+  "zechariah": "ZEC",
+  "zep": "ZEP",
+  "zephaniah": "ZEP"
+ }
+}

@@ -9,7 +9,7 @@
       "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
       "attribution": "Matthew Henry Bible Commentary — via HelloAO Free Use Bible API (bible.helloao.org). https://creativecommons.org/publicdomain/mark/1.0/",
       "books": [
-        42
+        "JHN"
       ]
     },
     {
@@ -20,8 +20,9 @@
       "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
       "attribution": "Jamieson-Fausset-Brown Bible Commentary — via HelloAO Free Use Bible API (bible.helloao.org). https://creativecommons.org/publicdomain/mark/1.0/",
       "books": [
-        42
+        "JHN"
       ]
     }
-  ]
+  ],
+  "note": "Chapters are stored under the book's code (library/books.json), e.g. commentary/matthew-henry/JHN/3.json."
 }

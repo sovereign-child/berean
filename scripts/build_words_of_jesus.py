@@ -40,6 +40,10 @@ Run from the repo root:
 import json
 import os
 import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import berean_lib as lib   # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BSB = os.path.join(ROOT, "library", "corpus", "BSB.json")
@@ -414,7 +418,7 @@ def build():
                              "from": [sc, sv], "to": [ec, ev], "parts": parts})
             counts[p["voice"]] += 1
         if passages:
-            books_out.append({"book": name, "passages": passages})
+            books_out.append({"code": lib.code_for(name), "book": name, "passages": passages})
 
     # curated restorations, inserted in canonical order
     order = {b["name"]: i for i, b in enumerate(bsb["books"])}
@@ -423,7 +427,7 @@ def build():
         book = by_name[bname]
         entry = by_out.get(bname)
         if entry is None:
-            entry = {"book": bname, "passages": []}
+            entry = {"code": lib.code_for(bname), "book": bname, "passages": []}
             by_out[bname] = entry
             books_out.append(entry)
         # never duplicate what the parser already found

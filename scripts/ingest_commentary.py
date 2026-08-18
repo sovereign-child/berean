@@ -139,14 +139,14 @@ def ingest_one(cid, meta, book_indices, chapters_spec, counts, dry):
                         blocks.append({"verse": item.get("number"), "text": text})
             if not blocks:
                 continue
-            covered.add(bi)
+            covered.add(code)
             total += 1
             if dry:
                 print(f"[dry-run] {cid} {name} {cn}  ({len(blocks)} blocks)")
                 continue
-            out = {"commentary": cid, "book": name, "bookIndex": bi, "chapter": cn,
+            out = {"commentary": cid, "book": name, "code": code, "chapter": cn,
                    "intro": flatten(ch.get("introduction", "")).strip(), "blocks": blocks}
-            path = os.path.join(LIB, "commentary", cid, str(bi), f"{cn}.json")
+            path = os.path.join(LIB, "commentary", cid, code, f"{cn}.json")
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w", encoding="utf-8") as fh:
                 json.dump(out, fh, ensure_ascii=False, separators=(",", ":"))
@@ -209,7 +209,7 @@ def main():
                       "license": lic, "licenseUrl": m.get("licenseUrl", ""),
                       "attribution": f"{m.get('name')} — via HelloAO Free Use Bible API (bible.helloao.org). {lic}"})
         prev = set(entry.get("books", []))
-        entry["books"] = sorted(prev | covered)
+        entry["books"] = sorted(prev | covered, key=lambda c: USFM.index(c) if c in USFM else 999)
         by_id[cid] = entry
         print(f"  {cid}: wrote {total} chapter(s); covers {len(entry['books'])} book(s).")
 
