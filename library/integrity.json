@@ -1,18 +1,20 @@
 {
  "note": "SHA-256 of every dataset Berean hosts. Anyone can verify a copy of this library is the copy that was published; the build scripts are in scripts/ and every dataset can be rebuilt from its stated source.",
  "sha256": {
-  "books.json": "372b43a8e336614f4c70d4d4008cdf9f4682b43fc0d9493406c3d10457b2dff7",
-  "manifest.json": "1a6850a22e0f70a46daf61f28d406de3c2205a74e905b5ef8f4bc809785403b7",
+  "books.json": "33cd0c803761f4817f2e3c75fa7ecccf9c2c720930f5e41b4096205dbe9666dd",
+  "manifest.json": "eac906e1b18e1d089dd9fe6d95f7fc0903b8c4c6f97bba8e05b30d40364542a1",
   "canons.json": "66d5c832bffdc1f26080e1dae141206943d4d5719432d06b9c9123ef1f18c16a",
-  "threads.json": "5ccd5b39fc623269abe307a9d7911345535ef8004dad802796bf3fe788cfb7d8",
+  "threads.json": "ec2ae83391185e0275efe48a84825a87f0abe6e949cab33183ae19a95afb6f94",
   "prayers.json": "f7400430c74879a66d18d4ef0f10d48645a4f9e08e82152dda1d8c2085917ed9",
   "crossrefs.json": "fe92947b5b44a65747732ce17b3866bbc901219d4215be3ce0c48d7386e53be7",
   "words-of-jesus.json": "e10f5b9aff869b0d65a5e9f6ce824f4e04aab7b1c89664b61e0519b749a177b4",
   "ot-quotations.json": "f002862ded76b4713fd4229304a231256ca147f779c305dd78719094383a14de",
+  "versification.json": "45fdcdf9e1902f60f348572f75f21ab5fb858f7126eacc4967775b8fb6793621",
   "corpus/BSB.json": "2be497cccfe8f01024eb96a1902a2744b09b12bcf055ad2ab2c3061b0ccbd5b1",
   "corpus/KJV.json": "f6a8003f3843448c2624804b78054b3aa35b146186857eec5594a7468cb91790",
   "corpus/WEB.json": "5c2dbc8574bd3115f246567a9862954c68f4671bd64867e446248626178d3d1f",
   "corpus/ENOCH.json": "c11bb9070e8346c7f982565ea36847307aafe4826939d7b6e5a3088044e5309e",
-  "corpus/JUBILEES.json": "ce573d2f9ccfe93252bcb8eab250f04456c43b721333f521d5cdb08f3a4b56ec"
+  "corpus/JUBILEES.json": "ce573d2f9ccfe93252bcb8eab250f04456c43b721333f521d5cdb08f3a4b56ec",
+  "corpus/LXX.json": "daa1f551eef1d84b727540be149bf57a0cefa5e82c9f088a3865cd1324e41611"
  }
 }

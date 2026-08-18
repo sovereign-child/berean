@@ -51,6 +51,37 @@
       ]
     },
     {
+      "version": "LXX",
+      "name": "Brenton's Septuagint (1851)",
+      "language": "en",
+      "license": "Public Domain",
+      "source": "https://ebible.org/Scriptures/eng-Brenton_vpl.zip",
+      "attribution": "The Septuagint version of the Old Testament, translated by Sir Lancelot C. L. Brenton (London, 1851) — public domain, via eBible.org.",
+      "tradition": "Greek Old Testament (Septuagint)",
+      "versification": "septuagint",
+      "canon_status": "The Greek Old Testament: the translation Jewish scholars made in the third to second centuries BC, and the one the New Testament writers usually quote. It carries the deuterocanonical books, and it has no separate Hebrew Esther or Daniel — only the Greek forms. Its chapter and verse numbers follow the Greek, not the Hebrew; see library/versification.json. About 1% of verse slots are empty — places where the Greek has no counterpart to a verse the Hebrew has, most of them in Jeremiah, which is markedly shorter in Greek. Those slots are kept rather than renumbered away, and the reader says so where it meets one.",
+      "canonical": true,
+      "id": "LXX",
+      "deuterocanonical": [
+        "TOB",
+        "JDT",
+        "ESG",
+        "WIS",
+        "SIR",
+        "BAR",
+        "EPJ",
+        "SUS",
+        "BEL",
+        "1MA",
+        "2MA",
+        "1ES",
+        "MAN",
+        "3MA",
+        "4MA",
+        "DAG"
+      ]
+    },
+    {
       "version": "ENOCH",
       "name": "1 Enoch (R.H. Charles)",
       "language": "en",

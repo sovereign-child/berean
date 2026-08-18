@@ -169,6 +169,16 @@ body.dark .thread-badge { color: var(--ink); }
 .panel__head:focus { outline: none; }
 .panel__head:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
+.gap { font-family: var(--sans); font-size: 0.78rem; font-style: italic; color: var(--muted); }
+
+/* Numbering differences between the Greek and Hebrew traditions */
+.numbadge { font-family: var(--sans); font-size: 0.66rem; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--muted); border: 1px solid var(--rule);
+  border-radius: 999px; padding: 0.1rem 0.55rem; vertical-align: middle; white-space: nowrap; }
+.cmp__warn { background: var(--parchment-2); border-left: 3px solid var(--gold);
+  border-radius: 0 8px 8px 0; padding: 0.6rem 0.8rem; margin-bottom: 1rem;
+  font-size: 0.85rem; color: var(--ink-soft); }
+
 /* The Old Testament in the New */
 .otq { display: block; font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.02em;
   color: var(--muted); margin: 0.15rem 0 0.35rem 1rem; }

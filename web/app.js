@@ -255,6 +255,7 @@ function renderSelectors() {
     `<option value="${b.code}" ${b.code === state.code ? "selected" : ""}>${b.name}${disputed(b.code) ? " ✦" : ""}</option>`).join("");
   el("chapSel").innerHTML = book.chapters.map((_, i) => `<option value="${i}" ${i === state.chapter ? "selected" : ""}>${i + 1}</option>`).join("");
   el("refLabel").innerHTML = `${esc(book.name)} ${state.chapter + 1}`
+    + numberingNote()
     + (disputed(book.code)
         ? ` <button class="canonbadge" id="refCanon" title="Which traditions receive this book?">✦ disputed between traditions</button>`
         : (outsideCanon()
@@ -270,9 +271,20 @@ function renderChapter() {
     const bookB = cmp._byCode[book.code];
     const chB = (bookB && bookB.chapters[state.chapter]) || [];
     const rows = Math.max(chA.length, chB.length);
-    let h = `<div class="cmp"><div class="cmp__head">${p.name}</div><div class="cmp__head">${cmp.name}</div>`;
+    let h = "";
+    if (schemeOf(state.primary) !== schemeOf(state.compare)) {
+      const other = elsewhereNumbered(
+        schemeOf(state.primary) === "septuagint" ? book.code : book.code,
+        state.chapter + 1);
+      h += `<p class="cmp__warn"><strong>These two number things differently.</strong> `
+        + `One follows the Greek Old Testament, the other a Hebrew-based one — so the `
+        + `verses beside each other here are not necessarily the same verses.`
+        + (other ? ` This chapter is ${esc(other)} in the other numbering.` : "")
+        + ` <button class="linkbtn" data-panel="canon">why</button></p>`;
+    }
+    h += `<div class="cmp"><div class="cmp__head">${p.name}</div><div class="cmp__head">${cmp.name}</div>`;
     for (let i = 0; i < rows; i++)
-      h += `<div class="row"><div class="cell"><span class="vnum">${i + 1}</span>${escRed(chA[i] || "", redRanges(book.code, c1, i + 1))}</div><div class="cell"><span class="vnum">${i + 1}</span>${esc(chB[i] || "")}</div></div>`;
+      h += `<div class="row"><div class="cell"><span class="vnum">${i + 1}</span>${escRed(chA[i] || "", redRanges(book.code, c1, i + 1))}</div><div class="cell"><span class="vnum">${i + 1}</span>${(chB[i] || "").trim() ? esc(chB[i]) : GAP}</div></div>`;
     el("reader").innerHTML = h + `</div>`;
     return;
   }
@@ -361,6 +373,7 @@ async function gotoChapter(code, chapIdx, highlightVerse) {
   renderSelectors(); renderChapter(); showOnly("reader"); updateHash();
   maybeLoadRedLetters();
   maybeLoadQuotations();
+  maybeLoadVersification();
   if (highlightVerse) { const v = el(`v${highlightVerse}`); if (v) { v.scrollIntoView({ block: "center" }); } }
   else window.scrollTo({ top: 0 });
 }
@@ -823,6 +836,13 @@ async function loadWoj() {
   await loadVersion(woj.version);      // the compiled book always quotes its source text
   return woj;
 }
+async function maybeLoadVersification() {
+  if (versification) return;
+  if (schemeOf(state.primary) !== "septuagint" && (!state.compare || schemeOf(state.compare) !== "septuagint")) return;
+  await loadVersification();
+  renderSelectors(); renderChapter();
+}
+
 /* Red letters only exist in the New Testament, so the compiled book is fetched
    when a reader actually opens one — never for Genesis. */
 const inNT = (code) => !!(registry && registry.byCode[code] && registry.byCode[code].section === "nt");
@@ -866,7 +886,10 @@ const redRanges = (code, c1, v1) =>
 
 /* Escape a verse, wrapping the ranges Jesus speaks. Offsets are into the raw
    text, so each piece is escaped after slicing, never before. */
+const GAP = `<span class="gap">no counterpart in this text</span>`;
+
 function escRed(text, ranges) {
+  if (!text || !text.trim()) return GAP;
   if (!ranges || !ranges.length) return esc(text);
   const merged = [];
   for (const [a, b] of ranges.slice().sort((x, y) => x[0] - y[0])) {
@@ -935,6 +958,40 @@ function renderWoj() {
       + `<p class="woj__text">${esc(text)}</p></div>`;
   }).join("");
   el("wojNote").textContent = d.note + "  " + d.attribution;
+}
+
+/* ---------- where two Bibles disagree about the numbers ------------------------
+   Brenton's Septuagint numbers the Psalms one lower than a Hebrew-based Bible and
+   puts Jeremiah's oracles in a different order. Comparing them without saying so
+   would show a reader two different passages as though they were the same verse. */
+const VERSIFICATION_URL = "../library/versification.json";
+let versification = null;
+
+const schemeOf = (id) => { const d = cache.get(id); return (d && d.versification) || "masoretic"; };
+async function loadVersification() {
+  if (!versification) {
+    try { versification = await (await fetch(VERSIFICATION_URL)).json(); }
+    catch { versification = { books: [] }; }
+  }
+  return versification;
+}
+/* Where a chapter of the Greek numbering sits in a Hebrew-numbered Bible. */
+function elsewhereNumbered(code, c1) {
+  if (!versification) return null;
+  const b = (versification.books || []).find((x) => x.code === code);
+  if (!b) return null;
+  const hit = b.map[String(c1)];
+  if (hit === undefined) return null;
+  return typeof hit === "number" ? `${nameFor(code)} ${hit}`
+    : `${nameFor(hit.split(" ")[0])} ${hit.split(" ")[1]}`;
+}
+/* The line shown while reading a text numbered the Greek way. */
+function numberingNote() {
+  if (schemeOf(state.primary) !== "septuagint") return "";
+  const other = elsewhereNumbered(state.code, state.chapter + 1);
+  if (!other) return "";
+  return ` <span class="numbadge" title="This text follows the Greek numbering">`
+    + `Hebrew Bibles number this ${esc(other)}</span>`;
 }
 
 /* ---------- the Old Testament in the New -------------------------------------
@@ -1160,6 +1217,7 @@ async function init() {
 
   await maybeLoadRedLetters();   // only when the chapter on screen could have any
   await maybeLoadQuotations();
+  await maybeLoadVersification();
   applyComfort();
 
   el("bookSel").addEventListener("change", (e) => { clearSelection(); gotoChapter(e.target.value, 0); });
@@ -1245,6 +1303,8 @@ async function init() {
 
   // verse number → select (single-column reading only); Shift-click extends to a range
   el("reader").addEventListener("click", (e) => {
+    const why = e.target.closest("[data-panel]");
+    if (why) { openPanelRoute(why.dataset.panel); return; }
     const cited = e.target.closest("[data-otq]");
     if (cited) {
       const [code, c, v] = cited.dataset.otq.split(".");

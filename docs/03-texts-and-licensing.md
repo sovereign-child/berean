@@ -21,6 +21,11 @@ not add a scripture text to `library/` without checking it against this doc.**
   NIV, ESV, NASB, NKJV, CSB, NLT, and most modern translations. Integrate via a
   licensed provider (e.g. API.Bible / scripture APIs) under their terms, with
   required attribution and caching limits. Store *references*, not the text.
+- **Septuagint (Greek OT):** ✅ Brenton's 1851 English translation is public domain and
+  hosted (`scripts/ingest_brenton.py`). NOTE its versification follows the Greek, not
+  the Hebrew — see `library/versification.json`, which is derived and checked, not asserted.
+  The Greek text itself (`grclxx` on eBible.org) is also public domain, for the
+  original-language phase.
 - **Original languages:** Westminster Leningrad Codex (Hebrew, open); for Greek,
   prefer clearly-licensed editions (e.g. SBLGNT under its own license terms, or
   public-domain Tischendorf / Byzantine text) — check each edition's license.

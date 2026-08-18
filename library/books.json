@@ -305,28 +305,53 @@
    "order": 44
   },
   {
+   "code": "EPJ",
+   "name": "Letter of Jeremiah",
+   "section": "dc",
+   "order": 45,
+   "aliases": [
+    "Epistle of Jeremy",
+    "Epistle of Jeremiah"
+   ]
+  },
+  {
+   "code": "SUS",
+   "name": "Susanna",
+   "section": "dc",
+   "order": 46
+  },
+  {
+   "code": "BEL",
+   "name": "Bel and the Dragon",
+   "section": "dc",
+   "order": 47,
+   "aliases": [
+    "Bel and the Serpent"
+   ]
+  },
+  {
    "code": "1MA",
    "name": "1 Maccabees",
    "section": "dc",
-   "order": 45
+   "order": 48
   },
   {
    "code": "2MA",
    "name": "2 Maccabees",
    "section": "dc",
-   "order": 46
+   "order": 49
   },
   {
    "code": "1ES",
    "name": "1 Esdras",
    "section": "dc",
-   "order": 47
+   "order": 50
   },
   {
    "code": "MAN",
    "name": "Prayer of Manasseh",
    "section": "dc",
-   "order": 48,
+   "order": 51,
    "aliases": [
     "PRM"
    ]
@@ -335,7 +360,7 @@
    "code": "PS2",
    "name": "Psalm 151",
    "section": "dc",
-   "order": 49,
+   "order": 52,
    "aliases": [
     "PSX"
    ]
@@ -344,13 +369,13 @@
    "code": "3MA",
    "name": "3 Maccabees",
    "section": "dc",
-   "order": 50
+   "order": 53
   },
   {
    "code": "2ES",
    "name": "2 Esdras",
    "section": "dc",
-   "order": 51,
+   "order": 54,
    "aliases": [
     "4 Ezra",
     "4ES"
@@ -360,13 +385,13 @@
    "code": "4MA",
    "name": "4 Maccabees",
    "section": "dc",
-   "order": 52
+   "order": 55
   },
   {
    "code": "DAG",
    "name": "Daniel (Greek)",
    "section": "dc",
-   "order": 53,
+   "order": 56,
    "aliases": [
     "Greek Daniel",
     "DNG",
@@ -377,13 +402,13 @@
    "code": "MAT",
    "name": "Matthew",
    "section": "nt",
-   "order": 54
+   "order": 57
   },
   {
    "code": "MRK",
    "name": "Mark",
    "section": "nt",
-   "order": 55,
+   "order": 58,
    "aliases": [
     "MAR"
    ]
@@ -392,13 +417,13 @@
    "code": "LUK",
    "name": "Luke",
    "section": "nt",
-   "order": 56
+   "order": 59
   },
   {
    "code": "JHN",
    "name": "John",
    "section": "nt",
-   "order": 57,
+   "order": 60,
    "aliases": [
     "JOH"
    ]
@@ -407,43 +432,43 @@
    "code": "ACT",
    "name": "Acts",
    "section": "nt",
-   "order": 58
+   "order": 61
   },
   {
    "code": "ROM",
    "name": "Romans",
    "section": "nt",
-   "order": 59
+   "order": 62
   },
   {
    "code": "1CO",
    "name": "1 Corinthians",
    "section": "nt",
-   "order": 60
+   "order": 63
   },
   {
    "code": "2CO",
    "name": "2 Corinthians",
    "section": "nt",
-   "order": 61
+   "order": 64
   },
   {
    "code": "GAL",
    "name": "Galatians",
    "section": "nt",
-   "order": 62
+   "order": 65
   },
   {
    "code": "EPH",
    "name": "Ephesians",
    "section": "nt",
-   "order": 63
+   "order": 66
   },
   {
    "code": "PHP",
    "name": "Philippians",
    "section": "nt",
-   "order": 64,
+   "order": 67,
    "aliases": [
     "PHI"
    ]
@@ -452,55 +477,55 @@
    "code": "COL",
    "name": "Colossians",
    "section": "nt",
-   "order": 65
+   "order": 68
   },
   {
    "code": "1TH",
    "name": "1 Thessalonians",
    "section": "nt",
-   "order": 66
+   "order": 69
   },
   {
    "code": "2TH",
    "name": "2 Thessalonians",
    "section": "nt",
-   "order": 67
+   "order": 70
   },
   {
    "code": "1TI",
    "name": "1 Timothy",
    "section": "nt",
-   "order": 68
+   "order": 71
   },
   {
    "code": "2TI",
    "name": "2 Timothy",
    "section": "nt",
-   "order": 69
+   "order": 72
   },
   {
    "code": "TIT",
    "name": "Titus",
    "section": "nt",
-   "order": 70
+   "order": 73
   },
   {
    "code": "PHM",
    "name": "Philemon",
    "section": "nt",
-   "order": 71
+   "order": 74
   },
   {
    "code": "HEB",
    "name": "Hebrews",
    "section": "nt",
-   "order": 72
+   "order": 75
   },
   {
    "code": "JAS",
    "name": "James",
    "section": "nt",
-   "order": 73,
+   "order": 76,
    "aliases": [
     "JAM"
    ]
@@ -509,19 +534,19 @@
    "code": "1PE",
    "name": "1 Peter",
    "section": "nt",
-   "order": 74
+   "order": 77
   },
   {
    "code": "2PE",
    "name": "2 Peter",
    "section": "nt",
-   "order": 75
+   "order": 78
   },
   {
    "code": "1JN",
    "name": "1 John",
    "section": "nt",
-   "order": 76,
+   "order": 79,
    "aliases": [
     "1JO"
    ]
@@ -530,7 +555,7 @@
    "code": "2JN",
    "name": "2 John",
    "section": "nt",
-   "order": 77,
+   "order": 80,
    "aliases": [
     "2JO"
    ]
@@ -539,7 +564,7 @@
    "code": "3JN",
    "name": "3 John",
    "section": "nt",
-   "order": 78,
+   "order": 81,
    "aliases": [
     "3JO"
    ]
@@ -548,19 +573,19 @@
    "code": "JUD",
    "name": "Jude",
    "section": "nt",
-   "order": 79
+   "order": 82
   },
   {
    "code": "REV",
    "name": "Revelation",
    "section": "nt",
-   "order": 80
+   "order": 83
   },
   {
    "code": "ENO",
    "name": "1 Enoch",
    "section": "ext",
-   "order": 81,
+   "order": 84,
    "aliases": [
     "Enoch",
     "1Enoch"
@@ -571,7 +596,7 @@
    "code": "JUB",
    "name": "Jubilees",
    "section": "ext",
-   "order": 82,
+   "order": 85,
    "aliases": [
     "Book of Jubilees"
    ],
@@ -640,6 +665,9 @@
   "amos": "AMO",
   "bar": "BAR",
   "baruch": "BAR",
+  "bel": "BEL",
+  "bel and the dragon": "BEL",
+  "bel and the serpent": "BEL",
   "book of jubilees": "JUB",
   "canticles": "SNG",
   "col": "COL",
@@ -658,6 +686,9 @@
   "enoch": "ENO",
   "eph": "EPH",
   "ephesians": "EPH",
+  "epistle of jeremiah": "EPJ",
+  "epistle of jeremy": "EPJ",
+  "epj": "EPJ",
   "esg": "ESG",
   "est": "EST",
   "esther": "EST",
@@ -711,6 +742,7 @@
   "judith": "JDT",
   "lam": "LAM",
   "lamentations": "LAM",
+  "letter of jeremiah": "EPJ",
   "lev": "LEV",
   "leviticus": "LEV",
   "luk": "LUK",
@@ -761,6 +793,8 @@
   "sol": "SNG",
   "song of solomon": "SNG",
   "song of songs": "SNG",
+  "sus": "SUS",
+  "susanna": "SUS",
   "tit": "TIT",
   "titus": "TIT",
   "tob": "TOB",
