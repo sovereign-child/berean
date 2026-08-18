@@ -106,6 +106,9 @@ preservation, stewardship) remain below.
 - [docs/03-texts-and-licensing.md](docs/03-texts-and-licensing.md) — **which texts
   we can host, which we must link, and how canon differs by tradition** (read this
   before adding any scripture text)
+- **[docs/08-derived-layers.md](docs/08-derived-layers.md) — how the library is built
+  and the rules it follows** (read this before adding a text or a derived layer:
+  addressing, offsets-not-copies, derive-don't-assert, builder + checker + hash)
 - **[ROADMAP.md](ROADMAP.md) — the canonical roadmap** (phases, definitions of done, buildable-now vs API vs deferred)
 - [docs/05-preservation-and-integrity.md](docs/05-preservation-and-integrity.md) — the censorship-resistant preservation pillar (future)
 - [docs/06-hosting-and-stewardship.md](docs/06-hosting-and-stewardship.md) — running lean (free/AWS) + the generous, community-first funding model
