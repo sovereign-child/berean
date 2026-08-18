@@ -1309,3 +1309,11 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
+/* Offline: the library is public-domain text that should keep working when the
+   network does not. Registered after load so it never delays the first chapter. */
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => { /* offline stays optional */ });
+  });
+}

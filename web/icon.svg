@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Berean">
+  <rect width="512" height="512" rx="96" fill="#faf6ee"/>
+  <g fill="none" stroke="#7a5c1c" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M96 132h128a40 40 0 0 1 32 16 40 40 0 0 1 32-16h128v264H288a40 40 0 0 0-32 16 40 40 0 0 0-32-16H96z"/>
+    <path d="M256 148v264"/>
+  </g>
+  <g fill="none" stroke="#9a7b2e" stroke-width="12" stroke-linecap="round">
+    <path d="M132 196h84M132 236h84M132 276h64M296 196h84M296 236h84M296 276h64"/>
+  </g>
+</svg>

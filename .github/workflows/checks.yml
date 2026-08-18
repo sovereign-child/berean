@@ -1,0 +1,31 @@
+name: checks
+
+# Berean's claim is that every citation resolves and every dataset can be
+# rebuilt from its stated source. That should be enforced, not remembered.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  library:
+    name: verify the library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run every checker
+        run: python3 scripts/check_all.py
+      - name: Rebuild the derived layers and confirm they are unchanged
+        run: |
+          python3 scripts/build_books.py
+          python3 scripts/build_words_of_jesus.py
+          python3 scripts/build_ot_quotations.py
+          python3 scripts/shard_corpus.py
+          python3 scripts/shard_crossrefs.py
+          git diff --exit-code --stat -- library/ \
+            || (echo "::error::A derived dataset differs from what its build script produces." && exit 1)

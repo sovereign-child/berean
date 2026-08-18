@@ -1,0 +1,14 @@
+{
+  "name": "Berean — Study the Word",
+  "short_name": "Berean",
+  "description": "An open study tool for the Holy Bible. Read and compare public-domain translations, follow cross-references, and keep your study — free, forever, and yours.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#faf6ee",
+  "theme_color": "#faf6ee",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
