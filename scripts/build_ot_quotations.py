@@ -163,9 +163,12 @@ def build():
                 # take the strongest sources, THEN put them in canonical order — the
                 # other way round drops Psalm 2:7 from Hebrews 1:5, which quotes it
                 # alongside 2 Samuel 7:14.
+                # Ties are broken canonically, never by iteration order — the build
+                # has to produce the same file every time it is run, or nobody can
+                # verify that the data came from the stated source.
                 keep = sorted([(c, ch, v, s) for (c, ch, v), s in tally.items()
                                if s >= max(floor, best * 0.5)],
-                              key=lambda r: -r[3])[:MAX_SOURCES]
+                              key=lambda r: (-r[3], lib.order_of(r[0]), r[1], r[2]))[:MAX_SOURCES]
                 sources = merge_runs(keep)
                 found.append({
                     "ref": f"{lib.name_for(code)} {ci + 1}:{vi + 1}",
