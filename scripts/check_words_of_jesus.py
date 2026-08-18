@@ -43,6 +43,32 @@ EXPECT = [
     ("Revelation", 3, 20, "jesus"),
     ("Revelation", 21, 5, "father"),   # the One seated on the throne
     ("Revelation", 22, 13, "jesus"),
+    # Other people's words, each of which the parser once attributed to Jesus.
+    # They stay here as regressions: Nicodemus asking, the disciples answering,
+    # John the Baptist pointing, the boy's father replying, Peter, the crowd.
+    ("John", 3, 2, None),              # "Rabbi, we know that You are a teacher…"
+    ("John", 1, 29, None),             # John the Baptist: "Look, the Lamb of God"
+    ("John", 21, 7, None),             # the disciple whom Jesus loved
+    ("Mark", 3, 32, None),             # the crowd: "Look, Your mother…"
+    ("Acts", 9, 20, None),             # Saul proclaiming, not Jesus speaking
+]
+
+
+# Words the text puts in someone else's mouth, each of which the parser attributed
+# to Jesus at some point. A verse can hold both voices — Jesus asks "How many
+# loaves do you have?" in the same verse where the disciples answer "Seven" — so
+# these are checked against what a passage actually QUOTES, not against a verse.
+NOT_HIS_WORDS = [
+    "Seven,",                        # the disciples answering (Matthew 15:34, Mark 8:5)
+    "Master, the crowds",            # Peter (Luke 8:45)
+    "Rabbi, we know",                # Nicodemus (John 3:2)
+    "How can a man be born",         # Nicodemus (John 3:4)
+    "Can he enter his mother",       # Nicodemus (John 3:4)
+    "Look, the Lamb of God",         # John the Baptist (John 1:29)
+    "Who are You?",                  # the disciples, unasked (John 21:12)
+    "From childhood",                # the boy's father (Mark 9:21)
+    "If You are the Son of God, tell these stones",   # the tempter (Matthew 4:3)
+    "This man welcomes sinners",     # the Pharisees (Luke 15:2)
 ]
 
 
@@ -90,7 +116,18 @@ def main():
     else:
         print("ok    every passage slices real text out of the BSB")
 
-    # 2. landmark passages carry the expected voice
+    # 2. no passage quotes words the text gives to someone else
+    for entry in WOJ["books"]:
+        for p in entry["passages"]:
+            text = " ".join(slice_part(entry["book"], part) for part in p["parts"]).strip()
+            for phrase in NOT_HIS_WORDS:
+                if text.startswith(phrase):
+                    print(f"FAIL  {p['ref']} quotes another speaker: “{text[:60]}…”")
+                    bad += 1
+    print(f"ok    no passage begins with another speaker's words "
+          f"({len(NOT_HIS_WORDS)} checked)")
+
+    # 3. landmark passages carry the expected voice
     for book, c, v, want in EXPECT:
         found = voice_at(book, c, v)
         voices = [p["voice"] for p in found]

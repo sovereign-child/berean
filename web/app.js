@@ -71,7 +71,7 @@ function migrateStore() {
 function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}"); } catch { return {}; } }
 function savePrefs() {
   localStorage.setItem(PREFS_KEY, JSON.stringify({
-    primary: state.primary, compare: state.compare, searchAll: el("searchAll").checked,
+    primary: state.primary, compare: state.compare, searchScope: el("searchScope").value,
     theme: comfort.theme, size: comfort.size, voice: comfort.voice, rate: comfort.rate,
     commentary: comfort.commentary, red: comfort.red,
   }));
@@ -469,45 +469,134 @@ async function showRelated() {
 }
 
 /* ---------- search ------------------------------------------------------------
-   Reading needs one book; searching needs the whole text, so this is the one
-   place that pulls a version's bundle — and only when someone actually searches. */
-async function runSearch(q, allVersions) {
-  q = q.trim(); if (!q) return;
+   Reading needs one book; searching needs whole texts, so this is the only place
+   that pulls a version's bundle — and only when someone actually searches.
+
+   Scopes let the library be interrogated rather than just read: everything Jesus
+   says, only the books the traditions dispute, or the notes Berean itself makes
+   in its threads and canon table. */
+const scopeLabel = {
+  version: () => `in ${primary().name}`,
+  all: () => "across every version",
+  jesus: () => "in the words of Jesus",
+  dc: () => "in the disputed books",
+  layers: () => "in threads & canon notes",
+};
+
+function matcher(q) {
   const needle = q.toLowerCase();
   const wordRe = new RegExp(`\\b${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i");
-  const ids = allVersions ? manifest.versions.map((v) => v.id) : [state.primary];
-  el("resultsCount").textContent = "Searching…";
-  el("resultsList").innerHTML = "";
-  showOnly("results");
-  const hits = [];
-  const CAP = 500;
+  return {
+    hit: (t) => t && t.toLowerCase().includes(needle),
+    word: (t) => wordRe.test(t),
+    mark: (t) => {
+      const i = t.toLowerCase().indexOf(needle); if (i < 0) return esc(t);
+      return esc(t.slice(0, i)) + "<mark>" + esc(t.slice(i, i + q.length)) + "</mark>" + esc(t.slice(i + q.length));
+    },
+  };
+}
+
+async function searchVerses(m, ids, only) {
+  const hits = [], CAP = 500;
   for (const id of ids) {
     const d = await loadBundle(id);
     outer:
     for (const b of d.books) {
       const code = codeFor(b.name);
+      if (only && only.indexOf(code) < 0) continue;
       for (let ci = 0; ci < b.chapters.length; ci++) {
         const ch = b.chapters[ci];
         for (let vi = 0; vi < ch.length; vi++) {
-          const txt = ch[vi];
-          if (txt && txt.toLowerCase().includes(needle)) {
-            hits.push({ id, vid: d.name, code, ci, vi, ref: `${b.name} ${ci + 1}:${vi + 1}`,
-                        text: txt, word: wordRe.test(txt) });
+          if (m.hit(ch[vi])) {
+            hits.push({ kind: "verse", id, vid: d.name, code, ci, v: vi + 1,
+                        ref: `${b.name} ${ci + 1}:${vi + 1}`, text: ch[vi], word: m.word(ch[vi]) });
             if (hits.length >= CAP) break outer;
           }
         }
       }
     }
   }
-  hits.sort((a, b) => (b.word - a.word)); // whole-word matches first; stable otherwise
-  const mark = (s) => {
-    const i = s.toLowerCase().indexOf(needle); if (i < 0) return esc(s);
-    return esc(s.slice(0, i)) + "<mark>" + esc(s.slice(i, i + q.length)) + "</mark>" + esc(s.slice(i + q.length));
-  };
-  el("resultsCount").textContent = `${hits.length}${hits.length >= CAP ? "+" : ""} result${hits.length === 1 ? "" : "s"} for “${q}”${allVersions ? " (all versions)" : " in " + primary().name}`;
-  el("resultsList").innerHTML = hits.map((h) =>
-    `<li data-id="${h.id}" data-code="${h.code}" data-c="${h.ci}" data-v="${h.vi + 1}"><span class="r-ref">${h.ref}</span> ${allVersions ? `<span class="r-ver">${h.vid}</span>` : ""} <span class="r-text">${mark(h.text)}</span></li>`
-  ).join("") || "<li>No results.</li>";
+  return hits;
+}
+
+/* Search the compiled Words of Jesus — the passage is the unit, not the verse. */
+async function searchJesus(m) {
+  await loadWoj();
+  await ensureWojBooks(woj.books.map((b) => b.code));
+  const hits = [];
+  for (const entry of woj.books) {
+    for (const p of entry.passages) {
+      if (p.voice !== "jesus") continue;
+      const text = wojText(entry.code, p);
+      if (!m.hit(text)) continue;
+      hits.push({ kind: "verse", id: woj.version, vid: "the words of Jesus", code: entry.code,
+                  ci: p.from[0] - 1, v: p.from[1], ref: p.ref, text, word: m.word(text) });
+    }
+  }
+  return hits;
+}
+
+/* Berean's own notes: what a thread says about a passage, and what the canon
+   table says about a book. Both are small enough to search whole. */
+async function searchLayers(m) {
+  const hits = [];
+  await loadThreads();
+  for (const t of threadsData.threads || []) {
+    for (const step of t.steps || []) {
+      const text = `${step.note || ""}`;
+      if (m.hit(text) || m.hit(step.ref || "")) {
+        hits.push({ kind: "thread", thread: t.id, ref: step.ref, title: t.title,
+                    text, word: m.word(text) });
+      }
+    }
+  }
+  await loadCanons();
+  for (const b of canons.books || []) {
+    const text = `${b.note || ""}`;
+    if (m.hit(text) || m.hit(b.name)) {
+      hits.push({ kind: "canon", ref: b.name, title: "Canon", text, word: m.word(text) });
+    }
+  }
+  return hits;
+}
+
+async function runSearch(q, scope) {
+  q = q.trim(); if (!q) return;
+  const m = matcher(q);
+  el("resultsCount").textContent = "Searching…";
+  el("resultsList").innerHTML = "";
+  showOnly("results");
+  let hits = [];
+  try {
+    if (scope === "jesus") hits = await searchJesus(m);
+    else if (scope === "layers") hits = await searchLayers(m);
+    else if (scope === "dc") {
+      const dcVersion = manifest.versions.find((v) => (v.deuterocanonical || []).length);
+      if (!dcVersion) hits = [];
+      else {
+        // the version index holds the codes; the manifest entry lists display names
+        const idx = await loadVersion(dcVersion.id);
+        hits = await searchVerses(m, [dcVersion.id], idx.deuterocanonical);
+      }
+    } else hits = await searchVerses(m, scope === "all" ? manifest.versions.map((v) => v.id) : [state.primary]);
+  } catch (e) {
+    el("resultsCount").textContent = "Search could not finish — try again.";
+    return;
+  }
+  hits.sort((a, b) => (b.word - a.word));   // whole-word matches first; stable otherwise
+  const capped = hits.length >= 500;
+  el("resultsCount").textContent =
+    `${hits.length}${capped ? "+" : ""} result${hits.length === 1 ? "" : "s"} for “${q}” ${scopeLabel[scope]()}`;
+  el("resultsList").innerHTML = hits.map((h) => {
+    const snippet = h.text.length > 260 ? h.text.slice(0, 260) + "…" : h.text;
+    if (h.kind === "verse")
+      return `<li data-id="${esc(h.id)}" data-code="${esc(h.code)}" data-c="${h.ci}" data-v="${h.v}">`
+        + `<span class="r-ref">${esc(h.ref)}</span> <span class="r-ver">${esc(h.vid)}</span> `
+        + `<span class="r-text">${m.mark(snippet)}</span></li>`;
+    return `<li data-panel="${h.kind === "thread" ? "threads" : "canon"}" data-arg="${esc(h.thread || "")}">`
+      + `<span class="r-ref">${esc(h.ref)}</span> <span class="r-ver">${esc(h.title)}</span> `
+      + `<span class="r-text">${m.mark(snippet)}</span></li>`;
+  }).join("") || "<li>No results.</li>";
   window.scrollTo({ top: 0 });
 }
 
@@ -1012,7 +1101,8 @@ async function init() {
   state.primary = (prefs.primary && has(prefs.primary)) ? prefs.primary : manifest.versions[0].id;
   el("verSel").value = state.primary;
   if (prefs.compare && has(prefs.compare) && prefs.compare !== state.primary) { state.compare = prefs.compare; el("cmpSel").value = prefs.compare; await loadVersion(prefs.compare); }
-  if (prefs.searchAll) el("searchAll").checked = true;
+  if (prefs.searchScope && el("searchScope").querySelector(`option[value="${prefs.searchScope}"]`))
+    el("searchScope").value = prefs.searchScope;
   comfort.theme = prefs.theme === "dark" ? "dark" : "light";
   if (typeof prefs.size === "number" && prefs.size >= 0.95 && prefs.size <= 1.7) comfort.size = prefs.size;
   if (typeof prefs.rate === "number" && prefs.rate >= 0.6 && prefs.rate <= 1.3) comfort.rate = prefs.rate;
@@ -1051,8 +1141,8 @@ async function init() {
     clearSelection(); renderChapter(); showOnly("reader"); renderAttribution(); savePrefs();
   });
 
-  el("searchForm").addEventListener("submit", (e) => { e.preventDefault(); runSearch(el("searchInput").value, el("searchAll").checked); });
-  el("searchAll").addEventListener("change", savePrefs);
+  el("searchForm").addEventListener("submit", (e) => { e.preventDefault(); runSearch(el("searchInput").value, el("searchScope").value); });
+  el("searchScope").addEventListener("change", savePrefs);
 
   // reading comfort + voice
   el("themeBtn").addEventListener("click", () => { comfort.theme = comfort.theme === "dark" ? "light" : "dark"; applyComfort(); savePrefs(); });
@@ -1119,6 +1209,8 @@ async function init() {
   });
   // results / related navigation
   el("resultsList").addEventListener("click", async (e) => {
+    const panelRow = e.target.closest("li[data-panel]");
+    if (panelRow) { openPanelRoute(panelRow.dataset.panel, panelRow.dataset.arg || undefined); return; }
     const li = e.target.closest("li[data-code]"); if (!li) return;
     if (li.dataset.id && li.dataset.id !== state.primary) { state.primary = li.dataset.id; el("verSel").value = li.dataset.id; await loadVersion(state.primary); renderAttribution(); }
     clearSelection(); gotoChapter(li.dataset.code, +li.dataset.c, +li.dataset.v);

@@ -58,7 +58,7 @@ OPEN, CLOSE = "“", "”"
 BOOKS = ["Matthew", "Mark", "Luke", "John", "Acts"]
 
 SPEECH = (r"(?:said|say|says|saying|answered|answering|answer|replied|reply|replying|told|telling|"
-          r"asked|asking|declared|declaring|declares|responded|cried out|crying out|called out|"
+          r"ask|asked|asking|inquired|declared|declaring|declares|responded|cried out|crying out|called out|"
           r"calling out|calls|taught|teaching|teach|spoke|speaking|speaks|instructed|commanded|"
           r"commanding|warned|warning|rebuked|rebuking|prayed|praying|explained|continued|"
           r"went on to say|exclaimed|shouted|shouting|urged|charged|proclaimed|proclaiming|preach|"
@@ -69,7 +69,17 @@ SPEECH_RE = re.compile(SPEECH, re.I)
 # Only an outright naming counts. Titles that others use ABOUT Jesus ("the Christ",
 # "Rabbi", "the Son of Man") appear all over crowd speech and narration, so they
 # are not evidence about who is speaking.
-JESUS_NAME = re.compile(r"\bJesus\b(?![’'`]s?\b)")   # not the possessive "Jesus’ mother"
+JESUS_TOKEN = re.compile(r"\bJesus\b(?![\u2019'`]s?\b)")   # not the possessive "Jesus\u2019 mother"
+# A name straight after a preposition is where the speech WENT, not who spoke it:
+# "He came to Jesus at night and said" \u2014 the speaker there is Nicodemus.
+PREP_BEFORE = re.compile(r"\b(?:to|with|of|from|for|at|by|about|before|unto|toward|towards|after|"
+                         r"against|beside|near|upon|into|around|among|behind|beyond)\s+$", re.I)
+
+
+def names_jesus(window):
+    return any(not PREP_BEFORE.search(window[: m.start()]) for m in JESUS_TOKEN.finditer(window))
+
+
 JESUS_LORD = re.compile(r"\bthe Lord\b")          # in Acts/Revelation this is Jesus
 # BSB capitalizes pronouns referring to deity — a strong signal, though shared
 # with the Father, so it only decides inside a Gospel narrative following Jesus.
@@ -83,7 +93,7 @@ FATHER = re.compile(r"(?:a voice (?:from|out of|came from|spoke|said)|the voice 
 NOT_JESUS = re.compile(
     r"\b(?:pilate|peter|simon|judas|john|paul|herod|caiaphas|barnabas|silas|"
     r"the devil|satan|the tempter|the angel|an angel|angels|the crowd|the crowds|the people|"
-    r"the pharisees|the scribes|the disciples|his disciples|the chief priests|the elders|"
+    r"the pharisees|the scribes|the disciples|his disciples|the disciple|the chief priests|the elders|"
     r"the jews|the sadducees|the servant|the centurion|the soldiers|the woman|the man|the men|"
     r"moses|elijah|isaiah|david|the prophet|the prophets|the scripture|gabriel|mary|martha|"
     r"philip|andrew|thomas|nathanael|nicodemus|stephen|ananias|agrippa|festus|felix|gamaliel|"
@@ -182,29 +192,41 @@ def subject_windows(pre):
 
 
 def classify(window, book):
-    """Who does the narrator's clause say is speaking?"""
-    if PASSIVE.search(window):
-        return None                # "He was told," — that names who was spoken TO
+    """Who does the narrator's clause say is speaking? English puts the subject
+    first, so when a clause names more than one person the EARLIEST candidate is
+    the speaker: in "The next day John saw Jesus coming toward him and said," the
+    speaker is John, even though Jesus is named too."""
     if NOT_JESUS_CS.search(window):
         return None
-    if JESUS_NAME.search(window):
-        return "jesus"
-    if FATHER.search(window):
-        return "father"
-    if NOT_JESUS.search(window):
+    found = []
+    for m in JESUS_TOKEN.finditer(window):
+        if not PREP_BEFORE.search(window[: m.start()]):
+            found.append((m.start(), "jesus"))
+            break
+    m = FATHER.search(window)
+    if m:
+        found.append((m.start(), "father"))
+    m = NOT_JESUS.search(window)
+    if m:
+        found.append((m.start(), None))
+    if book in ("Acts", "Revelation"):
+        m = JESUS_LORD.search(window)
+        if m:
+            found.append((m.start(), "jesus"))
+    if book in ("Matthew", "Mark", "Luke", "John"):
+        m = DIVINE_PRONOUN.search(window)      # BSB capitalizes pronouns for deity
+        if m:
+            found.append((m.start(), "jesus"))
+    if not found:
         return None
-    if book == "Acts" and JESUS_LORD.search(window):
-        return "jesus"
-    # BSB capitalizes pronouns for deity, and in a Gospel the narrative subject
-    # is Jesus. In Acts and Revelation it is not, so a bare pronoun decides
-    # nothing there — those speeches are named or left out.
-    if book in ("Matthew", "Mark", "Luke", "John") and DIVINE_PRONOUN.search(window):
-        return "jesus"
-    return None
+    found.sort(key=lambda x: x[0])
+    return found[0][1]
 
 
 def speaker_before(clause, m, book):
     """Speaker of a verb whose subject precedes it: "Then Jesus said to them,"."""
+    if PASSIVE.search(clause[max(0, m.start() - 40): m.end() + 6]):
+        return None                    # "He was told," names who was spoken TO
     for window in subject_windows(clause[: m.start()]):
         who = classify(window, book)
         if who:
@@ -243,27 +265,47 @@ def attribute(flat, mask, span, book):
     — apart from two signals: a quotation broken off with a comma is still ours,
     and a clause with a fresh quotation right behind it belongs to that one."""
     s, e = span
-    tail_raw = flat[e + 1: e + 220]
+    had_trailing = False
     after = narrative(flat, mask, e + 1, e + 220)
+    sentence = re.split(r"(?<=[.!?])\s|\s*¶\s*", after.strip())[0]
     m = SPEECH_RE.search(after[:70])
     if m:
+        # Symmetric with the rule for lead clauses. A quotation broken off with a
+        # comma is still ours and continues after the clause. Otherwise the clause
+        # is ours only if it is a finished sentence — "Nicodemus asked." — and
+        # short enough to be an attribution rather than the narrative moving on
+        # ("And He instructed the crowd to sit down on the ground.").
         interrupted = flat[:e].rstrip().endswith(",")
-        nxt = tail_raw.find(OPEN)
-        # After a quotation that ended in a full stop, a trailing attribution is
-        # a short clause of its own ("Jesus asked."). A long one is the narrative
-        # moving on ("And He instructed the crowd to sit down on the ground.").
-        sentence = re.split(r"(?<=[.!?])\s|\s¶", after.strip())[0]
-        if not interrupted and len(sentence) > 35:
-            m = None
-    if m:
-        if interrupted or nxt < 0 or nxt > len(after[:m.end()]) + 50:
-            who = speaker_of(after[: m.end() + 60], m, book)
+        finished = sentence.rstrip().endswith((".", "!", "?"))
+        if interrupted or (finished and len(sentence) <= 35):
+            window = after[: m.end() + 60]
+            who = speaker_of(window, m, book)
             if who:
                 return who, "after"
+            # The narrator has named a speaker here and it is not Jesus. Settle it,
+            # rather than falling back to the clause that introduced the PREVIOUS
+            # quotation — which is what put Nicodemus' question in Jesus' mouth.
+            if any(NOT_JESUS.search(w) for w in subject_windows(window[: m.start()])) \
+                    or NOT_JESUS.search(window[m.end(): m.end() + 30]):
+                return None, None
+            had_trailing = True     # attributed here, to someone we cannot name
 
     before = narrative(flat, mask, max(0, s - 900), s - 1)
-    clauses = [c.strip() for c in re.split(r"(?<=[.!?])\s+|\s*¶\s*", before) if c.strip()]
-    lead = clauses[-1] if clauses else ""
+    raw = re.split(r"(?<=[.!?])\s+|\s*¶\s*", before)
+    true_lead = raw[-1].strip()
+    if true_lead:
+        lead = true_lead
+    else:
+        # Nothing at all between this quotation and the one before it: the same
+        # speaker carrying on across a paragraph break, so their clause still
+        # applies. This is the only case where an earlier clause may be read —
+        # and not even then if this quotation has an attribution of its own
+        # trailing it ("…the boy's father, “How long…?”  “From childhood,” he
+        # said."), which belongs to whoever answered, not to whoever asked.
+        if had_trailing:
+            return None, None
+        earlier = [c.strip() for c in raw if c.strip()]
+        lead = earlier[-1] if earlier else ""
     # A clause INTRODUCING a quotation runs into it, so it ends with a comma or a
     # colon. One ending in a full stop is a finished sentence — the attribution of
     # the PREVIOUS quotation ("…?” Jesus asked.  “Seven,” they replied"), and
@@ -278,12 +320,6 @@ def attribute(flat, mask, span, book):
         return (who, "before") if who else (None, None)
     if FATHER.search(lead):                        # "Then a voice came from heaven:"
         return "father", "lead"
-    if len(clauses) > 1 and not CITATION.search(clauses[-2]):
-        ms = list(SPEECH_RE.finditer(clauses[-2]))
-        if ms:
-            who = speaker_before(clauses[-2], ms[-1], book)
-            if who:
-                return who, "before"
     return None, None
 
 

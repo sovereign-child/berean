@@ -20,7 +20,13 @@
       <label class="ctl">Compare <select id="cmpSel" aria-label="Compare version"><option value="">— none —</option></select></label>
       <form id="searchForm" class="search" role="search">
         <input id="searchInput" type="search" placeholder="Search…" aria-label="Search" />
-        <label class="chk"><input type="checkbox" id="searchAll" /> all versions</label>
+        <select id="searchScope" aria-label="Where to search" title="Where to search">
+          <option value="version">this version</option>
+          <option value="all">all versions</option>
+          <option value="jesus">the words of Jesus</option>
+          <option value="dc">the disputed books</option>
+          <option value="layers">threads &amp; canon notes</option>
+        </select>
         <button type="submit">Search</button>
       </form>
       <span class="comfort" role="group" aria-label="Reading comfort">
