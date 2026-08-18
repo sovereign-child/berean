@@ -1,0 +1,130 @@
+{
+  "note": "Which books each tradition receives as Scripture. Berean labels; it does not adjudicate. Every book listed here that Berean hosts can be opened and read in full — the point is to let you see the difference for yourself rather than take anyone's word for it.",
+  "honesty": "The counts below are the ones each tradition commonly gives for itself, but no enumeration is fixed. Orthodox jurisdictions differ from one another; the Ethiopian \"81\" is counted several different ways by different lists; and 'canonical' has meant different things at different times — a book could be read publicly in worship without being used to settle doctrine. Where a tradition is genuinely divided, this file says so rather than picking a side.",
+  "framing": "Nothing was subtracted from a single original Bible. There was never one agreed list that was later shortened. Different communities carried different collections, and the councils that spoke to it were mostly ratifying what their churches already read. The one case that does look like removal is narrow and real: the 1611 King James Bible included the Apocrypha, and British printers began leaving it out around 1826, largely a decision of Bible societies about cost and doctrine.",
+  "statusLabels": {
+    "canonical": "received as Scripture",
+    "deuterocanonical": "received as Scripture — the “second canon”",
+    "apocrypha": "printed and read, but not used to establish doctrine",
+    "appendix": "printed in an appendix, outside the canon",
+    "varies": "differs between jurisdictions",
+    "absent": "not included"
+  },
+  "traditions": [
+    {
+      "id": "tanakh",
+      "name": "Jewish (Tanakh)",
+      "count": "24",
+      "note": "The same books as the Protestant Old Testament, counted and ordered differently: 24 rather than 39, because the Twelve Prophets are one book, as are Samuel, Kings, Chronicles, and Ezra–Nehemiah.",
+      "shape": "Torah · Nevi'im · Ketuvim — and it ends with Chronicles, not Malachi."
+    },
+    {
+      "id": "protestant",
+      "name": "Protestant",
+      "count": "66",
+      "note": "39 Old Testament, 27 New Testament. The deuterocanonical books were printed between the Testaments in Luther's Bible and in the 1611 King James, labeled Apocrypha — valuable to read, not used to establish doctrine.",
+      "shape": "Old Testament · New Testament"
+    },
+    {
+      "id": "catholic",
+      "name": "Catholic",
+      "count": "73",
+      "note": "The 66 plus seven deuterocanonical books and the Greek additions to Esther and Daniel, affirmed at the Council of Trent in 1546. Three further books — 1 Esdras, 2 Esdras, and the Prayer of Manasseh — were printed in an appendix to the Vulgate, outside the canon.",
+      "shape": "Old Testament (with the deuterocanon interleaved) · New Testament"
+    },
+    {
+      "id": "orthodox",
+      "name": "Eastern Orthodox",
+      "count": "76–79 (varies)",
+      "note": "The deuterocanon, plus books carried in the Greek Septuagint tradition: 1 Esdras, the Prayer of Manasseh, Psalm 151, and 3 Maccabees. 4 Maccabees is printed in an appendix. Slavonic and Russian usage differs from Greek — 2 Esdras is received there and not in the Greek churches.",
+      "shape": "Follows the Septuagint order"
+    },
+    {
+      "id": "tewahedo",
+      "name": "Ethiopian Tewahedo",
+      "count": "81 (broader canon)",
+      "note": "The widest canon of any ancient church, and the only one that receives 1 Enoch and Jubilees as Scripture. Its Meqabyan are three distinct Ethiopian books, not translations of the Greek Maccabees — a common confusion. The 'narrower' and 'broader' canons are both counted as 81 by different reckonings.",
+      "shape": "Narrower and broader canons, both counted as 81"
+    }
+  ],
+  "shared": {
+    "count": 66,
+    "note": "All three Christian traditions receive the same 66 books; every disagreement below is about what to add to them, never about removing any of them. The 27-book New Testament is identical across all three."
+  },
+  "books": [
+    { "name": "Tobit", "hosted": "WEB", "era": "c. 225–175 BC",
+      "note": "A family story of exile, marriage, and an angel travelling in disguise.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "deuterocanonical", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "Judith", "hosted": "WEB", "era": "c. 150–100 BC",
+      "note": "A widow saves her city by killing the general besieging it.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "deuterocanonical", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "Esther (Greek)", "hosted": "WEB", "era": "c. 100 BC",
+      "note": "Esther with six additions found in the Greek but not the Hebrew — including the prayers, which is where God is named at all.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "deuterocanonical", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "Wisdom of Solomon", "hosted": "WEB", "era": "c. 100–50 BC",
+      "note": "Greek-influenced wisdom writing; its portrait of the suffering righteous man is echoed in the Passion narratives.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "deuterocanonical", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "Sirach", "hosted": "WEB", "era": "c. 200–175 BC",
+      "note": "Also called Ecclesiasticus. A teacher's manual of practical wisdom; the Hebrew original was rediscovered in the Cairo Genizah and at Masada.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "deuterocanonical", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "Baruch", "hosted": "WEB", "era": "c. 200–100 BC",
+      "note": "Attributed to Jeremiah's scribe. Chapter 6 is the Letter of Jeremiah, counted as a separate book in Orthodox Bibles.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "deuterocanonical", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "1 Maccabees", "hosted": "WEB", "era": "c. 100 BC",
+      "note": "The Maccabean revolt as history — the events behind Hanukkah, and the setting John 10:22 assumes.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "deuterocanonical", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "2 Maccabees", "hosted": "WEB", "era": "c. 124 BC",
+      "note": "The same revolt told theologically. Chapter 7 is the earliest clear statement of bodily resurrection in Jewish literature.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "deuterocanonical", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "Daniel (Greek)", "hosted": "WEB", "era": "c. 150–100 BC",
+      "note": "Daniel with three additions: the Prayer of Azariah and Song of the Three inside chapter 3, then Susanna and Bel and the Dragon as chapters 13–14.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "deuterocanonical", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "1 Esdras", "hosted": "WEB", "era": "c. 150 BC",
+      "note": "A Greek retelling of the return from exile, overlapping Ezra–Nehemiah and Chronicles.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "appendix", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "Prayer of Manasseh", "hosted": "WEB", "era": "c. 200 BC – AD 50",
+      "note": "The repentance of the worst king in Judah's memory, fifteen verses long.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "appendix", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "Psalm 151", "hosted": "WEB", "era": "c. 200–100 BC",
+      "note": "David's own account of the shepherd boy and Goliath. A Hebrew version turned up among the Dead Sea Scrolls.",
+      "in": { "tanakh": "absent", "protestant": "absent", "catholic": "absent", "orthodox": "canonical", "tewahedo": "canonical" } },
+    { "name": "3 Maccabees", "hosted": "WEB", "era": "c. 100–50 BC",
+      "note": "Despite the name, not about the revolt — a rescue of Egyptian Jews under Ptolemy IV.",
+      "in": { "tanakh": "absent", "protestant": "absent", "catholic": "absent", "orthodox": "canonical", "tewahedo": "absent" } },
+    { "name": "4 Maccabees", "hosted": "WEB", "era": "c. AD 20–100",
+      "note": "A philosophical essay on reason mastering the passions, built on the martyrdoms of 2 Maccabees 7.",
+      "in": { "tanakh": "absent", "protestant": "absent", "catholic": "absent", "orthodox": "appendix", "tewahedo": "absent" } },
+    { "name": "2 Esdras", "hosted": "WEB", "era": "c. AD 70–120",
+      "note": "Also called 4 Ezra. Seven visions wrestling with why God let Jerusalem fall. Received in the Slavonic tradition, not the Greek.",
+      "in": { "tanakh": "absent", "protestant": "apocrypha", "catholic": "appendix", "orthodox": "varies", "tewahedo": "canonical" } },
+    { "name": "1 Enoch", "hosted": "ENOCH", "era": "c. 300–100 BC",
+      "note": "The Watchers, the fallen angels, and the Son of Man. Quoted by name in Jude 14–15 — the New Testament cites a book almost no tradition kept.",
+      "in": { "tanakh": "absent", "protestant": "absent", "catholic": "absent", "orthodox": "absent", "tewahedo": "canonical" } },
+    { "name": "Jubilees", "hosted": null, "era": "c. 160–150 BC",
+      "note": "Genesis and Exodus retold on a calendar of jubilees. Found in multiple copies at Qumran. Not yet in Berean — no clean public-domain machine-readable edition located so far.",
+      "in": { "tanakh": "absent", "protestant": "absent", "catholic": "absent", "orthodox": "absent", "tewahedo": "canonical" } },
+    { "name": "1–3 Meqabyan", "hosted": null, "era": "uncertain",
+      "note": "Three Ethiopian books, unrelated to the Greek Maccabees despite the name. Frequently confused with them in canon lists online.",
+      "in": { "tanakh": "absent", "protestant": "absent", "catholic": "absent", "orthodox": "absent", "tewahedo": "canonical" } },
+    { "name": "4 Baruch", "hosted": null, "era": "c. AD 100–150",
+      "note": "Also called Paralipomena of Jeremiah — the fall of Jerusalem and Jeremiah's later days.",
+      "in": { "tanakh": "absent", "protestant": "absent", "catholic": "absent", "orthodox": "absent", "tewahedo": "canonical" } }
+  ],
+  "tanakhOrder": {
+    "note": "The same books as the Protestant Old Testament, in the Jewish order. The difference that matters most is the ending: a Christian Old Testament closes with Malachi promising a messenger yet to come, while the Tanakh closes with Chronicles and Cyrus saying “let him go up” — a call to return and rebuild. Same books, different final word.",
+    "sections": [
+      { "name": "Torah", "meaning": "Teaching", "books": ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"] },
+      { "name": "Nevi'im", "meaning": "Prophets", "books": ["Joshua", "Judges", "Samuel", "Kings", "Isaiah", "Jeremiah", "Ezekiel", "The Twelve"] },
+      { "name": "Ketuvim", "meaning": "Writings", "books": ["Psalms", "Proverbs", "Job", "Song of Songs", "Ruth", "Lamentations", "Ecclesiastes", "Esther", "Daniel", "Ezra–Nehemiah", "Chronicles"] }
+    ]
+  },
+  "sources": [
+    "Council of Trent, Session IV (1546) — the Catholic canon defined, deuterocanon included.",
+    "Thirty-Nine Articles of Religion, Article VI (1571) — the Apocrypha read “for example of life and instruction of manners,” not to establish doctrine.",
+    "Westminster Confession of Faith I.3 (1646) — the Apocrypha given no authority in the church.",
+    "Synod of Jerusalem (1672) — the Orthodox response, receiving the wider Septuagint books.",
+    "Babylonian Talmud, Bava Batra 14b — the order and contents of the Tanakh.",
+    "Jude 14–15 — quotes 1 Enoch 1:9 by name.",
+    "Codex Sinaiticus (4th c.) — the oldest complete New Testament, which also contains the Epistle of Barnabas and the Shepherd of Hermas."
+  ]
+}

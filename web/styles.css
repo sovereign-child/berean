@@ -5,6 +5,7 @@
   --muted: #8a8172; --rule: #e4dac4; --gold: #9a7b2e; --accent: #7a5c1c;
   --hl-y: #fff4c2; --hl-g: #d8f3dc; --hl-b: #d7e9ff; --hl-p: #ffe0ef; --sel: #f5e6b8;
   --card: #fff; --top-bg: rgba(250,246,238,0.94); --reader-size: 1.18rem;
+  --red: #a3231f;          /* the words of Jesus — deep ink red, not alarm red */
   --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --wrap: 820px;
@@ -139,6 +140,62 @@ body.dark .thread-badge { color: var(--ink); }
 .prayer__savedhead { font-family: var(--serif); font-size: 1.05rem; margin-top: 0.5rem; }
 .prayer__saved-ref { font-family: var(--sans); font-size: 0.75rem; font-weight: 700; color: var(--accent); }
 
+/* Canon comparison */
+.canon { display: flex; flex-direction: column; gap: 1.5rem; }
+.canon__intro { font-family: var(--serif); font-size: 1.02rem; color: var(--ink-soft); }
+.canon__traditions { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.9rem; }
+.canon__tradition { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 0.7rem 0.85rem; }
+.canon__tradition h3 { font-family: var(--serif); font-size: 1.02rem; display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+.canon__tradition p { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.35rem; }
+.canon__count { font-family: var(--sans); font-size: 0.78rem; color: var(--accent); font-weight: 700; white-space: nowrap; }
+.canon__shared { background: var(--parchment-2); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; padding: 0.6rem 0.8rem; font-size: 0.9rem; }
+.canon__tablewrap { overflow-x: auto; }
+.canon__table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.85rem; }
+.canon__table th, .canon__table td { border-bottom: 1px solid var(--rule); padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+.canon__table thead th { font-family: var(--sans); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); white-space: nowrap; }
+.canon__table tbody th { font-weight: 400; max-width: 22rem; }
+.canon__open { font-family: var(--serif); font-size: 0.98rem; font-weight: 700; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+.canon__open:hover { text-decoration: underline; }
+.canon__book { font-family: var(--serif); font-size: 0.98rem; font-weight: 700; }
+.canon__tag { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 0.05rem 0.45rem; }
+.canon__cell { white-space: nowrap; }
+.canon__dot { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 50%; margin-right: 0.4rem; background: var(--rule); vertical-align: middle; }
+.canon__st { font-size: 0.76rem; color: var(--ink-soft); }
+.canon__cell--canonical .canon__dot, .canon__cell--deuterocanonical .canon__dot { background: var(--gold); }
+.canon__cell--apocrypha .canon__dot, .canon__cell--appendix .canon__dot { background: var(--ink-soft); }
+.canon__cell--varies .canon__dot { background: var(--accent); }
+.canon__cell--absent { color: var(--muted); }
+.canon__cell--absent .canon__st { color: var(--muted); opacity: 0.75; }
+.canon__section { font-size: 0.88rem; color: var(--ink-soft); margin-top: 0.4rem; }
+.canon__tanakh h3, .canon__sources h3 { font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.4rem; }
+.canon__sources ul { list-style: none; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 0.6rem; }
+.canonbadge { font-family: var(--sans); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--accent); background: transparent; border: 1px solid var(--gold); border-radius: 999px;
+  padding: 0.1rem 0.55rem; cursor: pointer; vertical-align: middle; }
+.canonbadge:hover { background: var(--parchment-2); }
+.canonbadge--outside { color: var(--muted); border-color: var(--rule); cursor: default; }
+
+/* The Words of Jesus */
+.jw { color: var(--red); }
+.woj { display: flex; flex-direction: column; gap: 1.1rem; }
+.woj__books { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem; }
+.woj__tab { font-family: var(--sans); font-size: 0.85rem; color: var(--ink-soft); background: var(--card);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 0.3rem 0.75rem; cursor: pointer; }
+.woj__tab:hover { border-color: var(--gold); }
+.woj__tab.is-on { background: var(--red); border-color: var(--red); color: #fff; }
+.woj__tab.is-on .tiny { color: rgba(255,255,255,0.85); }
+.woj__passage { border-left: 3px solid var(--red); padding-left: 0.9rem; }
+.woj__passage--father { border-left-color: var(--gold); }
+.woj__head { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.3rem; }
+.woj__ref { font-family: var(--sans); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; }
+.woj__ref:hover { text-decoration: underline; }
+.woj__tag { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 0.05rem 0.5rem; }
+.woj__tag--father { color: var(--gold); border-color: var(--gold); }
+.woj__text { font-family: var(--serif); font-size: 1.05rem; line-height: 1.75; color: var(--red); }
+.woj__passage--father .woj__text { color: var(--ink-soft); font-style: italic; }
+
 /* Verse action bar */
 .versebar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0.75rem; z-index: 30;
   background: var(--ink); color: var(--parchment); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
@@ -177,7 +234,7 @@ body.dark .thread-badge { color: var(--ink); }
 body.dark {
   --parchment: #17150f; --parchment-2: #201d15; --card: #24211a; --top-bg: rgba(23,21,15,0.94);
   --ink: #ece4d3; --ink-soft: #c4bca9; --muted: #948b78; --rule: #38332a;
-  --gold: #d9b563; --accent: #e7ca7d; --sel: #4a3d1f;
+  --gold: #d9b563; --accent: #e7ca7d; --sel: #4a3d1f; --red: #e98a80;
   --hl-y: #574d22; --hl-g: #26432f; --hl-b: #243851; --hl-p: #4a2a3b;
 }
 body.dark .results__list mark { color: var(--ink); }

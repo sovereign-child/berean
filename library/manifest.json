@@ -22,6 +22,35 @@
       "id": "KJV"
     },
     {
+      "version": "WEB",
+      "name": "World English Bible (with Deuterocanon)",
+      "language": "en",
+      "license": "Public Domain",
+      "source": "https://ebible.org/Scriptures/eng-web_vpl.zip",
+      "attribution": "World English Bible (WEB), public domain — eBible.org. “World English Bible” is a trademark of eBible.org.",
+      "tradition": "Catholic / Orthodox (81 books, incl. the deuterocanon)",
+      "canon_status": "Carries the Protestant 66 plus the books disputed between traditions: the Catholic deuterocanon (73-book canon) and the books read in the Orthodox churches. See library/canons.json for which tradition receives which book.",
+      "canonical": true,
+      "id": "WEB",
+      "deuterocanonical": [
+        "Tobit",
+        "Judith",
+        "Esther (Greek)",
+        "Wisdom of Solomon",
+        "Sirach",
+        "Baruch",
+        "1 Maccabees",
+        "2 Maccabees",
+        "1 Esdras",
+        "Prayer of Manasseh",
+        "Psalm 151",
+        "3 Maccabees",
+        "2 Esdras",
+        "4 Maccabees",
+        "Daniel (Greek)"
+      ]
+    },
+    {
       "version": "ENOCH",
       "name": "1 Enoch (R.H. Charles)",
       "language": "en",
@@ -32,6 +61,18 @@
       "canon_status": "Non-canonical in Jewish, Catholic, Orthodox and Protestant canons; canonical in the Ethiopian Orthodox Tewahedo Church; quoted in Jude 14-15.",
       "canonical": false,
       "id": "ENOCH"
+    }
+  ],
+  "compilations": [
+    {
+      "id": "WOJ",
+      "title": "The Words of Jesus",
+      "file": "words-of-jesus.json",
+      "from": "BSB",
+      "license": "CC0-1.0",
+      "built_by": "scripts/build_words_of_jesus.py",
+      "checked_by": "scripts/check_words_of_jesus.py",
+      "method": "Derived from the source translation's own quotation marks and the narrator's attribution clauses; stores offsets, not text. Passages the narrator does not attribute are omitted; a short hand-listed set is marked \"curated\". The Father's voice is labeled separately, never folded in."
     }
   ]
 }

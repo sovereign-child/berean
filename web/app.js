@@ -35,16 +35,18 @@ function savePrefs() {
   localStorage.setItem(PREFS_KEY, JSON.stringify({
     primary: state.primary, compare: state.compare, searchAll: el("searchAll").checked,
     theme: comfort.theme, size: comfort.size, voice: comfort.voice, rate: comfort.rate,
-    commentary: comfort.commentary,
+    commentary: comfort.commentary, red: comfort.red,
   }));
 }
 
 /* Reader comfort: theme, text size, and reading voice/rate (all persisted). */
-const comfort = { theme: "light", size: 1.18, voice: "", rate: 0.9, commentary: "" };
+const comfort = { theme: "light", size: 1.18, voice: "", rate: 0.9, commentary: "", red: true };
 function applyComfort() {
   document.body.classList.toggle("dark", comfort.theme === "dark");
   document.documentElement.style.setProperty("--reader-size", comfort.size + "rem");
   const tb = el("themeBtn"); if (tb) { tb.textContent = comfort.theme === "dark" ? "☀" : "☾"; }
+  const rb = el("redBtn");
+  if (rb) { rb.classList.toggle("active", comfort.red); rb.setAttribute("aria-pressed", String(!!comfort.red)); }
 }
 
 function toast(msg) {
@@ -172,11 +174,24 @@ function playChapterAudio(path) {
 }
 
 /* ---------- render ---------- */
+/* Books outside the Protestant 66 are marked wherever they are read, so nobody
+   meets one without knowing which traditions receive it. */
+const versionMeta = () => (manifest && manifest.versions.find((v) => v.id === state.primary)) || null;
+const outsideCanon = () => { const m = versionMeta(); return !!(m && m.canonical === false); };
+const disputed = (name) => {
+  const p = primary();
+  return !!(p && p.deuterocanonical && p.deuterocanonical.indexOf(name) >= 0);
+};
 function renderSelectors() {
   const p = primary(), book = p.books[state.book];
-  el("bookSel").innerHTML = p.books.map((b, i) => `<option value="${i}" ${i === state.book ? "selected" : ""}>${b.name}</option>`).join("");
+  el("bookSel").innerHTML = p.books.map((b, i) =>
+    `<option value="${i}" ${i === state.book ? "selected" : ""}>${b.name}${disputed(b.name) ? " ✦" : ""}</option>`).join("");
   el("chapSel").innerHTML = book.chapters.map((_, i) => `<option value="${i}" ${i === state.chapter ? "selected" : ""}>${i + 1}</option>`).join("");
-  el("refLabel").textContent = `${book.name} ${state.chapter + 1}`;
+  el("refLabel").innerHTML = `${esc(book.name)} ${state.chapter + 1}`
+    + (disputed(book.name)
+        ? ` <button class="canonbadge" id="refCanon" title="Which traditions receive this book?">✦ disputed between traditions</button>`
+        : (outsideCanon()
+            ? ` <button class="canonbadge canonbadge--outside" id="refCanon" title="Where does this text stand?">outside the biblical canon</button>` : ""));
 }
 
 function renderChapter() {
@@ -190,7 +205,7 @@ function renderChapter() {
     const rows = Math.max(chA.length, chB.length);
     let h = `<div class="cmp"><div class="cmp__head">${p.name}</div><div class="cmp__head">${cmp.name}</div>`;
     for (let i = 0; i < rows; i++)
-      h += `<div class="row"><div class="cell"><span class="vnum">${i + 1}</span>${esc(chA[i] || "")}</div><div class="cell"><span class="vnum">${i + 1}</span>${esc(chB[i] || "")}</div></div>`;
+      h += `<div class="row"><div class="cell"><span class="vnum">${i + 1}</span>${escRed(chA[i] || "", redRanges(book.name, c1, i + 1))}</div><div class="cell"><span class="vnum">${i + 1}</span>${esc(chB[i] || "")}</div></div>`;
     el("reader").innerHTML = h + `</div>`;
     return;
   }
@@ -199,7 +214,7 @@ function renderChapter() {
     const color = store.highlights[key], note = store.notes[key];
     const sel = state.sel && state.sel.name === book.name && state.sel.c1 === c1 && v1 >= state.sel.from && v1 <= state.sel.to;
     return `<p class="verse${color ? ` hl-${color}` : ""}${sel ? " sel" : ""}" id="v${v1}" data-v="${v1}">`
-      + `<span class="vnum" role="button" tabindex="0">${v1}</span>${esc(t)}`
+      + `<span class="vnum" role="button" tabindex="0">${v1}</span>${escRed(t, redRanges(book.name, c1, v1))}`
       + (note ? `<span class="noteflag" title="note">✎</span><span class="noteline">${esc(note)}</span>` : "")
       + `</p>`;
   }).join("");
@@ -211,7 +226,7 @@ function renderAttribution() {
 }
 
 function showOnly(section) {
-  for (const s of ["results", "related", "commentary", "threads", "study", "prayer", "reader"]) el(s).hidden = s !== section;
+  for (const s of ["results", "related", "commentary", "canon", "woj", "threads", "study", "prayer", "reader"]) el(s).hidden = s !== section;
 }
 
 /* ---------- navigation + permalinks ---------- */
@@ -447,6 +462,189 @@ async function renderCommentary(cid) {
   comfort.commentary = cid; savePrefs();
 }
 
+/* ---------- Canon — which tradition receives which book -----------------------
+   Berean labels and lets the reader open the actual book; it does not adjudicate.
+   Data: library/canons.json (hand-authored reference, with its sources listed). */
+const CANONS_URL = "../library/canons.json";
+let canons = null;
+
+async function loadCanons() {
+  if (!canons) canons = await (await fetch(CANONS_URL)).json();
+  return canons;
+}
+async function openCanon() {
+  try { await loadCanons(); } catch { toast("Could not load the canon data"); return; }
+  renderCanon();
+  showOnly("canon");
+  window.scrollTo({ top: 0 });
+}
+function renderCanon() {
+  const d = canons, tr = d.traditions;
+  const label = (st) => (d.statusLabels && d.statusLabels[st]) || st;
+  const cell = (st) => `<td class="canon__cell canon__cell--${st}" title="${esc(label(st))}">`
+    + `<span class="canon__dot"></span><span class="canon__st">${esc(label(st))}</span></td>`;
+
+  el("canonHead").innerHTML = `Canon <span class="tiny">— who receives which book</span>`;
+  el("canonBody").innerHTML =
+      `<p class="canon__intro">${esc(d.framing)}</p>`
+    + `<div class="canon__traditions">` + tr.map((t) =>
+        `<div class="canon__tradition"><h3>${esc(t.name)} <span class="canon__count">${esc(t.count)}</span></h3>`
+        + `<p class="tiny">${esc(t.shape)}</p><p>${esc(t.note)}</p></div>`).join("") + `</div>`
+    + `<p class="canon__shared"><strong>${d.shared.count} books are shared.</strong> ${esc(d.shared.note)}</p>`
+    + `<div class="canon__tablewrap"><table class="canon__table">`
+    + `<thead><tr><th>Book</th>` + tr.map((t) => `<th>${esc(t.name)}</th>`).join("") + `</tr></thead><tbody>`
+    + d.books.map((b) => {
+        const open = b.hosted
+          ? `<button class="canon__open" data-book="${esc(b.name)}" data-ver="${esc(b.hosted)}">${esc(b.name)} →</button>`
+          : `<span class="canon__book">${esc(b.name)}</span> <span class="canon__tag">not hosted</span>`;
+        return `<tr><th scope="row"><div>${open}</div>`
+          + `<div class="tiny">${esc(b.era)} · ${esc(b.note)}</div></th>`
+          + tr.map((t) => cell(b.in[t.id] || "absent")).join("") + `</tr>`;
+      }).join("")
+    + `</tbody></table></div>`
+    + `<div class="canon__tanakh"><h3>The Jewish order</h3><p>${esc(d.tanakhOrder.note)}</p>`
+    + d.tanakhOrder.sections.map((sec) =>
+        `<p class="canon__section"><strong>${esc(sec.name)}</strong> <span class="tiny">${esc(sec.meaning)}</span> — `
+        + sec.books.map((x) => esc(x)).join(" · ") + `</p>`).join("")
+    + `</div>`
+    + `<div class="canon__sources"><h3>Sources</h3><ul>`
+    + d.sources.map((x) => `<li>${esc(x)}</li>`).join("") + `</ul>`
+    + `<p class="tiny">${esc(d.honesty)}</p><p class="tiny">${esc(d.note)}</p></div>`;
+}
+
+/* Open a disputed book in the version that carries it. */
+async function openCanonBook(name, versionId) {
+  try { await loadVersion(versionId); } catch { toast("Could not load that text"); return; }
+  const bi = cache.get(versionId).books.findIndex((b) => b.name === name);
+  if (bi < 0) { toast("Not in this text"); return; }
+  if (versionId !== state.primary) {
+    state.primary = versionId; el("verSel").value = versionId;
+    if (state.compare === versionId) { state.compare = null; el("cmpSel").value = ""; }
+    renderAttribution(); savePrefs();
+  }
+  clearSelection();
+  gotoChapter(bi, 0);
+}
+
+/* ---------- The Words of Jesus ----------------------------------------------
+   Compiled by scripts/build_words_of_jesus.py from the BSB's own quotation marks.
+   The file stores character offsets, never a copy of the text, so the compiled
+   book is always sliced live out of the translation the reader already loaded. */
+const WOJ_URL = "../library/words-of-jesus.json";
+let woj = null;          // the compiled book
+let redIndex = null;     // { book: { chapter: { verse: [[start, end], …] } } } — for red letters
+let wojBook = null;      // which book the panel is showing
+
+async function loadWoj() {
+  if (!woj) {
+    woj = await (await fetch(WOJ_URL)).json();
+    redIndex = buildRedIndex(woj);
+  }
+  await loadVersion(woj.version);      // the compiled book always quotes its source text
+  return woj;
+}
+
+/* Character ranges of Jesus' speech, per verse, so the reader can red-letter it. */
+function buildRedIndex(d) {
+  const idx = {};
+  for (const entry of d.books) {
+    const src = cache.get(d.version), book = src && src._byName[entry.book];
+    if (!book) continue;
+    const byChapter = (idx[entry.book] = idx[entry.book] || {});
+    for (const p of entry.passages) {
+      if (p.voice !== "jesus") continue;
+      for (const part of p.parts) {
+        const [c1, v1, o1] = part.from, [c2, v2, o2] = part.to;
+        for (let c = c1; c <= c2; c++) {
+          const chapter = book.chapters[c - 1] || [];
+          const lo = c === c1 ? v1 : 1, hi = c === c2 ? v2 : chapter.length;
+          const verses = (byChapter[c] = byChapter[c] || {});
+          for (let v = lo; v <= hi; v++) {
+            const a = (c === c1 && v === v1) ? o1 : 0;
+            const b = (c === c2 && v === v2) ? o2 : (chapter[v - 1] || "").length;
+            (verses[v] = verses[v] || []).push([a, b]);
+          }
+        }
+      }
+    }
+  }
+  return idx;
+}
+const redRanges = (bookName, c1, v1) =>
+  (comfort.red && redIndex && state.primary === woj.version
+    && redIndex[bookName] && redIndex[bookName][c1] && redIndex[bookName][c1][v1]) || null;
+
+/* Escape a verse, wrapping the ranges Jesus speaks. Offsets are into the raw
+   text, so each piece is escaped after slicing, never before. */
+function escRed(text, ranges) {
+  if (!ranges || !ranges.length) return esc(text);
+  const merged = [];
+  for (const [a, b] of ranges.slice().sort((x, y) => x[0] - y[0])) {
+    const s = Math.max(0, Math.min(a, text.length)), e = Math.max(s, Math.min(b, text.length));
+    if (e <= s) continue;
+    const last = merged[merged.length - 1];
+    if (last && s <= last[1]) last[1] = Math.max(last[1], e); else merged.push([s, e]);
+  }
+  let out = "", pos = 0;
+  for (const [a, b] of merged) {
+    if (a > pos) out += esc(text.slice(pos, a));
+    out += `<span class="jw">${esc(text.slice(a, b))}</span>`;
+    pos = b;
+  }
+  return out + esc(text.slice(pos));
+}
+
+/* The text of one compiled passage, sliced live out of the source translation. */
+function wojText(bookName, passage) {
+  const src = cache.get(woj.version), book = src && src._byName[bookName];
+  if (!book) return "";
+  const out = [];
+  for (const part of passage.parts) {
+    const [c1, v1, o1] = part.from, [c2, v2, o2] = part.to;
+    for (let c = c1; c <= c2; c++) {
+      const chapter = book.chapters[c - 1] || [];
+      const lo = c === c1 ? v1 : 1, hi = c === c2 ? v2 : chapter.length;
+      for (let v = lo; v <= hi; v++) {
+        const t = chapter[v - 1] || "";
+        const a = (c === c1 && v === v1) ? o1 : 0;
+        const b = (c === c2 && v === v2) ? o2 : t.length;
+        const piece = t.slice(a, b).trim();
+        if (piece) out.push(piece);
+      }
+    }
+  }
+  return out.join(" ").replace(/[“”]/g, "").trim();
+}
+
+async function openWoj() {
+  await loadWoj();
+  if (!wojBook) wojBook = woj.books[0].book;
+  renderWoj();
+  showOnly("woj");
+  window.scrollTo({ top: 0 });
+}
+function renderWoj() {
+  const d = woj;
+  el("wojHead").innerHTML = `${esc(d.title)} <span class="tiny">— ${esc(d.subtitle)} · `
+    + `${d.stats.verses} verses · ${esc(cache.get(d.version).name)}</span>`;
+  el("wojBooks").innerHTML = d.books.map((b) =>
+    `<button class="woj__tab${b.book === wojBook ? " is-on" : ""}" data-wojbook="${esc(b.book)}"`
+    + ` role="tab" aria-selected="${b.book === wojBook}">${esc(b.book)}`
+    + ` <span class="tiny">${b.passages.filter((p) => p.voice === "jesus").length}</span></button>`).join("");
+  const entry = d.books.find((b) => b.book === wojBook) || d.books[0];
+  el("wojBody").innerHTML = entry.passages.map((p) => {
+    const text = wojText(entry.book, p);
+    if (!text) return "";
+    const tags = (p.voice === "father"
+        ? `<span class="woj__tag woj__tag--father">${esc(d.voices.father)}</span>` : "")
+      + (p.src === "curated" ? `<span class="woj__tag" title="${esc(p.why || "")}">listed by hand</span>` : "");
+    return `<div class="woj__passage woj__passage--${p.voice}">`
+      + `<div class="woj__head"><button class="woj__ref" data-ref="${esc(p.ref)}">${esc(p.ref)} →</button>${tags}</div>`
+      + `<p class="woj__text">${esc(text)}</p></div>`;
+  }).join("");
+  el("wojNote").textContent = d.note + "  " + d.attribution;
+}
+
 /* ---------- Threads — follow a documented trail across texts (all citations real) ---------- */
 const THREADS_URL = "../library/threads.json";
 let threadsData = null;
@@ -596,12 +794,15 @@ async function init() {
   if (typeof prefs.rate === "number" && prefs.rate >= 0.6 && prefs.rate <= 1.3) comfort.rate = prefs.rate;
   comfort.voice = prefs.voice || "";
   comfort.commentary = prefs.commentary || "";
+  comfort.red = prefs.red !== false;
   applyComfort();
 
   await loadVersion(state.primary);
   if (!(location.hash && await applyHash())) gotoChapter(0, 0);
   if (state.compare && state.compare === state.primary) { state.compare = null; el("cmpSel").value = ""; renderChapter(); }
   renderAttribution();
+
+  if (comfort.red) { try { await loadWoj(); renderChapter(); } catch (e) { comfort.red = false; } applyComfort(); }
 
   el("bookSel").addEventListener("change", (e) => { clearSelection(); gotoChapter(+e.target.value, 0); });
   el("chapSel").addEventListener("change", (e) => { clearSelection(); gotoChapter(state.book, +e.target.value); });
@@ -624,6 +825,26 @@ async function init() {
   el("commentaryBtn").addEventListener("click", openCommentary);
   el("commentarySel").addEventListener("change", (e) => renderCommentary(e.target.value));
   el("commentaryBody").addEventListener("click", (e) => { const r = e.target.closest(".block__ref"); if (r) { clearSelection(); gotoChapter(state.book, state.chapter, +r.dataset.v); } });
+  el("canonBtn").addEventListener("click", openCanon);
+  el("refLabel").addEventListener("click", (e) => { if (e.target.closest("#refCanon")) openCanon(); });
+  el("canonBody").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-book]"); if (b) openCanonBook(b.dataset.book, b.dataset.ver);
+  });
+  el("wojBtn").addEventListener("click", openWoj);
+  el("wojBooks").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-wojbook]"); if (!b) return;
+    wojBook = b.dataset.wojbook; renderWoj(); window.scrollTo({ top: 0 });
+  });
+  el("wojBody").addEventListener("click", (e) => {
+    const r = e.target.closest("[data-ref]"); if (r) navigateRef(r.dataset.ref.split("–")[0], woj.version);
+  });
+  // Red letters are drawn from the compiled book, so it has to be loaded first.
+  el("redBtn").addEventListener("click", async () => {
+    comfort.red = !comfort.red;
+    if (comfort.red && !woj) { try { await loadWoj(); } catch { toast("Could not load the words of Jesus"); } }
+    applyComfort(); renderChapter(); savePrefs();
+    toast(comfort.red ? "Red letters on" : "Red letters off");
+  });
   el("threadsBtn").addEventListener("click", openThreads);
   el("threadsBody").addEventListener("click", (e) => {
     if (e.target.closest("[data-back]")) { renderThreadList(); window.scrollTo({ top: 0 }); return; }

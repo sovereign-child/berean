@@ -12,38 +12,213 @@
       "title": "The Divine Council & the Watchers",
       "summary": "Scripture assumes a heavenly assembly of divine beings under the LORD — a worldview modern readers often skip. Follow it from God's council, to the rebellion of the \"sons of God,\" to the Watchers of 1 Enoch, and finally to the New Testament writers who quote that very tradition.",
       "steps": [
-        { "ref": "Psalm 82:1", "version": "BSB", "tradition": "Hebrew Bible", "status": "debate",
-          "note": "\"God stands in the divine assembly; He renders judgment among the gods (elohim).\" The scene is a heavenly court. Whether 'gods' means divine beings or human judges is debated, but the council imagery is explicit." },
-        { "ref": "1 Kings 22:19-23", "version": "BSB", "tradition": "Hebrew Bible", "status": "consensus",
-          "note": "Micaiah sees the LORD enthroned with 'all the host of heaven' standing by, and a spirit volunteering before the council — the assembly in action, deliberating." },
-        { "ref": "Job 1:6", "version": "BSB", "tradition": "Hebrew Bible", "status": "consensus",
-          "note": "\"The sons of God (bene elohim) came to present themselves before the LORD, and Satan also came.\" The council convenes; the adversary is among them." },
-        { "ref": "Deuteronomy 32:8-9", "version": "BSB", "tradition": "Hebrew Bible", "status": "textual",
-          "note": "The Most High divides the nations 'according to the number of the sons of God.' The Dead Sea Scrolls (4QDeut-j) and the Septuagint read 'sons of God'; the later Masoretic Text reads 'sons of Israel.' Many scholars regard the older reading as 'sons of God' — the nations allotted to divine beings, while the LORD keeps Israel as His own portion (v.9)." },
-        { "ref": "Deuteronomy 4:19-20", "version": "BSB", "tradition": "Hebrew Bible", "status": "debate",
-          "note": "The LORD 'allotted' the sun, moon, stars and host of heaven to the peoples — but took Israel for Himself. Read alongside 32:8-9, this frames the nations-and-their-gods worldview." },
-        { "ref": "Genesis 6:1-4", "version": "BSB", "tradition": "Torah", "status": "debate",
-          "note": "The 'sons of God' take wives of the daughters of men, and the Nephilim appear. The 'divine beings' reading (vs. the 'line of Seth' reading) is what the Watchers tradition below builds on." },
-        { "ref": "1 Enoch 6:1-6", "version": "ENOCH", "tradition": "Pseudepigrapha (Ethiopian canon)", "status": "extra-biblical",
-          "note": "1 Enoch expands Genesis 6: two hundred 'Watchers' under Semjaza descend on Mount Hermon and swear a mutual oath. Non-canonical in most traditions, canonical in the Ethiopian Orthodox Tewahedo Church." },
-        { "ref": "1 Enoch 10:4-8", "version": "ENOCH", "tradition": "Pseudepigrapha (Ethiopian canon)", "status": "extra-biblical",
-          "note": "The Most High commands the binding of Azazel and judgment on the Watchers — the tradition of rebel angels imprisoned to await judgment." },
-        { "ref": "Jubilees 5:1-2", "version": "", "tradition": "Pseudepigrapha (Ethiopian canon)", "status": "extra-biblical",
-          "note": "The Book of Jubilees parallels the same Watchers-and-Nephilim account. (Text not yet loaded in Berean — cited by reference; see R.H. Charles' 1913 translation.)" },
-        { "ref": "2 Peter 2:4", "version": "BSB", "tradition": "New Testament", "status": "consensus",
-          "note": "\"God did not spare the angels when they sinned, but cast them into hell, placing them in chains of darkness…\" The New Testament echoes the rebel-angels-imprisoned tradition." },
-        { "ref": "Jude 1:6", "version": "BSB", "tradition": "New Testament", "status": "consensus",
-          "note": "Angels 'who did not keep their own domain' are kept in eternal chains for judgment — the same tradition, in a canonical letter." },
-        { "ref": "Jude 1:14-15", "version": "BSB", "tradition": "New Testament", "status": "consensus",
-          "note": "Jude names Enoch and quotes him directly — this quotation is 1 Enoch 1:9. A canonical book cites the pseudepigraphon by name: the trail comes full circle." },
-        { "ref": "Psalm 82:6-7", "version": "BSB", "tradition": "Hebrew Bible", "status": "debate",
-          "note": "\"You are gods… nevertheless you will die like men.\" Judgment falls on the council itself. Jesus cites this verse in John 10:34-36." }
+        {
+          "ref": "Psalm 82:1",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "debate",
+          "note": "\"God stands in the divine assembly; He renders judgment among the gods (elohim).\" The scene is a heavenly court. Whether 'gods' means divine beings or human judges is debated, but the council imagery is explicit."
+        },
+        {
+          "ref": "1 Kings 22:19-23",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "consensus",
+          "note": "Micaiah sees the LORD enthroned with 'all the host of heaven' standing by, and a spirit volunteering before the council — the assembly in action, deliberating."
+        },
+        {
+          "ref": "Job 1:6",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "consensus",
+          "note": "\"The sons of God (bene elohim) came to present themselves before the LORD, and Satan also came.\" The council convenes; the adversary is among them."
+        },
+        {
+          "ref": "Deuteronomy 32:8-9",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "textual",
+          "note": "The Most High divides the nations 'according to the number of the sons of God.' The Dead Sea Scrolls (4QDeut-j) and the Septuagint read 'sons of God'; the later Masoretic Text reads 'sons of Israel.' Many scholars regard the older reading as 'sons of God' — the nations allotted to divine beings, while the LORD keeps Israel as His own portion (v.9)."
+        },
+        {
+          "ref": "Deuteronomy 4:19-20",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "debate",
+          "note": "The LORD 'allotted' the sun, moon, stars and host of heaven to the peoples — but took Israel for Himself. Read alongside 32:8-9, this frames the nations-and-their-gods worldview."
+        },
+        {
+          "ref": "Genesis 6:1-4",
+          "version": "BSB",
+          "tradition": "Torah",
+          "status": "debate",
+          "note": "The 'sons of God' take wives of the daughters of men, and the Nephilim appear. The 'divine beings' reading (vs. the 'line of Seth' reading) is what the Watchers tradition below builds on."
+        },
+        {
+          "ref": "1 Enoch 6:1-6",
+          "version": "ENOCH",
+          "tradition": "Pseudepigrapha (Ethiopian canon)",
+          "status": "extra-biblical",
+          "note": "1 Enoch expands Genesis 6: two hundred 'Watchers' under Semjaza descend on Mount Hermon and swear a mutual oath. Non-canonical in most traditions, canonical in the Ethiopian Orthodox Tewahedo Church."
+        },
+        {
+          "ref": "1 Enoch 10:4-8",
+          "version": "ENOCH",
+          "tradition": "Pseudepigrapha (Ethiopian canon)",
+          "status": "extra-biblical",
+          "note": "The Most High commands the binding of Azazel and judgment on the Watchers — the tradition of rebel angels imprisoned to await judgment."
+        },
+        {
+          "ref": "Jubilees 5:1-2",
+          "version": "",
+          "tradition": "Pseudepigrapha (Ethiopian canon)",
+          "status": "extra-biblical",
+          "note": "The Book of Jubilees parallels the same Watchers-and-Nephilim account. (Text not yet loaded in Berean — cited by reference; see R.H. Charles' 1913 translation.)"
+        },
+        {
+          "ref": "2 Peter 2:4",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "consensus",
+          "note": "\"God did not spare the angels when they sinned, but cast them into hell, placing them in chains of darkness…\" The New Testament echoes the rebel-angels-imprisoned tradition."
+        },
+        {
+          "ref": "Jude 1:6",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "consensus",
+          "note": "Angels 'who did not keep their own domain' are kept in eternal chains for judgment — the same tradition, in a canonical letter."
+        },
+        {
+          "ref": "Jude 1:14-15",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "consensus",
+          "note": "Jude names Enoch and quotes him directly — this quotation is 1 Enoch 1:9. A canonical book cites the pseudepigraphon by name: the trail comes full circle."
+        },
+        {
+          "ref": "Psalm 82:6-7",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "debate",
+          "note": "\"You are gods… nevertheless you will die like men.\" Judgment falls on the council itself. Jesus cites this verse in John 10:34-36."
+        }
       ],
       "sources": [
         "Biblia Hebraica / Dead Sea Scrolls (4QDeut-j) and the Septuagint, for the Deuteronomy 32:8 variant.",
         "R. H. Charles, The Book of Enoch (SPCK, 1917) — Public Domain.",
         "Michael S. Heiser, The Unseen Realm (Lexham Press, 2015) — a popular synthesis of the divine-council scholarship.",
         "Standard critical editions (BHS; Nestle-Aland) for the textual notes."
+      ]
+    },
+    {
+      "id": "abrahams-two-sons",
+      "title": "Abraham's Two Sons",
+      "summary": "Judaism, Christianity and Islam all trace themselves to one man, and they divide over which of his sons carried the promise. The split is not a modern quarrel or a translation problem — it is in Genesis, stated plainly, with a blessing spoken over both boys. Follow the text itself, then see where each tradition takes it.",
+      "steps": [
+        {
+          "ref": "Genesis 12:1-3",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "consensus",
+          "note": "The call that starts everything. The promise is deliberately wide at the outset — 'all the families of the earth will be blessed through you' — before any son exists to inherit it."
+        },
+        {
+          "ref": "Genesis 16:10-12",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "consensus",
+          "note": "Hagar, pregnant and running, meets the angel of the LORD. Ishmael is named before birth and given a promise in the same language used of Abraham's line: 'I will greatly multiply your descendants.' The blessing over Ishmael is God's own, not a consolation."
+        },
+        {
+          "ref": "Genesis 17:19-21",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "consensus",
+          "note": "The hinge of the whole thread. God does both things at once: the covenant is established with Isaac — and Ishmael is blessed, made fruitful, and made into a great nation with twelve princes. Two futures, one father, neither one cancelled."
+        },
+        {
+          "ref": "Genesis 21:12-13",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "consensus",
+          "note": "Hagar and Ishmael are sent away, and the same sentence that says 'through Isaac your offspring will be reckoned' also says the son of the slave woman will become a nation, 'because he is your offspring.' The text never denies Ishmael's descent from Abraham."
+        },
+        {
+          "ref": "Genesis 22:2",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "debate",
+          "note": "'Take your son, your only son Isaac.' The Hebrew names him. This single verse is where the traditions part most sharply — see the Quranic account below, where the son is not named and Islamic tradition overwhelmingly reads him as Ishmael."
+        },
+        {
+          "ref": "Genesis 25:9",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "consensus",
+          "note": "The verse almost nobody quotes: 'His sons Isaac and Ishmael buried him.' Whatever divided the brothers, they stood at the same grave. Any account of this thread that leaves out Genesis 25:9 is telling half the story."
+        },
+        {
+          "ref": "Genesis 25:12-16",
+          "version": "BSB",
+          "tradition": "Hebrew Bible",
+          "status": "consensus",
+          "note": "Ishmael's twelve sons, listed as twelve princes by their tribes — the same pattern that shapes Israel. Genesis takes his line seriously enough to record it."
+        },
+        {
+          "ref": "Quran 37:99-113",
+          "tradition": "Islam",
+          "status": "extra-biblical",
+          "note": "The Quranic account of the sacrifice. The son is not named in the passage; Isaac is announced afterwards, and from that sequence most Islamic scholarship reads the son on the mountain as Ishmael. Early Muslim commentators were themselves divided, and some held it was Isaac. Cited by reference — Berean hosts only biblical and wider-canon texts."
+        },
+        {
+          "ref": "Quran 2:124-129",
+          "tradition": "Islam",
+          "status": "extra-biblical",
+          "note": "Ibrahim and Ismail raise the foundations of the House at Mecca and pray for a prophet from among their descendants. This is the Islamic continuation of the Ishmael promise, and it is why the disagreement over one son in Genesis 22 carries the weight it does."
+        },
+        {
+          "ref": "Jubilees 17-18",
+          "tradition": "Ethiopian Tewahedo canon",
+          "status": "extra-biblical",
+          "note": "A Second Temple retelling of the binding that adds an accusing figure, Mastema, prompting the test — the same narrative move Job 1 makes. Canonical in the Ethiopian church; not yet hosted in Berean."
+        },
+        {
+          "ref": "Galatians 4:22-31",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "debate",
+          "note": "Paul reads the two sons allegorically — Hagar for Sinai and the present Jerusalem, Sarah for the Jerusalem above. Note what this passage is and is not: Paul says outright he is speaking figuratively, and his argument is aimed at a first-century dispute over the law, not at Arab peoples. It has often been misread as ethnic commentary."
+        },
+        {
+          "ref": "Romans 4:16-17",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "consensus",
+          "note": "Paul's other move, and the wider one: Abraham is 'the father of us all,' the promise resting on faith rather than descent. The New Testament redefines who counts as Abraham's offspring rather than transferring it from one son to the other."
+        },
+        {
+          "ref": "Matthew 3:9",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "consensus",
+          "note": "John the Baptist: 'Do not presume to say, We have Abraham as our father.' Descent from Abraham is precisely what he tells them not to rest on — a warning worth holding beside any argument about which son inherited."
+        },
+        {
+          "ref": "Hebrews 11:17-19",
+          "version": "BSB",
+          "tradition": "New Testament",
+          "status": "consensus",
+          "note": "The binding read as faith that God could raise the dead — the earliest Christian interpretation of Genesis 22, and the one that carries into the Passion narratives."
+        }
+      ],
+      "sources": [
+        "Genesis 12–25, Berean Standard Bible (CC0) — every biblical citation here resolves in Berean; open any of them and read the surrounding chapter.",
+        "Quran 2:124-129 and 37:99-113 — cited by reference. Public-domain English translations exist (Sale 1734, Rodwell 1861, Palmer 1880, Pickthall 1930) but Berean hosts biblical and wider-canon texts only.",
+        "Al-Tabari, History and Tafsir — records early Muslim scholars divided over whether the son was Isaac or Ishmael, before the Ishmael reading became predominant.",
+        "Jubilees 17–18 (R. H. Charles, 1913, Public Domain) — canonical in the Ethiopian Orthodox Tewahedo Church.",
+        "Josephus, Antiquities 1.13 — a first-century Jewish retelling of the binding, naming Isaac.",
+        "Genesis Rabbah 55–56 — the rabbinic tradition on the Akedah."
       ]
     }
   ]

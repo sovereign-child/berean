@@ -114,16 +114,47 @@ Berean's distinctive: the wider canon, openly and non-sectarianly.
   presents, it does not decide. First thread: **The Divine Council & the Watchers**
   (Ps 82 → 1 Kings 22 → Job 1 → Deut 32:8 [DSS/LXX variant] → Gen 6 → 1 Enoch 6/10 →
   2 Peter 2 / Jude 6 / Jude 14-15 quoting Enoch → Ps 82:6-7). Data: `library/threads.json`.
-- *Follow-ups:* **Jubilees** (no clean PD machine-readable source found yet — staged;
-  cited by reference only for now), more pseudepigrapha, deuterocanon; more Threads.
-- Ingest the deuterocanon/apocrypha and pseudepigrapha (**R.H. Charles 1913, PD** —
-  verify actual contents + OCR quality first; seek cleaner open sources too).
-- Label `canon_status` per tradition (Protestant 66 / Catholic 73 / Orthodox /
-  Ethiopian Tewahedo 81 / Jewish Tanakh), **with the honesty note that enumerations
-  aren't fixed to one list** (🔴 sensitivity — present ranges/traditions fairly).
-- A **canon-comparison view**.
+- ✅ **The deuterocanon, readable in full (2026-08-17)** — the **World English Bible
+  with Deuterocanon** (Public Domain, eBible.org) ingested by `scripts/ingest_web.py`
+  → `library/corpus/WEB.json`: **81 books, 38,073 verses**. Selectable as a version,
+  so "what does a Catholic Bible have that mine doesn't" is answered by *opening the
+  books* — Tobit, Judith, Wisdom, Sirach, Baruch (with the Letter of Jeremiah as ch. 6),
+  1–2 Maccabees, Greek Esther, Greek Daniel (Susanna, Bel and the Dragon), plus the
+  Orthodox 1 Esdras, Prayer of Manasseh, Psalm 151, 3–4 Maccabees, 2 Esdras. Every
+  book outside the Protestant 66 is marked ✦ in the book list and badged in the
+  chapter header.
+- ✅ **Canon-comparison view (📜 Canon)** — `library/canons.json` gives, for each of
+  the 19 disputed books, its status in **five traditions** (Jewish / Protestant /
+  Catholic / Eastern Orthodox / Ethiopian Tewahedo), with era, a one-line note, and a
+  link that opens the book where Berean hosts it. Carries the honesty note that no
+  enumeration is fixed (Orthodox jurisdictions differ; the Ethiopian "81" is counted
+  several ways), the correction that **nothing was subtracted from one original Bible**
+  — with the one narrow case that *is* real, the Apocrypha dropped from KJV printings
+  c. 1826 — the Tanakh's own 24-book order (ending at Chronicles, not Malachi), and
+  its sources (Trent 1546, Thirty-Nine Articles VI, Westminster I.3, Jerusalem 1672,
+  b. Bava Batra 14b).
+- ✅ **Thread: Abraham's Two Sons** — Genesis 12 → 16 → 17 → 21 → 22 → 25:9 (Isaac
+  *and* Ishmael burying their father together) → Galatians 4 → Romans 4 → Matthew 3:9
+  → Hebrews 11, with the Quranic account and Jubilees cited by reference and labeled.
+  Verified by `scripts/check_threads.py`, which resolves **every** citation in every
+  thread against the actual corpus and fails loudly if one doesn't.
+- *Follow-ups:* **Jubilees** (still no clean PD machine-readable source — cited by
+  reference in two threads now), 1–3 Meqabyan, 4 Baruch; more Threads.
 - **DoD:** browse the wider canon with clear tradition labels and a fair
   canon-comparison; every book in the manifest with its per-tradition status.
+
+### The Words of Jesus (shipped 2026-08-17)
+Every passage Jesus speaks, gathered into one book in canonical order, plus red
+letters in the reader (✝ toggle). Built by `scripts/build_words_of_jesus.py` from
+the **BSB's own quotation marks** — no third-party red-letter dataset, nothing to
+license. `library/words-of-jesus.json` stores character offsets, never a copy of
+the text, so the compiled book cannot drift from the translation. 504 passages /
+1,770 verses. Attribution comes only from the narrator's clause; unattributed
+speech is omitted rather than guessed, a short hand-listed set (Acts 9, the words
+at the Supper, Revelation) is marked `curated` with a reason, and **the Father's
+voice is labeled separately, never folded in** — red-letter editions disagree
+about it and Berean does not decide. Checked by `scripts/check_words_of_jesus.py`
+(23 landmark passages + an offset-integrity pass).
 
 ## Phase 4 — The Evidence layer 🟢🔴 (effort: L)
 "See if these things were so."

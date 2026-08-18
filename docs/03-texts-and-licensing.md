@@ -10,6 +10,11 @@ not add a scripture text to `library/` without checking it against this doc.**
   KJV (1769), American Standard Version (1901), Webster, Young's Literal (YLT),
   Darby, Douay-Rheims (Catholic), and the **World English Bible (WEB)** — a modern-
   English translation released into the public domain (a key asset).
+  **✅ Ingested (2026-08-17):** the WEB *with Deuterocanon* edition from eBible.org
+  (`eng-web_vpl.zip`, 81 books) via `scripts/ingest_web.py`. This is how Berean can
+  show the Catholic and Orthodox books in full without licensing anything. Note
+  eBible.org's terms: the text is public domain, but "World English Bible" is their
+  trademark — the attribution string in the manifest says so.
   *(Note: the KJV is under perpetual Crown copyright in the UK specifically; PD
   elsewhere. Document per-jurisdiction where it matters.)*
 - **Copyrighted — DO NOT host or redistribute; link or use a licensed API:**
@@ -44,6 +49,14 @@ Different traditions include different books. Berean must **label**, never assum
 Every book in the Library carries metadata: `canon_status` per tradition, source
 edition, translation, language, and license. The UI shows the reader *which*
 canon they're viewing and what differs.
+
+**✅ Implemented:** `library/canons.json` holds the per-tradition status of every
+disputed book across five traditions, and the 📜 Canon view renders it as a
+comparison you can read and click into. Books outside the Protestant 66 are marked
+✦ in the book list and badged in the chapter header, so no one meets Tobit or
+1 Enoch without being told where it stands. `scripts/check_threads.py` verifies
+that every citation Berean makes in a Thread actually resolves in the text it
+names — the integrity check behind "examine for yourself."
 
 ## Evidence & scholarship sourcing
 

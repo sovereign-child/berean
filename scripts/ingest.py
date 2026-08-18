@@ -150,22 +150,31 @@ def main():
         with open(os.path.join(CORPUS_DIR, f"{v['version']}.json"), "w", encoding="utf-8") as f:
             json.dump(v, f, ensure_ascii=False, separators=(",", ":"))
         print(stats(v))
-    manifest = {
-        "note": ("Only public-domain / openly-licensed texts are hosted here; "
-                 "copyrighted translations are accessed via licensed APIs at runtime, "
-                 "never hosted. See docs/03-texts-and-licensing.md."),
-        "versions": [
-            {k: v[k] for k in ("version", "name", "language", "license", "source",
-                               "attribution", "tradition")}
-            for v in versions
-        ],
-    }
-    # manifest lists versions by their file id
-    for m, v in zip(manifest["versions"], versions):
-        m["id"] = v["version"]
-    with open(os.path.join(ROOT, "library", "manifest.json"), "w", encoding="utf-8") as f:
+    # Merge, never overwrite: the manifest also carries the wider-canon texts
+    # (WEB, 1 Enoch) and the compilations, which are written by other scripts.
+    mpath = os.path.join(ROOT, "library", "manifest.json")
+    try:
+        with open(mpath, encoding="utf-8") as f:
+            manifest = json.load(f)
+    except (OSError, ValueError):
+        manifest = {}
+    manifest["note"] = ("Only public-domain / openly-licensed texts are hosted here; "
+                        "copyrighted translations are accessed via licensed APIs at runtime, "
+                        "never hosted. See docs/03-texts-and-licensing.md.")
+    fresh = []
+    for v in versions:
+        entry = {k: v[k] for k in ("version", "name", "language", "license", "source",
+                                   "attribution", "tradition")}
+        entry["id"] = v["version"]
+        fresh.append(entry)
+    ids = {e["id"] for e in fresh}
+    kept = [e for e in manifest.get("versions", []) if e.get("id") not in ids]
+    manifest["versions"] = fresh + kept
+    with open(mpath, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
-    print(f"wrote manifest with {len(versions)} versions")
+        f.write("\n")
+    print(f"wrote manifest — {len(versions)} versions ingested, "
+          f"{len(manifest['versions']) - len(versions)} kept")
 
 
 if __name__ == "__main__":
