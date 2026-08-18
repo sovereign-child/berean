@@ -140,6 +140,35 @@ body.dark .thread-badge { color: var(--ink); }
 .prayer__savedhead { font-family: var(--serif); font-size: 1.05rem; margin-top: 0.5rem; }
 .prayer__saved-ref { font-family: var(--sans); font-size: 0.75rem; font-weight: 700; color: var(--accent); }
 
+/* Layout: the text keeps its column, a panel opens beside it on a wide screen */
+.wrap { display: block; }
+.readcol { min-width: 0; }
+.panelcol { min-width: 0; }
+@media (min-width: 1100px) {
+  body.panel-open .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 46%);
+    gap: 0 2rem; align-items: start; max-width: 1500px; }
+  body.panel-open .panelcol { position: sticky; top: 5.5rem; max-height: calc(100vh - 7rem);
+    overflow-y: auto; border-left: 1px solid var(--rule); padding-left: 1.75rem; }
+  body.panel-open .panel { margin-bottom: 0.5rem; }
+}
+@media (max-width: 1099px) {
+  body.panel-open .readcol { display: none; }
+}
+
+/* Study launcher */
+.launcher { position: relative; }
+.launcher__hint { opacity: 0.65; font-size: 0.68rem; }
+.launcher__menu { position: absolute; right: 0; top: calc(100% + 0.4rem); z-index: 40; min-width: 17rem;
+  background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 0.35rem;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.18); display: flex; flex-direction: column; }
+.launcher__menu button { display: flex; align-items: baseline; gap: 0.5rem; text-align: left;
+  font-family: var(--sans); font-size: 0.92rem; color: var(--ink); background: none; border: 0;
+  border-radius: 8px; padding: 0.5rem 0.6rem; cursor: pointer; }
+.launcher__menu button:hover, .launcher__menu button:focus-visible { background: var(--parchment-2); }
+.launcher__menu em { font-style: normal; font-size: 0.76rem; color: var(--muted); margin-left: auto; }
+.panel__head:focus { outline: none; }
+.panel__head:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+
 /* Canon comparison */
 .canon { display: flex; flex-direction: column; gap: 1.5rem; }
 .canon__intro { font-family: var(--serif); font-size: 1.02rem; color: var(--ink-soft); }

@@ -292,8 +292,50 @@ function renderAttribution() {
   el("attribution").textContent = "Texts: " + ids.map((id) => cache.get(id).attribution).join("  ·  ");
 }
 
+const PANELS = ["results", "related", "commentary", "canon", "woj", "threads", "study", "prayer"];
+let lastFocus = null;
+
+/* On a wide screen a reference panel opens BESIDE the text rather than instead
+   of it — reading with something open is the whole posture of study. On a narrow
+   one it takes the screen, as before. */
 function showOnly(section) {
-  for (const s of ["results", "related", "commentary", "canon", "woj", "threads", "study", "prayer", "reader"]) el(s).hidden = s !== section;
+  for (const p of PANELS) el(p).hidden = p !== section;
+  const open = section !== "reader";
+  el("reader").hidden = false;
+  document.body.classList.toggle("panel-open", open);
+  if (open) {
+    const panel = el(section);
+    const head = panel.querySelector(".panel__head");
+    if (head) { head.setAttribute("tabindex", "-1"); head.focus({ preventScroll: true }); }
+  } else if (lastFocus && document.contains(lastFocus)) {
+    lastFocus.focus({ preventScroll: true });
+    lastFocus = null;
+  }
+}
+
+/* Panels live in the URL, so they can be shared and the Back button closes them. */
+const PANEL_ROUTES = {
+  canon: { open: () => openCanon() },
+  woj: { open: (arg) => openWoj(arg) },
+  threads: { open: (arg) => openThreads(arg) },
+  prayer: { open: () => openPrayer() },
+  study: { open: () => renderStudy() },
+};
+let readingHash = "";
+function panelHash(name, arg) { return `#/panel/${name}${arg ? "/" + encodeURIComponent(arg) : ""}`; }
+function openPanelRoute(name, arg) {
+  lastFocus = document.activeElement;
+  closeStudyMenu();
+  if (!location.hash.startsWith("#/panel/")) readingHash = location.hash;
+  hashLock = true;
+  location.hash = panelHash(name, arg);
+  setTimeout(() => (hashLock = false), 0);
+  const route = PANEL_ROUTES[name];
+  if (route) route.open(arg);
+}
+function closePanel() {
+  if (location.hash.startsWith("#/panel/")) { history.back(); return; }
+  showOnly("reader");
 }
 
 /* ---------- navigation + permalinks ---------- */
@@ -328,6 +370,12 @@ function step(d) {
   clearSelection(); gotoChapter(p.books[bi].code, c);
 }
 async function applyHash() {
+  const panel = location.hash.match(/^#\/panel\/([a-z]+)(?:\/([^/]+))?/);
+  if (panel) {
+    const route = PANEL_ROUTES[panel[1]];
+    if (route) { await route.open(panel[2] ? decodeURIComponent(panel[2]) : undefined); return true; }
+    return false;
+  }
   const m = location.hash.match(/^#\/([^/]+)\/([^/]+)\/(\d+)(?:\/(\d+))?/);
   if (!m) return false;
   const [, ver, bookEnc, ch, v] = m;
@@ -570,6 +618,40 @@ async function renderCommentary(cid) {
   comfort.commentary = cid; savePrefs();
 }
 
+/* ---------- the study launcher + keyboard -------------------------------------
+   One entry point instead of a row of buttons that grows with every feature. */
+function closeStudyMenu() {
+  const m = el("studyMenu"); if (!m || m.hidden) return;
+  m.hidden = true;
+  el("studyMenuBtn").setAttribute("aria-expanded", "false");
+}
+function toggleStudyMenu() {
+  const m = el("studyMenu"), open = m.hidden;
+  m.hidden = !open;
+  el("studyMenuBtn").setAttribute("aria-expanded", String(open));
+  if (open) { const first = m.querySelector("button"); if (first) first.focus(); }
+}
+function bindKeys() {
+  document.addEventListener("keydown", (e) => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || "").toUpperCase());
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); toggleStudyMenu(); return; }
+    if (e.key === "Escape") {
+      if (!el("studyMenu").hidden) { closeStudyMenu(); el("studyMenuBtn").focus(); return; }
+      if (state.sel) { clearSelection(); renderChapter(); return; }
+      if (document.body.classList.contains("panel-open")) closePanel();
+      return;
+    }
+    if (typing) return;
+    if (e.key === "/") { e.preventDefault(); el("searchInput").focus(); return; }
+    if (document.body.classList.contains("panel-open")) return;
+    if (e.key === "ArrowRight") { step(1); }
+    else if (e.key === "ArrowLeft") { step(-1); }
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".launcher")) closeStudyMenu();
+  });
+}
+
 /* ---------- Canon — which tradition receives which book -----------------------
    Berean labels and lets the reader open the actual book; it does not adjudicate.
    Data: library/canons.json (hand-authored reference, with its sources listed). */
@@ -733,8 +815,9 @@ function wojText(code, passage) {
   return out.join(" ").replace(/[“”]/g, "").trim();
 }
 
-async function openWoj() {
+async function openWoj(code) {
   await loadWoj();
+  if (code && woj.books.some((b) => b.code === code)) wojBook = code;
   if (!wojBook) wojBook = woj.books[0].code;
   await ensureWojBooks([wojBook]);
   renderWoj();
@@ -770,7 +853,12 @@ async function loadThreads() {
   if (!threadsData) { try { threadsData = await (await fetch(THREADS_URL)).json(); } catch { threadsData = { threads: [], statusLabels: {}, note: "" }; } }
   return threadsData;
 }
-async function openThreads() { await loadThreads(); renderThreadList(); showOnly("threads"); window.scrollTo({ top: 0 }); }
+async function openThreads(id) {
+  await loadThreads();
+  if (id && (threadsData.threads || []).some((t) => t.id === id)) await renderThread(id);
+  else renderThreadList();
+  showOnly("threads"); window.scrollTo({ top: 0 });
+}
 function renderThreadList() {
   const d = threadsData;
   el("threadsHead").innerHTML = `Threads <span class="tiny">— follow a documented trail; examine for yourself</span>`;
@@ -973,20 +1061,21 @@ async function init() {
   el("voiceSel").addEventListener("change", (e) => { comfort.voice = e.target.value; savePrefs(); toast("Voice set — press ▶ to hear it"); });
   loadVoices();
   if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = loadVoices;
-  el("studyBtn").addEventListener("click", renderStudy);
+  el("studyBtn").addEventListener("click", () => openPanelRoute("study"));
   el("commentaryBtn").addEventListener("click", openCommentary);
   el("commentarySel").addEventListener("change", (e) => renderCommentary(e.target.value));
   el("commentaryBody").addEventListener("click", (e) => { const r = e.target.closest(".block__ref"); if (r) { clearSelection(); gotoChapter(state.code, state.chapter, +r.dataset.v); } });
-  el("canonBtn").addEventListener("click", openCanon);
+  el("studyMenuBtn").addEventListener("click", (e) => { e.stopPropagation(); toggleStudyMenu(); });
+  bindKeys();
+  el("canonBtn").addEventListener("click", () => openPanelRoute("canon"));
   el("refLabel").addEventListener("click", (e) => { if (e.target.closest("#refCanon")) openCanon(); });
   el("canonBody").addEventListener("click", (e) => {
     const b = e.target.closest("[data-book]"); if (b) openCanonBook(b.dataset.book, b.dataset.ver);
   });
-  el("wojBtn").addEventListener("click", openWoj);
+  el("wojBtn").addEventListener("click", () => openPanelRoute("woj", wojBook || undefined));
   el("wojBooks").addEventListener("click", (e) => {
     const b = e.target.closest("[data-wojbook]"); if (!b) return;
-    wojBook = b.dataset.wojbook;
-    ensureWojBooks([wojBook]).then(() => { renderWoj(); window.scrollTo({ top: 0 }); });
+    openPanelRoute("woj", b.dataset.wojbook);
   });
   el("wojBody").addEventListener("click", (e) => {
     const r = e.target.closest("[data-ref]"); if (r) navigateRef(r.dataset.ref.split("–")[0], woj.version);
@@ -998,13 +1087,13 @@ async function init() {
     applyComfort(); renderChapter(); savePrefs();
     toast(comfort.red ? "Red letters on" : "Red letters off");
   });
-  el("threadsBtn").addEventListener("click", openThreads);
+  el("threadsBtn").addEventListener("click", () => openPanelRoute("threads"));
   el("threadsBody").addEventListener("click", (e) => {
     if (e.target.closest("[data-back]")) { renderThreadList(); window.scrollTo({ top: 0 }); return; }
-    const tc = e.target.closest("[data-thread]"); if (tc) { renderThread(tc.dataset.thread); window.scrollTo({ top: 0 }); return; }
+    const tc = e.target.closest("[data-thread]"); if (tc) { openPanelRoute("threads", tc.dataset.thread); window.scrollTo({ top: 0 }); return; }
     const r = e.target.closest("[data-ref]"); if (r) navigateRef(r.dataset.ref, r.dataset.ver);
   });
-  el("prayerBtn").addEventListener("click", openPrayer);
+  el("prayerBtn").addEventListener("click", () => openPanelRoute("prayer"));
   el("prFor").addEventListener("change", (e) => { el("prNameWrap").hidden = e.target.value !== "other"; });
   el("prGenerate").addEventListener("click", buildPrayer);
   el("prSpeak").addEventListener("click", () => { const t = el("prText").value.trim(); if (t) speakText(t); });
@@ -1021,7 +1110,7 @@ async function init() {
   el("importBtn").addEventListener("click", () => el("importFile").click());
   el("importFile").addEventListener("change", (e) => { if (e.target.files[0]) importStudy(e.target.files[0]); });
 
-  document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => showOnly("reader")));
+  document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", closePanel));
 
   // verse number → select (single-column reading only); Shift-click extends to a range
   el("reader").addEventListener("click", (e) => {
@@ -1073,7 +1162,11 @@ async function init() {
   el("copyChapterLink").addEventListener("click", async () => { await navigator.clipboard.writeText(chapterLink()).then(() => toast("Chapter link copied")).catch(() => toast("Copy failed")); });
   el("shareChapter").addEventListener("click", () => { const name = curBook().name, c = state.chapter + 1; shareOrCopy({ title: `${name} ${c}`, text: `${name} ${c} — ${primary().name}`, url: chapterLink() }); });
 
-  window.addEventListener("hashchange", () => { if (!hashLock) applyHash(); });
+  window.addEventListener("hashchange", () => {
+    if (hashLock) return;
+    if (!location.hash.startsWith("#/panel/")) showOnly("reader");
+    applyHash();
+  });
 }
 
 document.addEventListener("DOMContentLoaded", init);
