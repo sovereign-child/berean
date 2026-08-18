@@ -10,6 +10,8 @@
   --wrap: 820px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
+/* the `hidden` attribute must win over the display rules below (e.g. .versebar, .ctl) */
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 body { font-family: var(--sans); background: var(--parchment); color: var(--ink); line-height: 1.6; padding-bottom: 4.5rem; }
 
