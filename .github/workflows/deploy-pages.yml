@@ -6,17 +6,23 @@ name: deploy
 # The site must be served from the REPO ROOT: web/ fetches ../library/, and the
 # root index.html redirects to web/. Do not publish web/ on its own.
 #
-# One-time setup (Pages on a free plan needs a PUBLIC repo; private needs a paid
-# plan). Once the repo is public:
-#   gh api repos/sovereign-child/berean/pages -X POST -f build_type=workflow
-#   gh workflow run deploy-pages.yml
+# One-time setup is DONE (2026-08-18): the repo is public and Pages is on with
+# build_type=workflow, so the push trigger below is now live.
 #
-# Manual until then — an automatic trigger would fail on every push and leave the
-# repo showing red for something that is not broken. Add back once Pages is on:
-#   push:
-#     branches: [main]
+# It was workflow_dispatch-only while Pages was off, which was right at the time —
+# an automatic trigger would have failed on every push and left the repo red for
+# something that was not broken. That is no longer true, and leaving it manual has
+# its own cost: bereanlamp.com fell 12 commits behind precisely because publishing
+# needed someone to remember. A deploy that depends on memory is the failure mode.
+#
+# The CNAME file at the repo root is what binds this artifact to bereanlamp.com.
+# It must stay at the ROOT for the same reason the site does — the rsync below
+# copies the root, so CNAME travels with it. Deleting it unsets the custom domain
+# on the next deploy.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
